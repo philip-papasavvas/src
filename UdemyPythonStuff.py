@@ -115,6 +115,7 @@ df3 = pd.DataFrame({'A': ['A8', 'A9', 'A10', 'A11'],
 pd.concat([df1,df2]) #try pd.concat([df1,df2], axis=1)
 
 #merging putting DFs together on common axes
+#adding a new line to check commit
 
 #join is to combine columns of potentially different indexed DFs
 
