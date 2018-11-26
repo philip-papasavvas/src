@@ -151,5 +151,49 @@ banks['Bank Name'].apply(lambda name: len(name.split()) ==2)
 #filter by number that have closed in 2018
 banks[banks['Closing Date'].apply(lambda date: date[-2:] == '17')]
 """
+"""
 
 
+"""
+"""
+#Debug: Using the inbuilt Python debugger
+import pdb
+
+x = [1,3,4]
+y = 2
+z = 4
+
+result = y + z
+print(result)
+
+pdb.set_trace() #to where the bug should stop
+
+resultNew = x + y
+print(resultNew)
+
+
+#Collections module
+from collections import Counter
+
+l = [1,3,4,6,7,8,9,10]
+Counter(l) #produces a dictionary
+
+s = 'shtyrueonsgn'
+Counter(s)
+
+S = 'Count how many times each word shows up in a sentence' \
+    'when a word shows up up'
+words = S.split()
+Counter(words)
+
+c = Counter(words)
+c.most_common(3) # most common words
+
+sum(c.values()) #total all counts
+c.clear() #reset all counts
+list(c) #list unique elements
+set(c) #convert to set
+dict(c) #convert to dict
+c.items() #list of (elem, count) pairs
+Counter(dict(list_of_pairs)) #where list_of_pairs = list(c)
+c.most_common()[:-5-1:-1] #n least common pairs

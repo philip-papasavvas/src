@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="66ff0a12-9e79-4e9e-b1a1-c2e3c81d0a7c" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/FundAnalysis.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UdemyPythonStuff.py" beforeDir="false" afterPath="$PROJECT_DIR$/UdemyPythonStuff.py" afterDir="false" />
     </list>
@@ -14,11 +13,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/UdemyPythonStuff.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="159">
-              <caret line="118" column="64" selection-start-line="118" selection-start-column="64" selection-end-line="118" selection-end-column="64" />
+            <state relative-caret-position="68">
+              <caret line="190" lean-forward="true" selection-start-line="190" selection-end-line="190" />
               <folding>
                 <element signature="e#172#1163#1" />
                 <element signature="e#2733#2929#0" />
@@ -29,11 +28,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/FundAnalysis.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="122">
-              <caret line="68" column="18" selection-start-line="68" selection-start-column="18" selection-end-line="68" selection-end-column="18" />
+            <state relative-caret-position="88">
+              <caret line="10" column="9" selection-start-line="10" selection-start-column="9" selection-end-line="10" selection-end-column="9" />
               <folding>
                 <element signature="e#106#125#0" expanded="true" />
                 <element signature="e#256#876#0" />
@@ -83,15 +82,16 @@
         <option value="$PROJECT_DIR$/DataCapstoneProject.py" />
         <option value="$PROJECT_DIR$/setup.py" />
         <option value="$USER_HOME$/Desktop/Python-for-Finance-Repo-master/03- General Pandas/08-Data-Input-and-Output.ipynb" />
-        <option value="$PROJECT_DIR$/UdemyPythonStuff.py" />
         <option value="$PROJECT_DIR$/FundAnalysis.py" />
+        <option value="$PROJECT_DIR$/UdemyPythonStuff.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="672" />
-    <option name="width" value="690" />
-    <option name="height" value="719" />
+    <option name="x" value="787" />
+    <option name="y" value="22" />
+    <option name="width" value="575" />
+    <option name="height" value="733" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -193,8 +193,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="672" y="0" width="690" height="719" extended-state="0" />
-    <editor active="true" />
+    <frame x="787" y="22" width="575" height="733" extended-state="0" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" weight="0.2791411" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -209,7 +208,7 @@
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.32933104" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
-      <window_info active="true" anchor="bottom" id="Python Console" order="10" visible="true" weight="0.53662694" />
+      <window_info active="true" anchor="bottom" id="Python Console" order="10" visible="true" weight="0.52412647" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -359,23 +358,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/UdemyPythonStuff.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="159">
-          <caret line="118" column="64" selection-start-line="118" selection-start-column="64" selection-end-line="118" selection-end-column="64" />
-          <folding>
-            <element signature="e#172#1163#1" />
-            <element signature="e#2733#2929#0" />
-            <element signature="e#2994#3190#0" />
-            <element signature="e#3257#3461#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/FundAnalysis.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="122">
-          <caret line="68" column="18" selection-start-line="68" selection-start-column="18" selection-end-line="68" selection-end-column="18" />
+        <state relative-caret-position="88">
+          <caret line="10" column="9" selection-start-line="10" selection-start-column="9" selection-end-line="10" selection-end-column="9" />
           <folding>
             <element signature="e#106#125#0" expanded="true" />
             <element signature="e#256#876#0" />
@@ -383,6 +369,19 @@
             <element signature="e#997#2023#0" />
             <element signature="e#1093#1267#0" />
             <element signature="e#1305#2023#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/UdemyPythonStuff.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="190" lean-forward="true" selection-start-line="190" selection-end-line="190" />
+          <folding>
+            <element signature="e#172#1163#1" />
+            <element signature="e#2733#2929#0" />
+            <element signature="e#2994#3190#0" />
+            <element signature="e#3257#3461#0" />
           </folding>
         </state>
       </provider>
