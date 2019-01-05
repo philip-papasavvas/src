@@ -1,8 +1,8 @@
-# Read-me
+# Introduction
 
-This is a selection of my library of small tools for development, most of 
-them are currently unfinshed pieces of work but I have some aims for projects to complete
-throughout 2019.
+*This is a selection of my library of small tools for development, most of 
+them are currently **unfinshed** pieces of work but I have some aims for projects to complete
+throughout 2019.*
 
 ## Projects
 1. Mutual fund/ETF key performance statistics (by year) - analyse a dataframe consistsing
