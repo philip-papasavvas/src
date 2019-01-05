@@ -1,3 +1,8 @@
+"""
+Practice reading in Excel workbooks and choosing specific
+cells and their values
+"""
+
 import openpyxl
 import os
 
