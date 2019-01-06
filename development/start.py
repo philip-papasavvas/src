@@ -7,7 +7,7 @@ Created on Thu Nov  1 07:55:08 2018
 import numpy as np
 import pandas as pd
 import os
-import beautifulsoup4
+import bs4
 import quandl
 
 basePath = 'C:\\Users\\ppapasav\\My Documents\\python'
@@ -20,5 +20,3 @@ if not os.path.exists(inputPath):
 
 if not os.path.exists(outputPath):
     os.mkdir(outputPath)
-    
-    

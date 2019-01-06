@@ -17,6 +17,7 @@ else:
     print("Creating directory: {}".format(destPath))
     os.mkdir(destPath)
 
+# Sort into Folders --> Excel (xlsx) files, and also Photos (jpg)
 for file in sourceFiles:
     if file.endswith(".xlsx"):
         shutil.move(os.path.join(sourcePath, file), os.path.join(destPath,file))

@@ -11,30 +11,55 @@ import datetime as dt
 import os
 os.chdir('/Users/ppapasav/Desktop/Finance Analysis/')
 
-class DataClean():
+class basicStockAnalysis():
     """
-    Clean data and produce returns and volatilities
+    Display returns and volatilities over the whole time period specified
+
+    Params:
+        file: dataframe
+    Returns:
+        summaryTable: for each stock the annualised return and annualised
+        volatility is displayed, as well as the Sharpe Ratio over the total
+        lookback period
     """
     def __init__(self, file):
-        self.file = pd.DataFrame(pd.read_csv(file, parse_dates=True))
+        self.file = pd.DataFrame(pd.read_csv(file, parse_dates=True, index_col = 'Date'))
         self.returns = None
         self.summary = None
 
-    def clean_data(self):
+    def summaryTable(self, toClipboard = None, toCsv = None):
         """
-        Cleans data
+        Summarises return and volatility for input data
+
+        Params:
+        toClipboard:    default None. If True, stored on clipboard
+        toCsv:          default None. If True, written into cwd, with run date and
+                        date range specified
         """
         df = self.file
         returns = df.pct_change(1).iloc[1:, ]
-        ret_an = np.mean(returns) * 252
-        std_an = np.std(returns) * np.sqrt(252)
-        sharpe = ret_an / std_an
+        annualReturn = np.mean(returns) * 252
+        annualVolatility = np.std(returns) * np.sqrt(252)
+        sharpeRatio = annualReturn / annualVolatility
 
-        self.summary = pd.concat([ret_an, std_an, sharpe], axis=1)
-        self.summary.to_clipboard()
+        self.summary = pd.concat([annualReturn, annualVolatility, sharpeRatio], axis=1)
+        self.summary.columns = ['Annualised Return', 'Annual Volatility', 'Sharpe Ratio']
+        self.summary.sort_values(by = ['Sharpe Ratio'], ascending=False, inplace=True)
+        self.summary.dropna(inplace=True)
+        self.summary.index.name = "Fund/Stock"
 
-eg = DataClean('fulldata.csv')
-eg.clean_data()
+        now = dt.datetime.now().strftime("%Y%m%d")
+        beginDate = self.file.index.min().strftime("%Y%m%d")
+        endDate = self.file.index.max().strftime("%Y%m%d")
+
+        if toClipboard:
+            self.summary.to_clipboard()
+
+        if toCsv:
+            self.summary.to_csv(now + " SummaryTable" + beginDate + "-" + endDate + ".csv")
+
+eg = basicStockAnalysis('fulldata.csv')
+eg.summaryTable(toClipboard=True)
 
 df = pd.DataFrame(pd.read_csv('data.csv', index_col= 'Date', parse_dates=True))
 
@@ -67,3 +92,10 @@ class FundAnalysis():
 
 run = FundAnalysis('fulldata.csv', date1 = '2018-01-01', date2 = '2018-07-01')
 run.summaryTable()
+
+###Development stuff
+from pandas_datareader import data as pdr
+import fix_yahoo_finance as yf
+yf.pdr_override() # <== that's all it takes :-)
+
+data = pdr.get_data_yahoo("SPY", start="2018-01-02", end="2018-01-3")

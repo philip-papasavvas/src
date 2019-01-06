@@ -1,5 +1,9 @@
-import PyPDF2
+"""
+Script to extract text from a PDF document, from the AutomateTheBoringStuff
+Python book
+"""
 
+import PyPDF2
 import os
 os.chdir("C:\\Users\\ppapasav\\Documents\\myPythonScripts")
 
