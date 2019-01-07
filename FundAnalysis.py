@@ -4,7 +4,6 @@ Date created: 25/11/18
 
 Class to create functions to analyse fund data
 Development:
- - Bring down the number of decimal places to two in the summary table
  - If date provided not in index, default to nearest date to the error
  - Mapping of Bloomberg Ticker to Fund Name
  - Specification of return with lookback list = ["1M", "3M", "6M"]
@@ -17,7 +16,45 @@ import pandas as pd
 import numpy as np
 import datetime as dt
 import os
+from re import sub, search
+
 os.chdir('/Users/ppapasav/Desktop/Finance Analysis/')
+
+def timeDelta(date, period):
+    """
+    Function to return the date in the past specifying the current date and lookback period.
+
+    Parameters
+    ----------
+        date: np.datetime64
+        period: str, expressed as number letter pair. Allowed periods are weeks (w/W), months (m/M),
+                    and years (y/Y)
+                examples: "1W", "3m", "5Y"
+    Returns
+    ----------
+        newDate: np.datetime64
+    Example:
+        # >>> timeDelta(date = np.datetime64("2018-12-01"), period = "3M")
+    """
+    date = date.astype(np.datetime64)
+    if bool(search("w|W", period)):
+        w = int(sub("\\D", "", period))
+        newDate = date - np.timedelta64(w * 7, "D")
+    if bool(search("m|M", period)):
+        m = int(sub("\\D", "", period))
+        monthDate = date.astype("datetime64[M]")
+        day = date.astype(int) - monthDate.astype('datetime64[D]').astype(int) + 1
+        newDate = (monthDate - m).astype('datetime64[D]') + day - 1
+    if bool(search("y|Y", period)):
+        y = int(sub("\\D", "", period))
+        yearDate = date.astype("datetime64[Y]")
+        monthDate = date.astype("datetime64[M]")
+        day = date.astype(int) - monthDate.astype('datetime64[D]').astype(int) + 1
+        monthDate = monthDate.astype(int) - yearDate.astype('datetime64[M]').astype(int) + 1
+        newMonthDate = (yearDate - y).astype('datetime64[M]') + monthDate - 1
+        newDate = newMonthDate.astype("datetime64[D]") + day - 1
+    return newDate
+
 
 class basicStockAnalysis():
     """
@@ -65,6 +102,7 @@ class basicStockAnalysis():
         summary.sort_values(by = ['Information Ratio'], ascending=False, inplace=True)
         summary.dropna(inplace=True)
         summary.index.name = "Fund/Stock"
+        summary = round(summary, 3)
 
         log = "Fund Stats for " + str(df.index.min().strftime("%Y-%m-%d")) + \
               " to " + str(df.index.max().strftime("%Y-%m-%d"))
@@ -86,40 +124,43 @@ class basicStockAnalysis():
                            str(self.startDate) + "-" + str(self.endDate) + ".csv")
             print("Summary table has been written to csv file in current working directory: " + os.getcwd())
 
+
+    def annualReturns(self, toCsv):
+        """Basic table of annual returns"""
+        if isinstance(self.startDate, np.datetime64) & isinstance(self.endDate, np.datetime64):
+            df = self.data.loc[self.startDate: self.endDate, :]
+        else:
+            df = self.data
+        df = df.copy(True)
+        df.dropna(axis=1, inplace = True)
+        annualReturn = (df.groupby(df.index.year).last()/ \
+                        df.groupby(df.index.year).first() -1 ).T
+        annualReturn = round((annualReturn*100),3)
+        annualReturn.index.name = "Annual Return % / Date"
+
+        if toCsv:
+            # printing to csv currently not working
+            #annualReturn.to_csv("Stock/Fund Annual Return.csv")
+        print("Summary table has been written to csv file in current working directory: " + os.getcwd())
+
+
+    def monthlyReturnTable(self):
+        """Table for monthly returns"""
+        if isinstance(self.startDate, np.datetime64) & isinstance(self.endDate, np.datetime64):
+            df = self.data.loc[self.startDate: self.endDate, :]
+        else:
+            df = self.data
+        df = df.copy(True)
+        df.dropna(axis=1, inplace=True)
+        df.index = df.index.strftime("%Y-%m-%d")
+        # df.index['year'] = df.index.year
+        # df.index['month'] = df.index.month
+
+
+
 eg = basicStockAnalysis(file = 'fulldata.csv', startDate="2012-01-02", endDate="2014-01-01")
 eg.summaryTable(toClipboard = False, toCsv = True)
 
-
-
-
-class FundAnalysis():
-    """
-    Date in format 'YYYY-MM-DD'
-    """
-    def __init__(self, file, date1, date2):
-        self.file = pd.DataFrame(pd.read_csv(file, index_col='Date', parse_dates=True))
-        self.date1 = date1
-        self.date2 = date2
-        self.runDate = dt.datetime.today()
-
-    def summaryTable(self):
-        df = self.file.loc[self.date1:self.date2,:]
-        dailyReturn = df.pct_change()
-        dailyReturn = returns.iloc[1:,]
-        annualReturn = np.mean(dailyReturn) * 252
-        stdDev = np.std(dailyReturn) * np.sqrt(252)
-        compoundAnnualGrowth = df.apply(lambda x: (x[-1]/ x[0])**(252/len(df)) -1)
-        infoRatio = annualReturn/stdDev
-
-        summary = pd.concat([annualReturn, stdDev, infoRatio], axis=1)
-        summary.columns = ['Annualised Return', 'Annualised Volatility', 'Sharpe Ratio']
-        summary.index.name = "Fund Stats for " + str(self.date1) + " to " + str(self.date2)
-
-        summary.to_csv('BasicSummary' + str(self.runDate.date()) +'.csv')
-        summary.to_clipboard(sep="\t")
-
-run = FundAnalysis('fulldata.csv', date1 = '2018-01-01', date2 = '2018-07-01')
-run.summaryTable()
 
 ###Development stuff
 from pandas_datareader import data as pdr
