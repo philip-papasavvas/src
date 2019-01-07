@@ -4,13 +4,13 @@ Date created: 25/11/18
 
 Class to create functions to analyse fund data
 Development:
+ - Bring down the number of decimal places to two in the summary table
  - If date provided not in index, default to nearest date to the error
  - Mapping of Bloomberg Ticker to Fund Name
  - Specification of return with lookback list = ["1M", "3M", "6M"]
  - Print out monthly returns, yearly returns
  - Plotting capabilities for stock charts
  - Automatic scraping of prices
-
 """
 
 import pandas as pd
@@ -85,11 +85,6 @@ class basicStockAnalysis():
             summary.to_csv(str(self.runDate) + " SummaryTable" +
                            str(self.startDate) + "-" + str(self.endDate) + ".csv")
             print("Summary table has been written to csv file in current working directory: " + os.getcwd())
-
-file = "fulldata.csv"
-startDate="2012-01-02"
-endDate="2014-01-01"
-self = eg
 
 eg = basicStockAnalysis(file = 'fulldata.csv', startDate="2012-01-02", endDate="2014-01-01")
 eg.summaryTable(toClipboard = False, toCsv = True)
