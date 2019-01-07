@@ -3,6 +3,14 @@ Author: Philip.Papasavvas
 Date created: 25/11/18
 
 Class to create functions to analyse fund data
+Development:
+ - If date provided not in index, default to nearest date to the error
+ - Mapping of Bloomberg Ticker to Fund Name
+ - Specification of return with lookback list = ["1M", "3M", "6M"]
+ - Print out monthly returns, yearly returns
+ - Plotting capabilities for stock charts
+ - Automatic scraping of prices
+
 """
 
 import pandas as pd
@@ -17,15 +25,21 @@ class basicStockAnalysis():
 
     Params:
         file: dataframe
+        dates: in format "YYYY-MM-DD" or "YYYYMMDD"
+            startDate: start to analyse the financial data, default None
+            endDate: end to analyse financial data, default None
     Returns:
         summaryTable: for each stock the annualised return and annualised
         volatility is displayed, as well as the Sharpe Ratio over the total
         lookback period
     """
-    def __init__(self, file):
-        self.file = pd.DataFrame(pd.read_csv(file, parse_dates=True, index_col = 'Date'))
+    def __init__(self, file, startDate=None, endDate=None):
+        self.data = pd.DataFrame(pd.read_csv(file, parse_dates=True, index_col = 'Date'))
         self.returns = None
         self.summary = None
+        self.startDate = np.datetime64(startDate)
+        self.endDate = np.datetime64(endDate)
+        self.runDate = np.datetime64(dt.datetime.now().strftime("%Y-%m-%d"))
 
     def summaryTable(self, toClipboard = None, toCsv = None):
         """
@@ -36,32 +50,51 @@ class basicStockAnalysis():
         toCsv:          default None. If True, written into cwd, with run date and
                         date range specified
         """
-        df = self.file
-        returns = df.pct_change(1).iloc[1:, ]
-        annualReturn = np.mean(returns) * 252
-        annualVolatility = np.std(returns) * np.sqrt(252)
-        sharpeRatio = annualReturn / annualVolatility
+        if isinstance(self.startDate, np.datetime64) & isinstance(self.endDate, np.datetime64):
+            df = self.data.loc[self.startDate: self.endDate, : ]
+        else:
+            df = self.data
+        dailyReturn = df.pct_change(1).iloc[1:, ]
+        annualReturn = np.mean(dailyReturn) * 252
+        annualVolatility = np.std(dailyReturn) * np.sqrt(252)
+        infoRatio = annualReturn / annualVolatility
 
-        self.summary = pd.concat([annualReturn, annualVolatility, sharpeRatio], axis=1)
-        self.summary.columns = ['Annualised Return', 'Annual Volatility', 'Sharpe Ratio']
-        self.summary.sort_values(by = ['Sharpe Ratio'], ascending=False, inplace=True)
-        self.summary.dropna(inplace=True)
-        self.summary.index.name = "Fund/Stock"
+        summary = pd.concat([annualReturn, annualVolatility, infoRatio], axis=1)
 
-        now = dt.datetime.now().strftime("%Y%m%d")
-        beginDate = self.file.index.min().strftime("%Y%m%d")
-        endDate = self.file.index.max().strftime("%Y%m%d")
+        summary.columns = ['Annualised Return', 'Annual Volatility', 'Information Ratio']
+        summary.sort_values(by = ['Information Ratio'], ascending=False, inplace=True)
+        summary.dropna(inplace=True)
+        summary.index.name = "Fund/Stock"
+
+        log = "Fund Stats for " + str(df.index.min().strftime("%Y-%m-%d")) + \
+              " to " + str(df.index.max().strftime("%Y-%m-%d"))
+        errors = df.columns.difference(summary.index).values.tolist()
+
+        # beginDate = self.file.index.min().strftime("%Y%m%d")
+        # endDate = self.file.index.max().strftime("%Y%m%d")
+
+        print(log)
+        print("The following funds were not analysed due to errors in the dataset: ")
+        print(errors)
 
         if toClipboard:
-            self.summary.to_clipboard()
+            summary.to_clipboard()
+            print("Summary table has been copied to the clipboard")
 
         if toCsv:
-            self.summary.to_csv(now + " SummaryTable" + beginDate + "-" + endDate + ".csv")
+            summary.to_csv(str(self.runDate) + " SummaryTable" +
+                           str(self.startDate) + "-" + str(self.endDate) + ".csv")
+            print("Summary table has been written to csv file in current working directory: " + os.getcwd())
 
-eg = basicStockAnalysis('fulldata.csv')
-eg.summaryTable(toClipboard=True)
+file = "fulldata.csv"
+startDate="2012-01-02"
+endDate="2014-01-01"
+self = eg
 
-df = pd.DataFrame(pd.read_csv('data.csv', index_col= 'Date', parse_dates=True))
+eg = basicStockAnalysis(file = 'fulldata.csv', startDate="2012-01-02", endDate="2014-01-01")
+eg.summaryTable(toClipboard = False, toCsv = True)
+
+
 
 
 class FundAnalysis():
