@@ -17,4 +17,5 @@ return.
 for both Excel (xlsx) files, and Photos (.jpg) files
 
 3. passwordGenerator.py: Program to generate a password consisting of alphanumeric characters of a 
-user-selected length.
+user-selected length. 
+(development) user specified length of password, and whether to include special characters or not, True/False
