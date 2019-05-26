@@ -1,15 +1,17 @@
 """
 Author: Philip.Papasavvas
 Date created (n-th version): 16/03/19
-Date updated: 05/05/19
+Date updated: 26/05/19
 
 Class to analyse financial data.
 Input data includes:
     - Financial data with dates, stocks and prices
     - Optional, mapping table between Bloomberg ticker and Fund name
 
-Development:
- - Print out monthly returns, yearly returns
+To do:
+ - Charts for lookback performance, limiting the number if more than 5 funds
+ - Charts (2 subplots) for volatility of each stock and name properly, or do charting overlay
+ - Produce yearly (& maybe monthly) returns
  - Plotting capabilities for stock charts
 """
 
@@ -17,13 +19,12 @@ import os
 import pandas as pd
 import numpy as np
 import datetime as dt
+import utils
 from re import sub, search
-import matplotlib as mpl
+from utils import previousDate
 
 import matplotlib.pyplot as plt
 plt.style.use('seaborn')
-
-from pp_utils import datePlusTenorNew, previousDate
 
 dateToStr = lambda d: d.astype(str).replace('-', '')
 
@@ -31,18 +32,6 @@ dateToStr = lambda d: d.astype(str).replace('-', '')
 wkdir = "C://Users//Philip//Documents//python//"
 inputFolder = wkdir + "input/"
 outputFolder = wkdir + "output/"
-
-# Load the data, clean the data for the N/A rows
-# df = pd.read_csv(inputFolder + "cleaned_subset_funds_20190315.csv", index_col="Date", parse_dates=True)
-# df.dropna(axis=0, inplace=True)
-
-os.listdir(inputFolder)
-file = "example_data_bbg.csv" #"example_data.csv" #with NA rows --> "example_data_na.csv"
-input_data = pd.DataFrame(pd.read_csv(inputFolder + file, parse_dates=True, index_col = 'Date'))
-
-file = "fundList.csv" #"tickerNameMapping.csv" # smaller subset 'securityMapping_subset.csv'
-secMap = pd.read_csv(inputFolder + file)
-secMap = secMap.loc[:,["Ticker", "Security Name"]]
 
 class Analysis():
     """
@@ -71,7 +60,7 @@ class Analysis():
 
         # Load & clean data for efficient analysis for all products
 
-        dataframe = data
+        dataframe = utils.char_to_date(data)
 
         # check for NaN values and drop, alerting user for what has been dropped
         na_securities = dataframe.columns[dataframe.isnull().any()].values
@@ -94,20 +83,27 @@ class Analysis():
         except KeyError:
             df = dataframe
 
-
         print("Data analysed for period " + startDate + " to " + endDate)
 
         if tickerMapping is not None:
-            securityMap = tickerMapping
             self.fundDict = dict(zip(tickerMapping['Ticker'], tickerMapping['Security Name']))
-            df.columns = df.columns.map(self.fundDict)
-
+            if any(np.isnan(df.columns.map(self.fundDict).values)):
+                pass
+            else:
+                df.columns = df.columns.map(self.fundDict)
 
         self.data = df
         # self.returns = None
         # self.summary = None
 
         self.set_output_folder()
+
+    def set_output_folder(self):
+        output_path = wkdir + "output/" + dateToStr(self.runDate) + "/"
+        if not os.path.exists(output_path):
+            os.mkdir(output_path)
+            self.output_dir = output_path
+        self.output_dir = output_path
 
     def annualReturns(self, toCsv=True):
         """
@@ -123,19 +119,21 @@ class Analysis():
         # annualReturn = round((annualReturn*100),3)
         annualReturn.index.name = "Fund / Annual Return"
 
-        if self.fundDict is not None:
-            annualReturn.rename(index=self.fundDict, inplace=True)
+        # if self.fundDict is not None:
+        #     annualReturn.rename(index=self.fundDict, inplace=True)
 
         if toCsv:
             annualReturn.to_csv(self.output_dir + dateToStr(self.runDate) + " Securities Annual Return.csv")
             print("Summary table has been written to csv file in directory: " + self.output_dir)
 
-    def summaryTable(self, toCsv = False):
+    def summaryTable(self, toCsv = False, r = None):
         """
         Summarises return and volatility for input data over whole period
 
         Params:
             toCsv:  bool, default False. If True, written into output_dir
+            r: float, default None
+                Risk free rate of return,
 
         Returns:
             summary: table of returns and volatility of securities entered
@@ -147,13 +145,17 @@ class Analysis():
         annualVolatility = np.std(dailyReturn) * np.sqrt(252)
         infoRatio = annualReturn / annualVolatility
 
-        summary = pd.concat([annualReturn, annualVolatility, infoRatio], axis=1)
+        if r is None:
+            summary = pd.concat([annualReturn, annualVolatility, infoRatio], axis=1)
+            summary.columns = ['Annualised Return', 'Annual Volatility', 'Information Ratio']
+        else:
+            sharpe = (annualReturn - r) / annualVolatility
+            summary = pd.concat([annualReturn, annualVolatility, infoRatio, sharpe], axis=1)
+            summary.columns = ['Annualised Return', 'Annual Volatility', 'Information Ratio', 'Sharpe Ratio']
 
-        summary.columns = ['Annualised Return', 'Annual Volatility', 'Information Ratio']
-        summary.sort_values(by = ['Information Ratio'], ascending=False, inplace=True)
         summary.dropna(inplace=True)
         summary.index.name = "Fund/Stock"
-        summary = round(summary, 3)
+        # summary = round(summary, 3)
 
         log = "Fund Stats for " + str(self.startDate) + " to " + str(self.endDate)
         errors = df.columns.difference(summary.index).values.tolist()
@@ -242,14 +244,6 @@ class Analysis():
         #     plt.savefig(self.output_dir + "/CumulativeReturn Plot.png")
         #     plt.close()
 
-    def set_output_folder(self):
-        output_path = wkdir + "output/" + dateToStr(self.runDate) + "/"
-        if not os.path.exists(output_path):
-            os.mkdir(output_path)
-            self.output_dir = output_path
-        self.output_dir = output_path
-
-
     # def monthlyReturnTable(self):
     #     """Table for monthly returns"""
     #     if isinstance(self.startDate, np.datetime64) & isinstance(self.endDate, np.datetime64):
@@ -262,21 +256,32 @@ class Analysis():
     #     # df.index['year'] = df.index.year
     #     # df.index['month'] = df.index.month
 
-
 if __name__ == "main":
 
-    #wkdir = "C://Users//ppapasav//Documents//python"
+    from New_Fund_Analysis import Analysis
+
+    wkdir = "C://Users//Philip//Documents//python//"
     inputDir = wkdir + "input/"
-    df = pd.read_csv(inputDir + 'example_data.csv', parse_dates=True, index_col='Date')
-    tick_mapping = pd.read_csv(inputDir + 'tickerNameMapping.csv')
-    run = Analysis(data = df, startDate = "2016-01-01", endDate = "2019-01-01",
-                  tickerMapping = tick_mapping)
-    # run.summaryTable(True)
-    # run.annualReturns(True)
-    run.lookbackPerformance(lookbackList = ["0D", "6M", "1Y", "2Y", "3Y"], results=True, returnPlot=True)
+
+    # "example_data.csv", "example_data_na.csv" has NA rows
+    df = pd.read_csv(inputDir + 'example_data.csv', index_col='Date', parse_dates=True)
+    df = utils.char_to_date(df) #convert all dates to np datetime64
+
+    tick_mapping = pd.read_csv(inputDir + 'tickerNameMapping.csv') #also:"tickerNameMapping.csv", 'securityMapping_subset.csv'
+
+    # For manual debugging
+    # input_data = df
+    # startDate = "2016-01-01"
+    # endDate = "2019-01-01"
+    # tickerMapping= tick_mapping
+
+    run = Analysis(data = df, startDate = "2016-01-01", endDate = "2019-01-01", tickerMapping = tick_mapping)
+    run.summaryTable(toCsv=True, r = 0.015)
+    run.annualReturns(toCsv=True)
+    run.lookbackPerformance(lookbackList = ["0D", "6M", "1Y", "2Y", "3Y"], results=True, returnPlot=False)
 
     # a = pd.read_csv("//filpr1/#FILPR1/SwapClear Corporate/Philip Papasavvas/data_2019.csv")
-    # from pp_utils import char_to_date
+    # from utils import char_to_date
 
     # a = char_to_date(a)
     # a.set_index('Date', inplace=True)
