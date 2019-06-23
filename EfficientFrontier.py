@@ -12,9 +12,7 @@ import numpy as np
 import datetime as dt
 from re import sub, search
 import matplotlib.pyplot as plt
-import seaborn as sns
-import scipy.optimize as sco
-from pp_utils import char_to_date
+from utils import char_to_date
 
 dateToStr = lambda d: d.astype(str).replace('-', '')
 
@@ -41,7 +39,6 @@ df.set_index('Date', inplace=True)
 # -------------------------------------
 #Random stock portfolio generation - decide what proportion of each stock in portfolio
 # -------------------------------------
-#TODO: sort out sharpe ratio calculations as they seem to be wrong, name for efficient frontier png when saved
 
 #Using methods from article
 def port_annual_perf(weights, mean_returns, cov):
@@ -64,6 +61,10 @@ def port_annual_perf(weights, mean_returns, cov):
     return std, returns
 
 # Example
+# df = pd.read_csv(inputFolder + "example_data.csv", index_col='Date')
+# df = char_to_date(df)
+# df.dropna(axis=0, inplace=True)
+#
 # df = pd.read_csv(inputFolder + "example_data.csv", index_col="Date", parse_dates=True)
 # df.dropna(axis=0, inplace=True)
 #
@@ -71,7 +72,7 @@ def port_annual_perf(weights, mean_returns, cov):
 # mean_returns = returns.mean()
 # cov = returns.cov()
 #
-# a = port_annual_perf(weights = np.repeat(0.25,4), mean_returns= mean_returns, cov=cov)
+# a,b = port_annual_perf(weights = np.repeat(0.25,4), mean_returns= mean_returns, cov=cov)
 
 
 def random_portfolios(nPortfolios, mean_returns, cov, risk_free):
@@ -109,7 +110,8 @@ def random_portfolios(nPortfolios, mean_returns, cov, risk_free):
     return results, weights_lst
 
 # Example
-# df = pd.read_csv(inputFolder + "example_data.csv", index_col="Date", parse_dates=True)
+# df = pd.read_csv(inputFolder + "example_data.csv", index_col="Date")
+# df = char_to_date(df)
 # df.dropna(axis=0, inplace=True)
 # daily_return = df.pct_change()
 # mean_return = daily_return.mean()
@@ -204,8 +206,24 @@ def display_simulated_frontier_random(mean_returns, cov, nPortfolios, risk_free,
 
         summary.to_csv(outputFolder + str(nPortfolios) + "_Portfolio_Optimisation.csv")
 
+# Example
+# df = pd.read_csv(inputFolder + "example_data.csv", index_col="Date", parse_dates=True)
+# df.dropna(axis=0, inplace=True)
+# daily_return = df.pct_change()
+# mean_return = daily_return.mean()
+# covariance_return = daily_return.cov()
+# # risk_free = 0.015
+#
+# res = display_simulated_frontier_random(mean_returns= mean_return, cov= covariance_return, nPortfolios=50000,
+#                                         risk_free=0.015, saveResults=True, savePlots=True)
+
+
 if __name__ == "__main__":
     # --------------
+
+    df = pd.read_csv(inputFolder + "example_data.csv", index_col="Date")
+    df = char_to_date(df)
+    df.dropna(axis=0, inplace=True)
 
     # EXPLORATORY DATA ANALYSIS
     # --------------

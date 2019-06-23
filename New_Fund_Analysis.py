@@ -217,6 +217,7 @@ class Analysis():
             cumulativeReturn.T.to_excel(writer, "Return")
 
             writer.save()
+            print("Lookback performance table has been written to directory: {dry}".format(dry = self.output_dir))
 
         # Plotting the results
         # if returnPlot:
@@ -244,6 +245,66 @@ class Analysis():
         #     plt.savefig(self.output_dir + "/CumulativeReturn Plot.png")
         #     plt.close()
 
+    @staticmethod
+    def bollinger_band(data, window, no_std):
+        """Function to return bollinger bands for securities
+
+        Inputs:
+            data: df
+                Dataframe of stock prices with index as np.datetime64
+            window: int
+                Rolling window for mean price and standard deviation
+            no_std: int
+                Number of standard deviations
+
+        Returns:
+            roll_mean, roll_std, boll_high, boll_low
+
+        """
+        roll_mean = data.rolling(window).mean()
+        roll_std = data.rolling(window).std()
+
+        boll_high = roll_mean + (roll_std * no_std)
+        boll_low = roll_mean - (roll_std * no_std)
+
+        return roll_mean, roll_std, boll_high, boll_low
+
+
+    def plot_bollinger_bands(self, data, window=20, no_std=2):
+        """Function to do bollinger band plots for each of the stocks in the dataframe"""
+
+        for col in data.columns:
+            slice = data.loc[:, col]
+            normed_px = slice / slice[0]
+
+            # Info for bollinger plots, also useful elsewhere
+            roll_mn, roll_std, boll_high, boll_low = Analysis.bollinger_band(data=slice, window=window, no_std=no_std)
+
+            # Plot the charts
+            fig, ax1 = plt.subplots()
+            color = 'tab:red'
+            ax1.set_xlabel("Time")
+            ax1.set_ylabel("Price")
+            ax1.plot(roll_mn, color=color)
+            ax1.tick_params(axis='y', labelcolor=color)
+            ax1.plot(boll_high, linestyle="dashed", color="k", linewidth=0.5)
+            ax1.plot(boll_low, linestyle="dashed", color="k", linewidth=0.5)
+
+            norm_std_rolling = normed_px.rolling(window=window).std()
+            ax2 = ax1.twinx()
+            color = 'tab:blue'
+            ax2.set_ylabel('Rolling Volatility', color=color)
+            ax2.plot(norm_std_rolling, color=color)
+            ax2.tick_params(axis='y', labelcolor=color)
+            ax2.set_ylim(0, 0.25)
+
+            plt.suptitle(col + "\t (rolling {n}-day window)".format(n=window))
+            # fig.tight_layout()
+            plt.show()
+            plt.savefig(self.output_dir + "{stock} Price & Vol History.png".format(stock=col))
+            plt.close()
+
+
     # def monthlyReturnTable(self):
     #     """Table for monthly returns"""
     #     if isinstance(self.startDate, np.datetime64) & isinstance(self.endDate, np.datetime64):
@@ -264,8 +325,10 @@ if __name__ == "main":
     inputDir = wkdir + "input/"
 
     # "example_data.csv", "example_data_na.csv" has NA rows
-    df = pd.read_csv(inputDir + 'example_data.csv', index_col='Date', parse_dates=True)
+    df = pd.read_csv(inputDir + 'example_data.csv') #, parse_dates=True)
+    df = pd.read_csv(inputDir + "funds_stocks_2019.csv")
     df = utils.char_to_date(df) #convert all dates to np datetime64
+    df.set_index('Date', inplace=True)
 
     tick_mapping = pd.read_csv(inputDir + 'tickerNameMapping.csv') #also:"tickerNameMapping.csv", 'securityMapping_subset.csv'
 
@@ -275,16 +338,130 @@ if __name__ == "main":
     # endDate = "2019-01-01"
     # tickerMapping= tick_mapping
 
-    run = Analysis(data = df, startDate = "2016-01-01", endDate = "2019-01-01", tickerMapping = tick_mapping)
-    run.summaryTable(toCsv=True, r = 0.015)
-    run.annualReturns(toCsv=True)
-    run.lookbackPerformance(lookbackList = ["0D", "6M", "1Y", "2Y", "3Y"], results=True, returnPlot=False)
+    rn = Analysis(data = df, startDate = "2014-01-01", endDate = "2019-01-01", tickerMapping = tick_mapping)
+    # rn.summaryTable(toCsv=True, r = 0.015)
+    # rn.annualReturns(toCsv=True)
+    # rn.lookbackPerformance(lookbackList = ["0D", "6M", "1Y", "2Y", "3Y"], results=True, returnPlot=False)
+    rn.plot_bollinger_bands(data = df[df.index > "2014-01-01"])
 
-    # a = pd.read_csv("//filpr1/#FILPR1/SwapClear Corporate/Philip Papasavvas/data_2019.csv")
-    # from utils import char_to_date
+    # Look at the volatility on a rolling level
 
-    # a = char_to_date(a)
-    # a.set_index('Date', inplace=True)
+
+    
+    @staticmethod
+    def plot_bollinger_bands(self, data, window=20, no_std=2):
+        """Function to do bollinger band plots for each of the stocks in the dataframe"""
+
+        for col in data.columns:
+            slice = data.loc[:, col]
+            normed_px = slice/slice[0]
+
+            # Info for bollinger plots, also useful elsewhere
+            roll_mn, roll_std, boll_high, boll_low = Analysis.bollinger_band(data=slice, window=window, no_std= no_std)
+
+            # Plot the charts
+            fig, ax1 = plt.subplots()
+            color = 'tab:red'
+            ax1.set_xlabel("Time")
+            ax1.set_ylabel("Price")
+            ax1.plot(roll_mn, color=color)
+            ax1.tick_params(axis='y', labelcolor=color)
+            ax1.plot(boll_high, linestyle="dashed", color="k", linewidth=0.5)
+            ax1.plot(boll_low, linestyle="dashed", color="k", linewidth=0.5)
+
+            norm_std_rolling = normed_px.rolling(window=window).std()
+            ax2 = ax1.twinx()
+            color = 'tab:blue'
+            ax2.set_ylabel('Rolling Volatility', color=color)
+            ax2.plot(norm_std_rolling, color=color)
+            ax2.tick_params(axis='y', labelcolor=color)
+            ax2.set_ylim(0, 0.25)
+
+            plt.suptitle(col + "\t (rolling {n}-day window)".format(n=window))
+            # fig.tight_layout()
+            plt.show()
+            plt.savefig(self.output_dir + "{stock} Price & Vol History.png".format(stock=col))
+            plt.close()
+
+
+        roll_mn, roll_std, boll_high, boll_low = Analysis.bollinger_band(data= data, window=20, no_std=2)
+
+
+
+        fig, ax1 = plt.subplots()
+        color = 'tab:red'
+        ax1.set_xlabel("Time")
+        ax1.set_ylabel("Price")
+        ax1.plot(roll_mn, color=color)
+        ax1.tick_params(axis='y', labelcolor=color)
+        ax1.plot(boll_high, linestyle="dashed", color="k", linewidth=0.5)
+        ax1.plot(boll_low, linestyle="dashed", color="k", linewidth=0.5)
+
+        ax2 = ax1.twinx()
+        color = 'tab:blue'
+        ax2.set_ylabel('Rolling Volatility', color=color)
+        ax2.plot(roll_std, color=color)
+        ax2.tick_params(axis='y', labelcolor=color)
+        ax2.set_ylim(0, 0.2)
+
+        plt.suptitle(rn.data.columns[3])
+        # fig.tight_layout()
+        plt.show()
+
+
+    @staticmethod
+    def bollinger_band(data, window, no_std):
+        """Function to return bollinger bands for securities
+
+        Inputs:
+            data: df
+                Dataframe of stock prices with index as np.datetime64
+            window: int
+                Rolling window for mean price and standard deviation
+            no_std: int
+                Number of standard deviations
+
+        Returns:
+            roll_mean, roll_std, boll_high, boll_low
+
+        """
+        roll_mean = data.rolling(window).mean()
+        roll_std = data.rolling(window).std()
+
+        boll_high = roll_mean + (roll_std * no_std)
+        boll_low = roll_mean - (roll_std * no_std)
+
+        return roll_mean, roll_std, boll_high, boll_low
+
+    roll_mn, roll_std, boll_high, boll_low = bollinger_band(data= res, window= 20, no_std=2)
+
+    fig, ax1 = plt.subplots()
+    color = 'tab:red'
+    ax1.set_xlabel("Time")
+    ax1.set_ylabel("Price")
+    ax1.plot(roll_mn, color = color)
+    ax1.tick_params(axis='y', labelcolor= color)
+    ax1.plot(boll_high, linestyle = "dashed", color = "k", linewidth = 0.5)
+    ax1.plot(boll_low, linestyle="dashed", color="k", linewidth = 0.5)
+
+    ax2 = ax1.twinx()
+    color = 'tab:blue'
+    ax2.set_ylabel('Rolling Volatility', color = color)
+    ax2.plot(roll_std, color = color)
+    ax2.tick_params(axis='y', labelcolor = color)
+    ax2.set_ylim(0,0.2)
+
+    plt.suptitle(rn.data.columns[3])
+    #fig.tight_layout()
+    plt.show()
+
+
+    plt.figure()
+    plt.plot(res_roll_std)
+    plt.plot(rn.data.iloc[:,3])
+
+
+
 
     # b = pd.rolling_std(arg = a, window = 30) #rolling window is 30 days
     # col_labels = [i + "std" for i in b.columns]
