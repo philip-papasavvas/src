@@ -49,6 +49,10 @@ class Analysis():
         tickerMapping: dataframe
             Mapping between Bloomberg ticker and name of the fund/security
 
+        drop: bool, default False
+            Drops rows that contain any NaNs, so all of the columns of df can
+            be compared against each other
+
     # TODO: Plots to go to separate ones (when lots), and for the legends to be included
 
     # Returns:
@@ -56,7 +60,7 @@ class Analysis():
     #     volatility is displayed, as well as the Sharpe Ratio over the total
     #     lookback period
     """
-    def __init__(self, data, startDate=None, endDate=None, tickerMapping=None):
+    def __init__(self, data, startDate=None, endDate=None, tickerMapping=None, drop=False):
 
         # Load & clean data for efficient analysis for all products
 
@@ -76,7 +80,8 @@ class Analysis():
         self.endDate = np.datetime64(endDate)
         self.runDate = np.datetime64(dt.datetime.now().strftime("%Y-%m-%d"))
 
-        dataframe.dropna(axis=0, inplace=True)
+        if drop:
+            dataframe.dropna(axis=0, inplace=True)
 
         try:
             df = dataframe.loc[startDate: endDate, : ]
@@ -325,7 +330,7 @@ if __name__ == "main":
     inputDir = wkdir + "input/"
 
     # "example_data.csv", "example_data_na.csv" has NA rows
-    df = pd.read_csv(inputDir + 'example_data.csv') #, parse_dates=True)
+    # df = pd.read_csv(inputDir + 'example_data.csv') #, parse_dates=True)
     df = pd.read_csv(inputDir + "funds_stocks_2019.csv")
     df = utils.char_to_date(df) #convert all dates to np datetime64
     df.set_index('Date', inplace=True)
@@ -338,16 +343,16 @@ if __name__ == "main":
     # endDate = "2019-01-01"
     # tickerMapping= tick_mapping
 
-    rn = Analysis(data = df, startDate = "2014-01-01", endDate = "2019-01-01", tickerMapping = tick_mapping)
+    rn = Analysis(data = df, startDate = "2014-01-01", endDate = "2019-06-14", tickerMapping = tick_mapping)
     # rn.summaryTable(toCsv=True, r = 0.015)
-    # rn.annualReturns(toCsv=True)
+    rn.annualReturns(toCsv=True)
     # rn.lookbackPerformance(lookbackList = ["0D", "6M", "1Y", "2Y", "3Y"], results=True, returnPlot=False)
     rn.plot_bollinger_bands(data = df[df.index > "2014-01-01"])
 
     # Look at the volatility on a rolling level
 
 
-    
+
     @staticmethod
     def plot_bollinger_bands(self, data, window=20, no_std=2):
         """Function to do bollinger band plots for each of the stocks in the dataframe"""
