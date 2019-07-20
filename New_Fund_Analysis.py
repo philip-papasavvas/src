@@ -110,12 +110,14 @@ class Analysis():
             self.output_dir = output_path
         self.output_dir = output_path
 
-    def daily_returns(self, data):
+    @staticmethod
+    def daily_returns(data):
         """Give daily returns"""
         dailyReturn = data.pct_change(1).iloc[1:, ]
         return dailyReturn
 
-    def log_daily_returns(self, data):
+    @staticmethod
+    def log_daily_returns(data):
         """Give log daily returns"""
         log_dailyReturn = data.apply(lambda x: np.log(x) - np.log(x.shift(1)))[1:]
         return log_dailyReturn
@@ -284,7 +286,6 @@ class Analysis():
 
         return roll_mean, roll_std, boll_high, boll_low
 
-
     def plot_bollinger_bands(self, data, window=20, no_std=2):
         """Function to do bollinger band plots for each of the stocks in the dataframe"""
 
@@ -319,6 +320,83 @@ class Analysis():
             plt.savefig(self.output_dir + "{stock} Price & Vol History.png".format(stock=col))
             plt.close()
 
+    @staticmethod
+    def plot_total_return(data, output_dir, isLog=False):
+        """
+        Plot the normalised return over time, anchored back to start of lookback
+        period
+
+        Params:
+            data:       Cleaned dataframe of stock prices
+            output_dir: Where to print output
+            isLog:      Log returns if True, simple if not
+        """
+
+        for col in data.columns:
+            slice = data.loc[:, col]
+
+            if isLog:
+                normed_px = np.log(slice / slice[0])
+            else:
+                normed_px = slice / slice[0]
+
+            # Plot the charts
+            fig, ax1 = plt.subplots()
+            color = 'tab:red'
+            ax1.set_xlabel("Time")
+            ax1.plot(normed_px, color=color)
+
+            if isLog:
+                ax1.set_ylabel("Log Total Return")
+                plt.suptitle(col + " - Log Total Return")
+            else:
+                ax1.set_ylabel("Total Return")
+                plt.suptitle(col + " - Total Return")
+
+            plt.show()
+            if isLog:
+                plt.savefig(output_dir + "{stock} Log Total Return Chart.png".format(stock=col))
+            else:
+                plt.savefig(output_dir + "{stock} Total Return Chart.png".format(stock=col))
+            plt.close()
+
+    def rolling_sharpe_plots(self, data):
+        #TODO: smooth out the curve as very noisy
+
+        oned_returns = self.daily_returns(data)
+        std_data = np.std(oned_returns)
+
+        for col in data.columns:
+            slice = data.loc[:,col]
+            roll_mean = slice.rolling(window=5).mean()[5:]
+            rolling_daily_rtns = roll_mean.pct_change(1).iloc[1:]
+
+            annualised_return = np.mean(rolling_daily_rtns) * 252
+            annual_volatility = np.std(rolling_daily_rtns)* np.sqrt(252)
+            sharpe = annualised_return / annual_volatility
+
+            # 21 business days in a month
+            def rolling_sharpe(data):
+                return (np.sqrt(21)*6) * (data.mean() / data.std())
+
+            roll_sharpe = rolling_daily_rtns.rolling('180d').apply(rolling_sharpe)[1:]
+
+            fig, ax1 = plt.subplots()
+            color = 'tab:red'
+            ax1.set_xlabel("Date")
+            ax1.set_ylabel("Rolling Sharpe Ratio (3 month)")
+            ax1.plot(roll_sharpe, color=color)
+            ax1.tick_params(axis='y', labelcolor=color)
+            #ax1.plot(sharpe, linestyle="dashed", color="k", linewidth=0.5)
+            ax1.axhline(y=sharpe)
+
+            plt.suptitle(col + "\t - rolling Sharpe ratio (3 month window)")
+            # fig.tight_layout()
+            plt.show()
+            plt.savefig(self.output_dir + "{col} Rolling Sharpe Ratio.png".format(stock=col))
+            plt.close()
+
+
 
     # def monthlyReturnTable(self):
     #     """Table for monthly returns"""
@@ -345,7 +423,7 @@ if __name__ == "main":
     df = utils.char_to_date(df) #convert all dates to np datetime64
     df.set_index('Date', inplace=True)
 
-    tick_mapping = pd.read_csv(inputDir + 'tickerNameMapping.csv') #also:"tickerNameMapping.csv", 'securityMapping_subset.csv'
+    # tick_mapping = pd.read_csv(inputDir + 'tickerNameMapping.csv') #also:"tickerNameMapping.csv", 'securityMapping_subset.csv'
 
     # For manual debugging
     # input_data = df
@@ -353,12 +431,14 @@ if __name__ == "main":
     # endDate = "2019-01-01"
     # tickerMapping= tick_mapping
 
-    rn = Analysis(data = df, startDate = "2014-01-01", endDate = "2019-06-14", tickerMapping = tick_mapping)
-    # rn.summaryTable(toCsv=True, r = 0.015)
-    rn.annualReturns(toCsv=True)
+    rn = Analysis(data = df, startDate = "2014-01-01", endDate = "2019-06-01", tickerMapping = None)
+    rn.summaryTable(toCsv=True, r = 0.015)
+    # rn.annualReturns(toCsv=True)
     # rn.lookbackPerformance(lookbackList = ["0D", "6M", "1Y", "2Y", "3Y"], results=True, returnPlot=False)
-    rn.plot_bollinger_bands(data = df[df.index > "2014-01-01"])
+    # rn.plot_bollinger_bands(data = df[df.index > "2014-01-01"])
 
+    data = rn.data
+    Analysis.plot_total_return(data = rn.data, output_dir = outputFolder, isLog=False)
 
 
 
