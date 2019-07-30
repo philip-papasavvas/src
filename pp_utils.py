@@ -9,7 +9,8 @@ import numpy as np
 import datetime as dt
 import os
 from re import sub, search, escape
-import win32clipboard as clipboard
+import re
+#import win32clipboard as clipboard
 import xlrd
 
 dateToStr = lambda d: d.astype(str).replace('-', '')
@@ -392,7 +393,7 @@ def find(folderPath,pattern='.*',fullPath=False, expectOne=True):
             if more than one file is found when expectOne = True
     """
     if isinstance(folderPath,str):
-        folderPath, = Utils.to_array(folderPath)
+        folderPath, = to_array(folderPath)
 
     for i,path in enumerate(folderPath):
 
@@ -485,7 +486,7 @@ def rolling_window(a, size):
     Example
     -------
     >>> import numpy as np
-    >>> from pp_utils import rolling_window
+    >>> from utils import rolling_window
     >>> rolling_window(np.random.randn(20),5).mean(axis=-1) # find the 5 element rolling mean of an array
 
     """
@@ -494,7 +495,6 @@ def rolling_window(a, size):
     return np.lib.stride_tricks.as_strided(a_ext, shape=(a.shape + (size,)), strides=strides)
 
 get_folder = lambda path: os.path.split(path)[0]
-
 
 def array_to_clipboard(array):
     """
@@ -569,7 +569,7 @@ def to_array(*args):
     Example
     -------
     >>> import numpy as np
-    >>> from pp_utils import to_array
+    >>> from utils import to_array
     >>> x,y,z = to_array(2,["a","b"],None)
     >>> date_array, =  to_array(np.datetime64("2019-01-01"))
 

@@ -88,7 +88,7 @@ class Analysis():
         except KeyError:
             df = dataframe
 
-        print("Data analysed for period " + startDate + " to " + endDate)
+        print("Data analysed for period " + beginDateStr + " to " + finalDateStr)
 
         if tickerMapping is not None:
             self.fundDict = dict(zip(tickerMapping['Ticker'], tickerMapping['Security Name']))
@@ -110,8 +110,7 @@ class Analysis():
             self.output_dir = output_path
         self.output_dir = output_path
 
-    @staticmethod
-    def daily_returns(data):
+    def daily_returns(self, data):
         """Give daily returns"""
         dailyReturn = data.pct_change(1).iloc[1:, ]
         return dailyReturn
@@ -136,12 +135,11 @@ class Analysis():
         # annualReturn = round((annualReturn*100),3)
         annualReturn.index.name = "Fund / Annual Return"
 
-        # if self.fundDict is not None:
-        #     annualReturn.rename(index=self.fundDict, inplace=True)
-
         if toCsv:
             annualReturn.to_csv(self.output_dir + dateToStr(self.runDate) + " Securities Annual Return.csv")
             print("Summary table has been written to csv file in directory: " + self.output_dir)
+
+        return annualReturn
 
     def summaryTable(self, toCsv = False, r = None):
         """
@@ -314,29 +312,36 @@ class Analysis():
             ax2.tick_params(axis='y', labelcolor=color)
             ax2.set_ylim(0, 0.25)
 
-            plt.suptitle(col + "\t (rolling {n}-day window)".format(n=window))
+            plt.suptitle(col + " (rolling {n}-day window)".format(n=window))
             # fig.tight_layout()
             plt.show()
             plt.savefig(self.output_dir + "{stock} Price & Vol History.png".format(stock=col))
             plt.close()
+
+    # def monthlyReturnTable(self):
+    #     """Table for monthly returns"""
+    #     if isinstance(self.startDate, np.datetime64) & isinstance(self.endDate, np.datetime64):
+    #         df = self.data.loc[self.startDate: self.endDate, :]
+    #     else:
+    #         df = self.data
+    #     df = df.copy(True)
+    #     df.dropna(axis=1, inplace=True)
+    #     df.index = df.index.strftime("%Y-%m-%d")
+    #     # df.index['year'] = df.index.year
+    #     # df.index['month'] = df.index.month
 
     @staticmethod
     def plot_total_return(data, output_dir, isLog=False):
         """
         Plot the normalised return over time, anchored back to start of lookback
         period
-
-        Params:
-            data:       Cleaned dataframe of stock prices
-            output_dir: Where to print output
-            isLog:      Log returns if True, simple if not
         """
 
         for col in data.columns:
             slice = data.loc[:, col]
 
             if isLog:
-                normed_px = np.log(slice / slice[0])
+                normed_px = 1 + np.log(slice/slice[0])
             else:
                 normed_px = slice / slice[0]
 
@@ -355,60 +360,63 @@ class Analysis():
 
             plt.show()
             if isLog:
-                plt.savefig(output_dir + "{stock} Log Total Return Chart.png".format(stock=col))
+                plt.savefig(os.path.join(output_dir, "{stock} - Log Total Return Chart.png".format(stock = col)))
             else:
-                plt.savefig(output_dir + "{stock} Total Return Chart.png".format(stock=col))
+                plt.savefig(os.path.join(output_dir,  "{stock} - Total Return Chart.png".format(stock=col)))
             plt.close()
 
-    def rolling_sharpe_plots(self, data):
-        #TODO: smooth out the curve as very noisy
+    def excel_summary(self, outputDir):
+        """Print the summary to Excel"""
 
-        oned_returns = self.daily_returns(data)
-        std_data = np.std(oned_returns)
+        if outputDir is None:
+            outputDir = self.output_dir
 
-        for col in data.columns:
-            slice = data.loc[:,col]
-            roll_mean = slice.rolling(window=5).mean()[5:]
-            rolling_daily_rtns = roll_mean.pct_change(1).iloc[1:]
-
-            annualised_return = np.mean(rolling_daily_rtns) * 252
-            annual_volatility = np.std(rolling_daily_rtns)* np.sqrt(252)
-            sharpe = annualised_return / annual_volatility
-
-            # 21 business days in a month
-            def rolling_sharpe(data):
-                return (np.sqrt(21)*6) * (data.mean() / data.std())
-
-            roll_sharpe = rolling_daily_rtns.rolling('180d').apply(rolling_sharpe)[1:]
-
-            fig, ax1 = plt.subplots()
-            color = 'tab:red'
-            ax1.set_xlabel("Date")
-            ax1.set_ylabel("Rolling Sharpe Ratio (3 month)")
-            ax1.plot(roll_sharpe, color=color)
-            ax1.tick_params(axis='y', labelcolor=color)
-            #ax1.plot(sharpe, linestyle="dashed", color="k", linewidth=0.5)
-            ax1.axhline(y=sharpe)
-
-            plt.suptitle(col + "\t - rolling Sharpe ratio (3 month window)")
-            # fig.tight_layout()
-            plt.show()
-            plt.savefig(self.output_dir + "{col} Rolling Sharpe Ratio.png".format(stock=col))
-            plt.close()
+        writer = pd.ExcelWriter(os.path.join(outputDir, "Stock Summary Measures.xlsx"))
 
 
+        # Summary table of return/volatility/info ratio/sharpe ratio
+        summary_one = self.summaryTable(toCsv=False, r=0.01)
+        # Useful for printing the display output, but str not useful elsewhere
+        # summ_one_str = summary_one.to_string(formatters={
+        #     'Annualised Return': '{:,.2%}'.format,
+        #     'Annual Volatility': '{:,.2%}'.format,
+        #     'Information Ratio': '{:,.3f}'.format,
+        #     'Sharpe Ratio': '{:,.3f}'.format,
+        # })
 
-    # def monthlyReturnTable(self):
-    #     """Table for monthly returns"""
-    #     if isinstance(self.startDate, np.datetime64) & isinstance(self.endDate, np.datetime64):
-    #         df = self.data.loc[self.startDate: self.endDate, :]
-    #     else:
-    #         df = self.data
-    #     df = df.copy(True)
-    #     df.dropna(axis=1, inplace=True)
-    #     df.index = df.index.strftime("%Y-%m-%d")
-    #     # df.index['year'] = df.index.year
-    #     # df.index['month'] = df.index.month
+        summary_one['Annualised Return'] = pd.Series(["{0:.2f}%".format(val*100) for val in summary_one['Annualised Return']], \
+                                                     index=summary_one.index)
+        summary_one['Annual Volatility'] = pd.Series(["{0:.2f}%".format(val * 100) for val in summary_one['Annual Volatility']], \
+                                                     index=summary_one.index)
+
+        summary_one.to_excel(writer, "Summary Table")
+
+
+        # Annual Returns
+        annual_table = self.annualReturns(toCsv=False)
+        annual_table.columns = annual_table.columns.astype(str)
+
+        annual_table['2014'] = pd.Series(["{0:.2f}%".format(val * 100) for val in annual_table['2014']], index=annual_table.index)
+        annual_table['2015'] = pd.Series(["{0:.2f}%".format(val * 100) for val in annual_table['2015']], index=annual_table.index)
+        annual_table['2016'] = pd.Series(["{0:.2f}%".format(val * 100) for val in annual_table['2016']],
+                                         index=annual_table.index)
+        annual_table['2017'] = pd.Series(["{0:.2f}%".format(val * 100) for val in annual_table['2017']],
+                                         index=annual_table.index)
+        annual_table['2018'] = pd.Series(["{0:.2f}%".format(val * 100) for val in annual_table['2018']],
+                                         index=annual_table.index)
+        annual_table['2019'] = pd.Series(["{0:.2f}%".format(val * 100) for val in annual_table['2019']],
+                                         index=annual_table.index)
+
+        annual_table.to_excel(writer, "Annual Return")
+
+
+        # Correlation matrix
+        correlation_mat = self.data.corr()
+
+        correlation_mat.to_excel(writer, "Correlation")
+
+        writer.save()
+
 
 if __name__ == "main":
 
@@ -425,26 +433,46 @@ if __name__ == "main":
 
     # tick_mapping = pd.read_csv(inputDir + 'tickerNameMapping.csv') #also:"tickerNameMapping.csv", 'securityMapping_subset.csv'
 
-    # For manual debugging
-    # input_data = df
-    # startDate = "2016-01-01"
-    # endDate = "2019-01-01"
-    # tickerMapping= tick_mapping
-
-    rn = Analysis(data = df, startDate = "2014-01-01", endDate = "2019-06-01", tickerMapping = None)
-    rn.summaryTable(toCsv=True, r = 0.015)
+    # rn = Analysis(data = df, startDate = "2014-01-01", endDate = "2019-06-01", tickerMapping = None)
+    # rn.summaryTable(toCsv=True, r = 0.015)
     # rn.annualReturns(toCsv=True)
     # rn.lookbackPerformance(lookbackList = ["0D", "6M", "1Y", "2Y", "3Y"], results=True, returnPlot=False)
     # rn.plot_bollinger_bands(data = df[df.index > "2014-01-01"])
+    #
+    # data = rn.data
+    # Analysis.plot_total_return(data = rn.data, output_dir = outputFolder, isLog=False)
 
-    data = rn.data
-    Analysis.plot_total_return(data = rn.data, output_dir = outputFolder, isLog=False)
+    _ = 1
+
+    inputDir = os.path.join(inputDir, "security_data")
+    outputDir = os.path.join(inputDir, "output")
 
 
+    df = pd.read_csv(os.path.join(inputDir, "price_data.csv"))
+    df = utils.char_to_date(df)  # convert all dates to np datetime64
+    df.set_index('Date', inplace=True)
 
-    # Look at the volatility on a rolling level
+    # cut the dataframe and only look at the nulls
+    df = df.loc[:, df.isnull().sum() != 0]
+    null_lst = list(df.isnull().sum().values)  # list of first null values
 
+    for i, e in enumerate(null_lst):
+        slice = df.iloc[e:, i]
+        slice.dropna(axis=0, inplace=True)
+        startDate = slice.index[0].strftime("%Y-%m-%d")
+        name = pd.Series(slice).name
 
+        try:
+            rn = Analysis(data=slice, startDate=startDate, endDate="2019-07-05")
+        except (AttributeError) or (IndexError):
+            rn = Analysis(data=pd.DataFrame(slice), startDate=startDate, endDate="2019-07-05")
+
+        # rn = Analysis(data=slice, startDate=startDate, endDate="2019-07-05")
+        rn.excel_summary()
+        os.rename(os.path.join(outputDir, "Stock Summary Measures.xlsx"),
+                  os.path.join(outputDir, "Stock Summary Measures_" + name + ".xlsx"))
+        rn.plot_total_return(data=rn.data, output_dir=outputDir, isLog=True)
+        rn.plot_total_return(data=rn.data, output_dir=outputDir, isLog=False)
 
     # @staticmethod
     # def plot_bollinger_bands(self, data, window=20, no_std=2):
@@ -566,72 +594,3 @@ if __name__ == "main":
     # b.columns = col_labels
     # c = pd.concat([a,b], axis = 1)
     # c[['MXWO Index', 'MXWO Index_std']].plot(subplots=True, color = "r", figsize = (10,6))
-
-# def stockPerformance(dataframe, endDate, lookbackList = ["0D", "6M", "1Y", "2Y", "3Y"],
-#                      print_pricesSummary = True, print_returnSummary = True,
-#                      showPlots = False, fundMapping= None):
-#     """"
-#     Function --> to be made into a class, to take in dataframe of security prices, analyse
-#     them and produce comparison tables.
-#
-#     Parameters:
-#         dataframe:      consisting of date index, and historical prices for security
-#         date:           date present in the dataframe, np.datetime64
-#         lookbackList:   specify in "M" and/or "Y" the price comparison to be made,
-#                         default "6M", "1Y", "2Y", "3Y"
-#         fundMapping     mapping of the Bloomberg tickers to the Fund names
-#
-#     """
-#     categoriesFile = pd.ExcelFile(fundMapping)
-#     fundList = categoriesFile.parse("Sheet1").iloc[:,:2]
-#     fundDict = dict(zip(fundList['Ticker'], fundList['Security Name']))
-#
-#     df = pd.read_csv("data_2019.csv", index_col="Date", parse_dates=True)
-#     df.rename(columns=fundDict, inplace=True)
-#
-#     if lookbackList is None:
-#         lookbackList = ["0D", "3M", "6M", "9M", "12M"]
-#
-#     dates  = [previousDate(df, endDate, i) for i in lookbackList]
-#     prices = [df.loc[i,: ].values for i in dates]
-#
-#     ### Summary table of prices
-#     # final iloc[::-1] is to reverse the dataframe by the date index to get from earliest to latest date
-#     summaryTable = pd.DataFrame.from_records(prices, index= dates, columns=df.columns).iloc[::-1]
-#
-#     ### Period returns
-#     cumulativeReturn = summaryTable.apply(lambda x: x/x[0]) - 1
-#     returnSummary = round((cumulativeReturn * 100),2).astype(str) + "%"
-#     returnSummary['Return Period'] = lookbackList[::-1] #reverse the order from earliest to latest
-#     returnSummary = returnSummary[returnSummary.columns.tolist()[-1:] + returnSummary.columns.tolist()[:-1]]
-#
-#     # Normalised returns chart to earliest date specified in lookbackList,
-#     # use rolling price over 5 days to remove noise from charts
-#     # TODO: Develop later as this is not working currently
-#     # subset_df = df.loc[dates[-1]: dates[0],:]
-#     # subset_return_toStart = subset_df.apply(lambda x: x/x[0])
-#     # subset_return_toStart.plot()
-#     # subset_df_rolled = subset_df.rolling(window=10).mean()
-#
-#     if print_pricesSummary:
-#       print("Prices summary: \n")
-#       print(summaryTable)
-#
-#     if print_returnSummary:
-#         print("Return summary: \n")
-#         print(returnSummary)
-#
-#     if showPlots:
-#         return_lookbackList = summaryTable.apply(lambda x: x/x[0])
-#         return_lookbackList.plot()
-#
-# dataframe= "data_2019.csv"
-# endDate = np.datetime64('2018-12-31')
-# lookbackList = ['0D', '6M', '1Y', '2Y', '3Y', '4Y', '5Y']
-# fundMapping = "fundList.xlsx"
-# print_pricesSummary = True
-# print_returnSummary = True
-# showPlots = True
-# stockPerformance(dataframe= "data_2019.csv", endDate= np.datetime64('2018-12-31'),
-#                 lookbackList = ['0D', '6M', '1Y', '2Y', '3Y', '4Y', '5Y'], fundMapping = "fundList.xlsx",
-#                 print_pricesSummary = True, print_returnSummary = True, showPlots = True)

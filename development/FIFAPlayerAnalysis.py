@@ -1,7 +1,10 @@
 """
 Created 26/11/18
-"""
+@author: Philip P
+Exploratory data analysis
 
+"""
+import utils
 import numpy as np
 import pandas as pd
 import datetime
@@ -9,9 +12,9 @@ import seaborn as sns
 import plotly
 import os
 
-os.chdir('/Users/ppapasav/Documents/python/Kaggle/FIFA17players')
+player_data = "C://Users//Philip//Documents//python//input//Kaggle_FIFA17_players.csv"
 
-df = pd.read_csv('FullData.csv')
+df = pd.read_csv(player_data)
 df = df.copy(True)
 df['Height'] = pd.to_numeric(df['Height'].str.strip(' cm'))
 df['Weight'] = pd.to_numeric(df['Weight'].str.strip(' kg'))
