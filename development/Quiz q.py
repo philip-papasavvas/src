@@ -56,8 +56,8 @@ max(uniq_letters, key=len)
 
 vowels = set(["a","e", "i", "o", "u"])
 
-[i.difference(vowels) for i in set_let]
+[i.difference(vowels) for i in vowels]
 #gives difference between letters and if vowels exist
 
-[len(i) - len(i.difference(vowels)) for i in set_let]
+[len(i) - len(i.difference(vowels)) for i in vowels]
 

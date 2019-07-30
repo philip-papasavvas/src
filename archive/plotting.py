@@ -29,4 +29,3 @@ for ax in axes:
     axes.set_ylabel(df.columns[ax])
     axes.set_xlabel('Date')
 
-fig
