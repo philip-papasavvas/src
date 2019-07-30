@@ -3,7 +3,7 @@
 *This is a selection of **small projects** that I'll be working on in 2019.*
 
 ## Projects
-1. FundAnalysis.py: 
+1. New_Fund_Analysis.py: 
  - Class to analyse security price data to output fundamentals: (annualised) return, (annualised) volatility, Sharpe & Information ratio.
  - Summary tables produced: annualised performance, user-specified custom lookback performance, normalised returns, correlation
  - Methods for plotting: normalised returns & rolling volatility, (6m) rolling Sharpe Ratio, bollinger bands
