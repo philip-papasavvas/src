@@ -8,7 +8,16 @@
 
 ## Introduction
 
-*This is a selection of **small projects** that I'll be working on in 2019.*
+This is a selection of **small projects** that I'll be working on in 2019. They mainly focus around analysis of securities data,
+I've predominantly focussed on mutual funds listed on the London Stock Exchange.
+
+
+# Pre-requisites
+* [Arctic](https://github.com/manahl/arctic) >= 1.79.0
+* [yfinance](https://github.com/ranaroussi/yfinance) >= 0.1.43
+* [matplotlib](https://github.com/matplotlib/matplotlib)
+* [pymongo](https://github.com/mher/pymongo) >= 3.8.0
+
 
 ## Projects
 1. New_Fund_Analysis.py: 
@@ -43,11 +52,3 @@
 ## Miscellaneous useful functions
 101. organise_files.py: Organise files by extension (supports xlsx and jpg) and move to specified folder
 102. password_generator.py: Generate custom-length alphanumeric password (and if requested special characters)
-
-
-## Requirements
-Currently works with and tested using:
-* Python 3.6
-* Pandas
-* xlrd
-* Arctic
