@@ -12,7 +12,7 @@
 - [Fund Analysis](#fund-analysis)
 - [Efficient Frontier](#efficient-frontier)
 - [Stationarity](#stationarity)
-- [Future Ideas](#future-ideas)
+- [Roadmap](#roadmap)
 - [Other Modules](#other-modules)
 
 ## Introduction
@@ -53,11 +53,12 @@ Stationarity.py
 - *Development*
     - [ ] *Translate this into a Jupyter Notebook to display the theory behind the ADF test, and list the hypotheses*
 
-## Future Ideas
+## Roadmap
+I have the following modules planned out and hope to implement soon
 - finance-database.py
     - Download security data from Yahoo Finance using yfinance and store the data in MongoDB using Arctic
     - *Development*
-        [ ] *Auto-run this for a given day and data stored down to database. Diagnostic tool to deal with bad data*
+        - [ ] *Auto-run this for a given day and data stored down to database. Diagnostic tool to deal with bad data*
 
 ## Other Modules
 - organise_files.py: *organise files by extension (supports xlsx and jpg) and move to specified folder*
