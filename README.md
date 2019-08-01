@@ -1,4 +1,12 @@
-# Introduction
+# Projects
+
+<p align="left">
+    <a href="https://www.python.org/">
+        <img src="https://ForTheBadge.com/images/badges/made-with-python.svg"
+            alt="python"></a> &nbsp;
+</p>
+
+## Introduction
 
 *This is a selection of **small projects** that I'll be working on in 2019.*
 
