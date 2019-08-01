@@ -8,25 +8,17 @@
 
 ## Contents
 - [Introduction](#introduction)
-- [Prerequisities](#prerequisites)
 - [Fund Analysis](#fund-analysis)
 - [Efficient Frontier](#efficient-frontier)
 - [Stationarity](#stationarity)
 - [Roadmap](#roadmap)
 - [Other Modules](#other-modules)
+- [Prerequisities](#prerequisites)
 
 ## Introduction
 
 This is a selection of **small projects** that I'll be working on in 2019. They mainly focus around analysis of securities data,
 I've predominantly focussed on mutual funds listed on the London Stock Exchange.
-
-
-# Prerequisites
-* [Arctic](https://github.com/manahl/arctic) >= 1.79.0
-* [yfinance](https://github.com/ranaroussi/yfinance) >= 0.1.43
-* [matplotlib](https://github.com/matplotlib/matplotlib)
-* [pymongo](https://github.com/mher/pymongo) >= 3.8.0
-
 
 ## Fund Analysis
 - New_Fund_Analysis.py
@@ -34,10 +26,16 @@ I've predominantly focussed on mutual funds listed on the London Stock Exchange.
  - Summary tables produced: annualised performance, user-specified custom lookback performance, normalised returns, correlation
  - Methods for plotting: normalised returns & rolling volatility, (6m) rolling Sharpe Ratio, bollinger bands
  - *Development*
-     - [ ] *Melt/vstack the securities data so that stats can be computed for lookbacks of each security regardless of when price history started. Summary table will then have columns: (start_date, end_date, no_observations, fund, year x return, year x+1 return, .....year x+n return), so if one fund started in 2012 and another in 2014, both funds in summary table but NaNs populate for smaller dataset. Flag to user which securities are not populated for lookback*
+     - [ ] *Melt/vstack the securities data so that stats can be computed for lookbacks of each security regardless of when price history started. Summary table will then have columns: (start_date, end_date, no_observations, fund, year x return, year x+1 return, .....year x+n return), so if one fund started in 2012 and another in 2014, both funds in summary table but NaNs populate for smaller dataset. Flag to user which securities are not populated for lookback. Remove the flag for NaN security data, add in the replace "#N/A" with np.nan, and then functionality to continue for all funds*
     - [ ] *Add key,value mapping for each fund and it's benchmark, then plotting each security with associated benchmark (if any)*
     - [ ] *Integrate efficient frontier script as class method for specified subset of securities*
     - [ ] *Change the input parameters to be in a config.json to read as inputs*
+    
+<!-- Below is an example of a bollinger band plot.
+![alt text][image] 
+
+[image] https://github.com/philip-papasavvas/projects/blob/master/Scottish%20Mortgage%20Investment%20T%20Price%20%26%20Vol%20History.png "Example Bollinger Band & Rolling Volatility Plot"
+!-->
  
 ## Efficient Frontier
 - Efficient Frontier.py
@@ -63,3 +61,11 @@ I have the following modules planned out and hope to implement soon
 ## Other Modules
 - organise_files.py: *organise files by extension (supports xlsx and jpg) and move to specified folder*
 - password_generator.py: *custom-length alphanumeric password (and if requested special characters)*
+
+## Prerequisites
+The following modules are needed for the library
+* [Arctic](https://github.com/manahl/arctic) >= 1.79.0
+* [yfinance](https://github.com/ranaroussi/yfinance) >= 0.1.43
+* [matplotlib](https://github.com/matplotlib/matplotlib)
+* [pymongo](https://github.com/mher/pymongo) >= 3.8.0
+
