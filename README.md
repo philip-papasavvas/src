@@ -26,7 +26,7 @@ I've predominantly focussed on mutual funds listed on the London Stock Exchange.
  - Summary tables produced: annualised performance, user-specified custom lookback performance, normalised returns, correlation
  - Methods for plotting: normalised returns & rolling volatility, (6m) rolling Sharpe Ratio, bollinger bands
  - *Development*
-     - [ ] *Melt/vstack the securities data so that stats can be computed for lookbacks of each security regardless of when price history started. Summary table will then have columns: (start_date, end_date, no_observations, fund, year x return, year x+1 return, .....year x+n return), so if one fund started in 2012 and another in 2014, both funds in summary table but NaNs populate for smaller dataset. Flag to user which securities are not populated for lookback. Remove the flag for NaN security data, add in the replace "#N/A" with np.nan, and then functionality to continue for all funds*
+    - [ ] *Melt/vstack the securities data Update summary table to have: (start_date, end_date, no_observations, fund, year x return, year x+1 return, .....year x+n return), so if one fund started in 2012 and another in 2014, both funds in summary table but NaNs populate for smaller dataset. Flag to user which securities are not populated for lookback*
     - [ ] *Add key,value mapping for each fund and it's benchmark, then plotting each security with associated benchmark (if any)*
     - [ ] *Integrate efficient frontier script as class method for specified subset of securities*
     - [ ] *Change the input parameters to be in a config.json to read as inputs*
@@ -67,5 +67,6 @@ The following modules are needed for the library
 * [Arctic](https://github.com/manahl/arctic) >= 1.79.0
 * [yfinance](https://github.com/ranaroussi/yfinance) >= 0.1.43
 * [matplotlib](https://github.com/matplotlib/matplotlib)
-* [pymongo](https://github.com/mher/pymongo) >= 3.8.0
+* [pymongo](https://github.com/mher/pymongo)
+* [pyperclip](https://github.com/asweigart/pyperclip) 
 

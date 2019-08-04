@@ -103,6 +103,8 @@ if __name__ == "__main__":
 
     item = library.read('Gabelli Value')
 
+    df = yf.download(tickers=['GB00B4WKYF80.L'], period="5y", interval="1d")
+
     #view/access the data
     item.data
 
@@ -110,6 +112,7 @@ if __name__ == "__main__":
     # ------------
     # JSON reading
     # ------------
+
 
 
 

@@ -19,19 +19,16 @@ import os
 import pandas as pd
 import numpy as np
 import datetime as dt
-import utils
 from re import sub, search
-from utils import previousDate
+import utils
+from utils import previousDate, prep_fund_data
+
+pd.set_option('display.max_columns', 5)
 
 import matplotlib.pyplot as plt
 plt.style.use('seaborn')
 
 dateToStr = lambda d: d.astype(str).replace('-', '')
-
-# os.chdir("C://Users//Philip.P_adm//Documents//Fund Analysis")
-wkdir = "C://Users//Philip//Documents//python//"
-inputFolder = wkdir + "input/"
-outputFolder = wkdir + "output/"
 
 class Analysis():
     """
@@ -60,7 +57,29 @@ class Analysis():
     #     volatility is displayed, as well as the Sharpe Ratio over the total
     #     lookback period
     """
-    def __init__(self, data, startDate=None, endDate=None, tickerMapping=None, drop=False):
+    def __init__(self, data, wkdir, startDate=None, endDate=None, tickerMapping=None, drop_na=False):
+
+        """
+        Parameters
+        ----------
+
+        data: dataframe
+            Security data of price over time period
+        wkdir: str
+            Path of working directory
+        startDate: str, default None
+            Analyse data from the specified start date in the format YYYY-MM-DD. Will default to start of
+            time series
+        endDate: str, default None
+            Analyse data from the specified end date in the format YYYY-MM-DD. Will default to end of
+            time series
+        drop_na: bool, default False
+            Drop NA columns to not pollute the results
+        tickerMapping: dataframe
+            Mapping between the BBG Ticker of the security, and
+            the security name
+            #TODO: make the above into a dict with keys and values
+        """
 
         # Load & clean data for efficient analysis for all products
 
@@ -69,18 +88,25 @@ class Analysis():
         # check for NaN values and drop, alerting user for what has been dropped
         na_securities = dataframe.columns[dataframe.isnull().any()].values
         if len(na_securities) > 0:
-            print("The following securities have NaNs in the dataset and are therefore excluded "
-                  "from the analysis: \n {}".format(na_securities))
+            print("The following securities have NaNs in the dataset but "
+                  "will be included in the analysis: \n {}".format(na_securities))
 
         beginDateStr = str(dt.datetime.strftime(dataframe.index.min(), "%Y-%m-%d"))
         finalDateStr = str(dt.datetime.strftime(dataframe.index.max(), "%Y-%m-%d"))
         print("Time series for data runs " + beginDateStr + " to " + finalDateStr + "\n")
 
-        self.startDate = np.datetime64(startDate)
-        self.endDate = np.datetime64(endDate)
+        if startDate is not None:
+            self.startDate = np.datetime64(startDate)
+        else:
+            self.startDate = np.datetime64(beginDateStr)
+        if endDate is not None:
+            self.endDate = np.datetime64(endDate)
+        else:
+            self.endDate = np.datetime64(finalDateStr)
+
         self.runDate = np.datetime64(dt.datetime.now().strftime("%Y-%m-%d"))
 
-        if drop:
+        if drop_na:
             dataframe.dropna(axis=0, inplace=True)
 
         try:
@@ -88,7 +114,8 @@ class Analysis():
         except KeyError:
             df = dataframe
 
-        print("Data analysed for period " + beginDateStr + " to " + finalDateStr)
+        print("Data analysed for period " + self.startDate.astype(str) +
+              " to " + self.endDate.astype(str))
 
         if tickerMapping is not None:
             self.fundDict = dict(zip(tickerMapping['Ticker'], tickerMapping['Security Name']))
@@ -98,13 +125,16 @@ class Analysis():
                 df.columns = df.columns.map(self.fundDict)
 
         self.data = df
+        self.wkdir = wkdir
         # self.returns = None
         # self.summary = None
 
         self.set_output_folder()
+        print("Output folder set as " + self.output_dir)
 
     def set_output_folder(self):
-        output_path = wkdir + "output/" + dateToStr(self.runDate) + "/"
+        """Set output """
+        output_path = self.wkdir + "output/" + dateToStr(self.runDate) + "/"
         if not os.path.exists(output_path):
             os.mkdir(output_path)
             self.output_dir = output_path
@@ -129,7 +159,7 @@ class Analysis():
         df = self.data
 
         df = df.copy(True)
-        df.dropna(axis=1, inplace = True) #drop NA columns
+        #df.dropna(axis=1, inplace = True) #drop NA columns
         annualReturn = (df.groupby(df.index.year).last()/ \
                         df.groupby(df.index.year).first() -1).T
         # annualReturn = round((annualReturn*100),3)
@@ -141,14 +171,14 @@ class Analysis():
 
         return annualReturn
 
-    def summaryTable(self, toCsv = False, r = None):
+    def summaryTable(self, toCsv = False, r = 1):
         """
         Summarises return and volatility for input data over whole period
 
         Params:
             toCsv:  bool, default False. If True, written into output_dir
             r: float, default None
-                Risk free rate of return,
+                Risk free rate of return, default 1% (you can get this in banks)
 
         Returns:
             summary: table of returns and volatility of securities entered
@@ -365,7 +395,7 @@ class Analysis():
                 plt.savefig(os.path.join(output_dir,  "{stock} - Total Return Chart.png".format(stock=col)))
             plt.close()
 
-    def excel_summary(self, outputDir):
+    def csv_summary(self, outputDir):
         """Print the summary to Excel"""
 
         if outputDir is None:
@@ -396,40 +426,32 @@ class Analysis():
         annual_table = self.annualReturns(toCsv=False)
         annual_table.columns = annual_table.columns.astype(str)
 
-        annual_table['2014'] = pd.Series(["{0:.2f}%".format(val * 100) for val in annual_table['2014']], index=annual_table.index)
-        annual_table['2015'] = pd.Series(["{0:.2f}%".format(val * 100) for val in annual_table['2015']], index=annual_table.index)
-        annual_table['2016'] = pd.Series(["{0:.2f}%".format(val * 100) for val in annual_table['2016']],
-                                         index=annual_table.index)
-        annual_table['2017'] = pd.Series(["{0:.2f}%".format(val * 100) for val in annual_table['2017']],
-                                         index=annual_table.index)
-        annual_table['2018'] = pd.Series(["{0:.2f}%".format(val * 100) for val in annual_table['2018']],
-                                         index=annual_table.index)
-        annual_table['2019'] = pd.Series(["{0:.2f}%".format(val * 100) for val in annual_table['2019']],
-                                         index=annual_table.index)
-
-        annual_table.to_excel(writer, "Annual Return")
-
+        print_annual_table = annual_table*100
+        print_annual_table = print_annual_table.applymap("{0:.2f}%".format)
+        print_annual_table.to_excel(writer, "Annual Return")
 
         # Correlation matrix
         correlation_mat = self.data.corr()
-
         correlation_mat.to_excel(writer, "Correlation")
 
         writer.save()
+        print("Summary statistics produced, and in the following directory: " + self.output_dir)
 
 
 if __name__ == "main":
 
     from New_Fund_Analysis import Analysis
 
-    wkdir = "C://Users//Philip//Documents//python//"
-    inputDir = wkdir + "input/"
+    # "example_data.csv", "example_data_na.csv" has NA rows, master= funds_stocks_2019.csv
+    # os.chdir("C://Users//Philip.P_adm//Documents//Fund Analysis")
 
-    # "example_data.csv", "example_data_na.csv" has NA rows
-    # df = pd.read_csv(inputDir + 'example_data.csv') #, parse_dates=True)
-    df = pd.read_csv(inputDir + "funds_stocks_2019.csv")
-    df = utils.char_to_date(df) #convert all dates to np datetime64
-    df.set_index('Date', inplace=True)
+    wkdir = "C://Users//Philip//Documents//python//"
+    inputFolder = os.path.join(wkdir, "input")
+    outputFolder = os.path.join(wkdir, "output")
+    df = prep_fund_data(df_path= os.path.join(inputFolder, "example_data_na.csv"))
+
+    rn = Analysis(data=df, wkdir= wkdir)
+    rn.csv_summary(outputDir=os.path.join(wkdir, "output"))
 
     # tick_mapping = pd.read_csv(inputDir + 'tickerNameMapping.csv') #also:"tickerNameMapping.csv", 'securityMapping_subset.csv'
 
@@ -442,15 +464,8 @@ if __name__ == "main":
     # data = rn.data
     # Analysis.plot_total_return(data = rn.data, output_dir = outputFolder, isLog=False)
 
-    _ = 1
-
-    inputDir = os.path.join(inputDir, "security_data")
-    outputDir = os.path.join(inputDir, "output")
-
-
-    df = pd.read_csv(os.path.join(inputDir, "price_data.csv"))
-    df = utils.char_to_date(df)  # convert all dates to np datetime64
-    df.set_index('Date', inplace=True)
+    #inputDir = os.path.join(inputDir, "security_data")
+    outputDir = os.path.join(inputFolder, "output")
 
     # cut the dataframe and only look at the nulls
     df = df.loc[:, df.isnull().sum() != 0]
@@ -473,124 +488,3 @@ if __name__ == "main":
                   os.path.join(outputDir, "Stock Summary Measures_" + name + ".xlsx"))
         rn.plot_total_return(data=rn.data, output_dir=outputDir, isLog=True)
         rn.plot_total_return(data=rn.data, output_dir=outputDir, isLog=False)
-
-    # @staticmethod
-    # def plot_bollinger_bands(self, data, window=20, no_std=2):
-    #     """Function to do bollinger band plots for each of the stocks in the dataframe"""
-    #
-    #     for col in data.columns:
-    #         slice = data.loc[:, col]
-    #         normed_px = slice/slice[0]
-    #
-    #         # Info for bollinger plots, also useful elsewhere
-    #         roll_mn, roll_std, boll_high, boll_low = Analysis.bollinger_band(data=slice, window=window, no_std= no_std)
-    #
-    #         # Plot the charts
-    #         fig, ax1 = plt.subplots()
-    #         color = 'tab:red'
-    #         ax1.set_xlabel("Time")
-    #         ax1.set_ylabel("Price")
-    #         ax1.plot(roll_mn, color=color)
-    #         ax1.tick_params(axis='y', labelcolor=color)
-    #         ax1.plot(boll_high, linestyle="dashed", color="k", linewidth=0.5)
-    #         ax1.plot(boll_low, linestyle="dashed", color="k", linewidth=0.5)
-    #
-    #         norm_std_rolling = normed_px.rolling(window=window).std()
-    #         ax2 = ax1.twinx()
-    #         color = 'tab:blue'
-    #         ax2.set_ylabel('Rolling Volatility', color=color)
-    #         ax2.plot(norm_std_rolling, color=color)
-    #         ax2.tick_params(axis='y', labelcolor=color)
-    #         ax2.set_ylim(0, 0.25)
-    #
-    #         plt.suptitle(col + "\t (rolling {n}-day window)".format(n=window))
-    #         # fig.tight_layout()
-    #         plt.show()
-    #         plt.savefig(self.output_dir + "{stock} Price & Vol History.png".format(stock=col))
-    #         plt.close()
-    #
-    #
-    #     roll_mn, roll_std, boll_high, boll_low = Analysis.bollinger_band(data= data, window=20, no_std=2)
-    #
-    #
-    #
-    #     fig, ax1 = plt.subplots()
-    #     color = 'tab:red'
-    #     ax1.set_xlabel("Time")
-    #     ax1.set_ylabel("Price")
-    #     ax1.plot(roll_mn, color=color)
-    #     ax1.tick_params(axis='y', labelcolor=color)
-    #     ax1.plot(boll_high, linestyle="dashed", color="k", linewidth=0.5)
-    #     ax1.plot(boll_low, linestyle="dashed", color="k", linewidth=0.5)
-    #
-    #     ax2 = ax1.twinx()
-    #     color = 'tab:blue'
-    #     ax2.set_ylabel('Rolling Volatility', color=color)
-    #     ax2.plot(roll_std, color=color)
-    #     ax2.tick_params(axis='y', labelcolor=color)
-    #     ax2.set_ylim(0, 0.2)
-    #
-    #     plt.suptitle(rn.data.columns[3])
-    #     # fig.tight_layout()
-    #     plt.show()
-    #
-    #
-    # @staticmethod
-    # def bollinger_band(data, window, no_std):
-    #     """Function to return bollinger bands for securities
-    #
-    #     Inputs:
-    #         data: df
-    #             Dataframe of stock prices with index as np.datetime64
-    #         window: int
-    #             Rolling window for mean price and standard deviation
-    #         no_std: int
-    #             Number of standard deviations
-    #
-    #     Returns:
-    #         roll_mean, roll_std, boll_high, boll_low
-    #
-    #     """
-    #     roll_mean = data.rolling(window).mean()
-    #     roll_std = data.rolling(window).std()
-    #
-    #     boll_high = roll_mean + (roll_std * no_std)
-    #     boll_low = roll_mean - (roll_std * no_std)
-    #
-    #     return roll_mean, roll_std, boll_high, boll_low
-    #
-    # roll_mn, roll_std, boll_high, boll_low = bollinger_band(data= res, window= 20, no_std=2)
-    #
-    # fig, ax1 = plt.subplots()
-    # color = 'tab:red'
-    # ax1.set_xlabel("Time")
-    # ax1.set_ylabel("Price")
-    # ax1.plot(roll_mn, color = color)
-    # ax1.tick_params(axis='y', labelcolor= color)
-    # ax1.plot(boll_high, linestyle = "dashed", color = "k", linewidth = 0.5)
-    # ax1.plot(boll_low, linestyle="dashed", color="k", linewidth = 0.5)
-    #
-    # ax2 = ax1.twinx()
-    # color = 'tab:blue'
-    # ax2.set_ylabel('Rolling Volatility', color = color)
-    # ax2.plot(roll_std, color = color)
-    # ax2.tick_params(axis='y', labelcolor = color)
-    # ax2.set_ylim(0,0.2)
-    #
-    # plt.suptitle(rn.data.columns[3])
-    # #fig.tight_layout()
-    # plt.show()
-    #
-    #
-    # plt.figure()
-    # plt.plot(res_roll_std)
-    # plt.plot(rn.data.iloc[:,3])
-
-
-
-
-    # b = pd.rolling_std(arg = a, window = 30) #rolling window is 30 days
-    # col_labels = [i + "std" for i in b.columns]
-    # b.columns = col_labels
-    # c = pd.concat([a,b], axis = 1)
-    # c[['MXWO Index', 'MXWO Index_std']].plot(subplots=True, color = "r", figsize = (10,6))

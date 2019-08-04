@@ -1,5 +1,5 @@
 """
-Created on 06/05/2019
+Created on 06 May 2019
 
 Utils module for generic useful functions
 """
@@ -10,14 +10,16 @@ import datetime as dt
 import os
 from re import sub, search, escape
 import re
-#import win32clipboard as clipboard
+import pyperclip
 import xlrd
+
+get_folder = lambda path: os.path.split(path)[0]
 
 dateToStr = lambda d: d.astype(str).replace('-', '')
 
 ### Functions  ###
 
-# Define lookback periods from particular days
+
 def datePlusTenorNew(date, pillar, reverse = False, expressInDays=False):
     '''
     Function to return the day count fraction(per year) between two dates based on convention
@@ -39,32 +41,35 @@ def datePlusTenorNew(date, pillar, reverse = False, expressInDays=False):
 
     Example:
         >>> currentDate = np.datetime64("2018-11-23")
-        >>> dateDelta = datePlusTenorNew(currentDate, "6M", reverse = True)
+        >>> dateDelta = datePlusTenorNew(currentDate, "6M", reverse = True) #numpy.datetime64('2018-05-23')
+        >>> dateDelta_2 = datePlusTenorNew(currentDate, "9M") #numpy.datetime64('2019-08-23')
+        >>> dateDelta_3 = datePlusTenorNew(currentDate, "1M", reverse = True) #numpy.datetime64('2018-10-23')
     '''
     date = date.astype('datetime64[D]')
     if pillar == 'spot':
         newDate = date
-    if bool(search('y|Y', pillar)):
+    if search('y|Y', pillar):
         y = int(sub('\\D', '', pillar))
         yearly = date.astype('datetime64[Y]')
         monthly = date.astype('datetime64[M]')
         myDay = date.astype(int) - monthly.astype('datetime64[D]').astype(int) + 1
         myMonth = monthly.astype(int) - yearly.astype('datetime64[M]').astype(int) + 1
-        if reverse == False:
+        if not reverse:
             newDate = yearly + y
         else:
             newDate = yearly - y
+
         newDate = newDate.astype('datetime64[M]') + myMonth - 1
         # Leap year case, make sure not rolling into next month
         outmonth = newDate.copy()
         newDate = newDate.astype('datetime64[D]') + myDay - 1
         if outmonth != newDate.astype('datetime64[M]'):
             newDate = newDate.astype('datetime64[M]').astype('datetime64[D]') - 1
-    if bool(search('m|M', pillar)):
+    if search('m|M', pillar):
         m = int(sub('\\D', '', pillar))
         monthly = date.astype('datetime64[M]')
         myDay = date.astype(int) - monthly.astype('datetime64[D]').astype(int) + 1
-        if reverse == False:
+        if not reverse:
             newDate = monthly + m
         else:
             newDate = monthly - m
@@ -73,15 +78,15 @@ def datePlusTenorNew(date, pillar, reverse = False, expressInDays=False):
         newDate = newDate.astype('datetime64[D]') + myDay - 1
         if outmonth != newDate.astype('datetime64[M]'):
             newDate = newDate.astype('datetime64[M]').astype('datetime64[D]') - 1
-    if bool(search('w|W', pillar)):
+    if search('w|W', pillar):
         w = int(sub('\\D', '', pillar))
-        if reverse == False:
+        if not reverse:
             newDate = date + np.timedelta64(w * 7, 'D')
         else:
             newDate = date - np.timedelta64(w * 7, 'D')
-    if bool(search('d|D', pillar)):
+    if search('d|D', pillar):
         d = int(sub('\\D', '', pillar))
-        if reverse == False:
+        if not reverse:
             newDate = date + np.timedelta64(d, 'D')
         else:
             newDate = date - np.timedelta64(d, 'D')
@@ -494,8 +499,6 @@ def rolling_window(a, size):
     strides = a_ext.strides + (a_ext.strides[-1],)
     return np.lib.stride_tricks.as_strided(a_ext, shape=(a.shape + (size,)), strides=strides)
 
-get_folder = lambda path: os.path.split(path)[0]
-
 def array_to_clipboard(array):
     """
     Copies an array into a string format acceptable by Excel.
@@ -520,11 +523,8 @@ def array_to_clipboard(array):
 
     array_string = "\r\n".join(line_strings)
 
-    # Put string into clipboard (open, clear, set, close)
-    clipboard.OpenClipboard()
-    clipboard.EmptyClipboard()
-    clipboard.SetClipboardText(array_string)
-    clipboard.CloseClipboard()
+    # Put string into clipboard
+    pyperclip.copy(array_string)
 
 def x2pdate(xldate):
     """
@@ -591,6 +591,13 @@ def to_array(*args):
         else:
             raise ValueError('unable to convert to array')
 
+def prep_fund_data(df_path, name='Date', remove_na=True):
+    """Prep fund data (csv) using char to date and setting index"""
+    df = pd.read_csv(df_path)
+
+    df = char_to_date(df)  # convert all dates to np datetime64
+    df.set_index('Date', inplace=True)
+    return df
 
 def readExcel(file):
     '''
