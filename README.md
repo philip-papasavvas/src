@@ -6,48 +6,94 @@
             alt="python"></a> &nbsp;
 </p>
 
+[![GitHub license](https://img.shields.io/badge/License-MIT-brightgreen.svg?style=flat-square)](https://github.com/VivekPa/AIAlpha/blob/master/LICENSE) 
+[![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+
+
+Small projects, focused on:
+- technical analysis of security price data
+- portfolio optimisation 
+- stationarity (a stochastic process where the unconditional joint probability 
+ distribution does not change when shifted in time) 
+
+
+
 ## Contents
-- [Introduction](#introduction)
+- [Prerequisities](#prerequisites)
 - [Fund Analysis](#fund-analysis)
 - [Efficient Frontier](#efficient-frontier)
 - [Stationarity](#stationarity)
 - [Roadmap](#roadmap)
 - [Other Modules](#other-modules)
-- [Prerequisities](#prerequisites)
 
-## Introduction
 
-This is a selection of **small projects** that I'll be working on in 2019. They mainly focus around analysis of securities data,
-I've predominantly focussed on mutual funds listed on the London Stock Exchange.
+## Prerequisites
+The following modules are needed for the library
+* [Arctic](https://github.com/manahl/arctic) >= 1.79.0
+* [yfinance](https://github.com/ranaroussi/yfinance) >= 0.1.43
+* [matplotlib](https://github.com/matplotlib/matplotlib)
+* [pymongo](https://github.com/mher/pymongo)
+* [pyperclip](https://github.com/asweigart/pyperclip) 
 
-## Fund Analysis
-- New_Fund_Analysis.py
-- Module designed for analysing price data of a security/securities to calculate fundamentals: (annualised) return, (annualised) volatility, Sharpe & Information ratio.
- - Summary tables produced: annualised performance, user-specified custom lookback performance, normalised returns, correlation
- - Methods for plotting: normalised returns & rolling volatility, (6m) rolling Sharpe Ratio, bollinger bands
- - *Development*
-    - [ ] *Melt/vstack the securities data Update summary table to have: (start_date, end_date, no_observations, fund, year x return, year x+1 return, .....year x+n return), so if one fund started in 2012 and another in 2014, both funds in summary table but NaNs populate for smaller dataset. Flag to user which securities are not populated for lookback*
-    - [ ] *Add key,value mapping for each fund and it's benchmark, then plotting each security with associated benchmark (if any)*
-    - [ ] *Integrate efficient frontier script as class method for specified subset of securities*
-    - [ ] *Change the input parameters to be in a config.json to read as inputs*
-    
-<!-- Below is an example of a bollinger band plot.
+
+## Fund Analysis 
+module: *New_Fund_Analysis.py*
+
+Technical analysis of security price data to calculate: (annualised & normalised) 
+return, volatility, Sharpe & Information ratios.
+
+Supports:
+- [X] price data in long format, csv (date as index, columns as security prices)
+- [X] mapping table as inputs between security identifier and name
+- [ ] json input config 
+
+Methods:
+ - [X] Summary tables: performance (annualised, normalised and custom time-period) and correlation
+ - [X] Plots: normalised returns & rolling volatility, bollinger bands, rolling Sharpe Ratio (noisy!)
+
+Usage
+```python
+from New_Fund_Analysis import Analysis
+
+rn = Analysis(data=dataframe, wkdir= wkdir)
+rn.csv_summary(outputDir=os.path.join(wkdir, "output"))  
+rn.plot_bollinger_bands(data=dataframe, window=60) # see below for example of returned plot
+```
+
+Development
+- [ ] *Melt/vstack the securities data - summary table will then populate with NaNs if different lookbacks for 
+each security, with a column to display number of observations. Print statement for
+securities without data for entire lookback
+- [ ] *Add mapping for each fund to benchmark - as {key:value} - plotting of individual fund with benchmark (if any)*
+- [ ] *Integrate **EfficientFrontier.py** script into (static) class method*
+
+Plots
+- Bollinger band plot - Monks Investment Trust.
+
+<!-- 
 ![alt text][image] 
 
 [image] https://github.com/philip-papasavvas/projects/blob/master/Scottish%20Mortgage%20Investment%20T%20Price%20%26%20Vol%20History.png "Example Bollinger Band & Rolling Volatility Plot"
 !-->
  
 ## Efficient Frontier
-- Efficient Frontier.py
-- Markowitz portfolio optimisation for an input portfolio.
-- Performance measures (annualised return, volatility, Sharpe Ratio) calculated, random portfolio allocation simulated and optimal portfolios identified for maximising Sharpe ratio, and minimising volatility.
+module: *Efficient Frontier.py*
+- Markowitz portfolio optimisation for an input portfolio- includes calculation of key
+technical measures (return, volatility, Sharpe Ratio).
+- Optimisation is run for:
+    1. Maximising Sharpe Ratio
+    2. Minimising volatility
+
 - *Development*
-    - [ ] *Change the input parameters to be in a config.json to read as inputs*
+    - [ ] *Support json config as input*
 
 ## Stationarity
-Stationarity.py
-- Investigate time-series of securites, compute daily returns and assess if returns are stationary
-- Augmented Dickey Fuller (ADF) test for unit roots, with null hypothesis, H_0, of non-stationary. Compute p-values for given threshold, default alpha = 5%. Within this method the skewness and kurtosis is calculated, to be compared with the assumption of normal returns.
+module: *Stationarity.py*
+- Investigate time-series of securites, by computing daily returns assess if returns are stationary
+- Augmented Dickey Fuller (ADF) test for unit roots, with null hypothesis,
+  h<sub>0</sub> : &alpha; = 0.05, of non-stationary. Compute p-values for given threshold, default 
+  &alpha; = 0.05. 
+  \s Within this method skewness and kurtosis is calculated, to be compared with the assumption of normal returns.
 - *Development*
     - [ ] *Translate this into a Jupyter Notebook to display the theory behind the ADF test, and list the hypotheses*
 
@@ -58,15 +104,11 @@ I have the following modules planned out and hope to implement soon
     - *Development*
         - [ ] *Auto-run this for a given day and data stored down to database. Diagnostic tool to deal with bad data*
 
+
+## Contributing
+Pull requests are welcome.
+
 ## Other Modules
 - organise_files.py: *organise files by extension (supports xlsx and jpg) and move to specified folder*
 - password_generator.py: *custom-length alphanumeric password (and if requested special characters)*
-
-## Prerequisites
-The following modules are needed for the library
-* [Arctic](https://github.com/manahl/arctic) >= 1.79.0
-* [yfinance](https://github.com/ranaroussi/yfinance) >= 0.1.43
-* [matplotlib](https://github.com/matplotlib/matplotlib)
-* [pymongo](https://github.com/mher/pymongo)
-* [pyperclip](https://github.com/asweigart/pyperclip) 
 

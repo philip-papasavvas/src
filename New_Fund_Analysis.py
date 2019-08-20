@@ -26,7 +26,9 @@ from utils import previousDate, prep_fund_data
 pd.set_option('display.max_columns', 5)
 
 import matplotlib.pyplot as plt
-plt.style.use('seaborn')
+from matplotlib import ticker as mtick
+plt.style.use('ggplot')
+plt.tight_layout()
 
 dateToStr = lambda d: d.astype(str).replace('-', '')
 
@@ -330,17 +332,19 @@ class Analysis():
             ax1.set_xlabel("Time")
             ax1.set_ylabel("Price")
             ax1.plot(roll_mn, color=color)
-            ax1.tick_params(axis='y', labelcolor=color)
+            #ax1.tick_params(axis='y', labelcolor=color)
             ax1.plot(boll_high, linestyle="dashed", color="k", linewidth=0.5)
             ax1.plot(boll_low, linestyle="dashed", color="k", linewidth=0.5)
+            ax1.yaxis.set_major_locator(mtick.LinearLocator(6)) # set there to be N=6 lines on y-axis
 
             norm_std_rolling = normed_px.rolling(window=window).std()
             ax2 = ax1.twinx()
             color = 'tab:blue'
-            ax2.set_ylabel('Rolling Volatility', color=color)
+            ax2.set_ylabel('Rolling Volatility')
             ax2.plot(norm_std_rolling, color=color)
-            ax2.tick_params(axis='y', labelcolor=color)
+            #ax2.tick_params(axis='y', labelcolor=color)
             ax2.set_ylim(0, 0.25)
+            ax2.yaxis.set_major_locator(mtick.LinearLocator(6))
 
             plt.suptitle(col + " (rolling {n}-day window)".format(n=window))
             # fig.tight_layout()
@@ -406,6 +410,14 @@ class Analysis():
 
         # Summary table of return/volatility/info ratio/sharpe ratio
         summary_one = self.summaryTable(toCsv=False, r=0.01)
+
+        summary_one[['Annualised Return', 'Annual Volatility']] *= 100
+        summary_one[['Annualised Return', 'Annual Volatility']] = \
+            summary_one[['Annualised Return', 'Annual Volatility']].applymap("{0:.2f}%".format)
+        summary_one[['Information Ratio', 'Sharpe Ratio']] = summary_one[['Information Ratio', 'Sharpe Ratio']].applymap("{0:.4}".format)
+
+        summary_one.to_excel(writer, "Summary Table")
+
         # Useful for printing the display output, but str not useful elsewhere
         # summ_one_str = summary_one.to_string(formatters={
         #     'Annualised Return': '{:,.2%}'.format,
@@ -413,13 +425,6 @@ class Analysis():
         #     'Information Ratio': '{:,.3f}'.format,
         #     'Sharpe Ratio': '{:,.3f}'.format,
         # })
-
-        summary_one['Annualised Return'] = pd.Series(["{0:.2f}%".format(val*100) for val in summary_one['Annualised Return']], \
-                                                     index=summary_one.index)
-        summary_one['Annual Volatility'] = pd.Series(["{0:.2f}%".format(val * 100) for val in summary_one['Annual Volatility']], \
-                                                     index=summary_one.index)
-
-        summary_one.to_excel(writer, "Summary Table")
 
 
         # Annual Returns
@@ -452,6 +457,7 @@ if __name__ == "main":
 
     rn = Analysis(data=df, wkdir= wkdir)
     rn.csv_summary(outputDir=os.path.join(wkdir, "output"))
+    rn.plot_bollinger_bands(data=df, window=60)
 
     # tick_mapping = pd.read_csv(inputDir + 'tickerNameMapping.csv') #also:"tickerNameMapping.csv", 'securityMapping_subset.csv'
 
@@ -465,26 +471,26 @@ if __name__ == "main":
     # Analysis.plot_total_return(data = rn.data, output_dir = outputFolder, isLog=False)
 
     #inputDir = os.path.join(inputDir, "security_data")
-    outputDir = os.path.join(inputFolder, "output")
-
-    # cut the dataframe and only look at the nulls
-    df = df.loc[:, df.isnull().sum() != 0]
-    null_lst = list(df.isnull().sum().values)  # list of first null values
-
-    for i, e in enumerate(null_lst):
-        slice = df.iloc[e:, i]
-        slice.dropna(axis=0, inplace=True)
-        startDate = slice.index[0].strftime("%Y-%m-%d")
-        name = pd.Series(slice).name
-
-        try:
-            rn = Analysis(data=slice, startDate=startDate, endDate="2019-07-05")
-        except (AttributeError) or (IndexError):
-            rn = Analysis(data=pd.DataFrame(slice), startDate=startDate, endDate="2019-07-05")
-
-        # rn = Analysis(data=slice, startDate=startDate, endDate="2019-07-05")
-        rn.excel_summary()
-        os.rename(os.path.join(outputDir, "Stock Summary Measures.xlsx"),
-                  os.path.join(outputDir, "Stock Summary Measures_" + name + ".xlsx"))
-        rn.plot_total_return(data=rn.data, output_dir=outputDir, isLog=True)
-        rn.plot_total_return(data=rn.data, output_dir=outputDir, isLog=False)
+    # outputDir = os.path.join(inputFolder, "output")
+    #
+    # # cut the dataframe and only look at the nulls
+    # df = df.loc[:, df.isnull().sum() != 0]
+    # null_lst = list(df.isnull().sum().values)  # list of first null values
+    #
+    # for i, e in enumerate(null_lst):
+    #     slice = df.iloc[e:, i]
+    #     slice.dropna(axis=0, inplace=True)
+    #     startDate = slice.index[0].strftime("%Y-%m-%d")
+    #     name = pd.Series(slice).name
+    #
+    #     try:
+    #         rn = Analysis(data=slice, startDate=startDate, endDate="2019-07-05")
+    #     except (AttributeError) or (IndexError):
+    #         rn = Analysis(data=pd.DataFrame(slice), startDate=startDate, endDate="2019-07-05")
+    #
+    #     # rn = Analysis(data=slice, startDate=startDate, endDate="2019-07-05")
+    #     rn.excel_summary()
+    #     os.rename(os.path.join(outputDir, "Stock Summary Measures.xlsx"),
+    #               os.path.join(outputDir, "Stock Summary Measures_" + name + ".xlsx"))
+    #     rn.plot_total_return(data=rn.data, output_dir=outputDir, isLog=True)
+    #     rn.plot_total_return(data=rn.data, output_dir=outputDir, isLog=False)
