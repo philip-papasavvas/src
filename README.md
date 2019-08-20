@@ -63,18 +63,15 @@ rn.plot_bollinger_bands(data=dataframe, window=60) # see below for example of re
 Development
 - [ ] *Melt/vstack the securities data - summary table will then populate with NaNs if different lookbacks for 
 each security, with a column to display number of observations. Print statement for
-securities without data for entire lookback
+securities without data for entire lookback*
 - [ ] *Add mapping for each fund to benchmark - as {key:value} - plotting of individual fund with benchmark (if any)*
 - [ ] *Integrate **EfficientFrontier.py** script into (static) class method*
 
 Plots
 - Bollinger band plot - Monks Investment Trust.
 
-<!-- 
 ![alt text][image] 
-
-[image] https://github.com/philip-papasavvas/projects/blob/master/Scottish%20Mortgage%20Investment%20T%20Price%20%26%20Vol%20History.png "Example Bollinger Band & Rolling Volatility Plot"
-!-->
+[image] https://github.com/philip-papasavvas/projects/blob/master/MONKS%20INVESTMENT%20TRUST%20PLC%20Price%20%26%20Vol%20History.png "Example Bollinger Band & Rolling Volatility Plot"
  
 ## Efficient Frontier
 module: *Efficient Frontier.py*

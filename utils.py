@@ -12,12 +12,11 @@ from re import sub, search, escape
 import re
 import pyperclip
 import xlrd
+from math import ceil
 
 get_folder = lambda path: os.path.split(path)[0]
 
 dateToStr = lambda d: d.astype(str).replace('-', '')
-
-### Functions  ###
 
 
 def datePlusTenorNew(date, pillar, reverse = False, expressInDays=False):
@@ -96,6 +95,7 @@ def datePlusTenorNew(date, pillar, reverse = False, expressInDays=False):
 
     return newDate
 
+
 def previousDate(dataframe, date, timeDifference):
     """
     Function to return a date in the past according to the input date provided
@@ -131,6 +131,7 @@ def previousDate(dataframe, date, timeDifference):
     else:
         dateDelta = dateDelta
     return dateDelta
+
 
 def char_to_date(s,dayfirst=False,format=None,infer_datetime_format=False):
     """
@@ -227,11 +228,13 @@ def char_to_date(s,dayfirst=False,format=None,infer_datetime_format=False):
 
         return s.map(dates.get)
 
+
 def x2pdate(xldate):
     """
     converts Excel date serial to numpy datetime
     """
     return np.array(['1899-12-30'], dtype='datetime64[D]') + xldate
+
 
 def cleanBBGdataframe(inputFile):
     """
@@ -268,6 +271,7 @@ def cleanBBGdataframe(inputFile):
     data.columns = ['date', 'price', 'product']
     data = data[['product', 'date', 'price']]
     return data
+
 
 def createMelted_bbg_Df(inputFile):
     """
@@ -326,6 +330,7 @@ def createMelted_bbg_Df(inputFile):
     # df.set_index('product')
     return df
 
+
 def match(cls,x,y,strict=True):
         '''
         Finds the index of x's elements in y. This is the same function as R implements.
@@ -364,6 +369,7 @@ def match(cls,x,y,strict=True):
             out[rowMask] = np.argmax(mask[rowMask],axis=1)
 
         return out
+
 
 def find(folderPath,pattern='.*',fullPath=False, expectOne=True):
     """
@@ -453,6 +459,7 @@ def find(folderPath,pattern='.*',fullPath=False, expectOne=True):
 
     return files
 
+
 def concatColumns(sep='',*args):
         """Concatenate multiple columns of pd.DataFrame with sep"""
         df = pd.DataFrame()
@@ -468,11 +475,13 @@ def concatColumns(sep='',*args):
             out = pd.Series()
         return out
 
+
 def timeDelta_to_days(td):
         '''
         Returns the day difference of a pandas series of timedelta64[ns]
         '''
         return (td.values / np.timedelta64(1,'D')).astype(int)
+
 
 def rolling_window(a, size):
     """
@@ -498,6 +507,7 @@ def rolling_window(a, size):
     a_ext = np.concatenate(( np.full(a.shape[:-1] + (size-1,),np.nan) ,a),axis=-1)
     strides = a_ext.strides + (a_ext.strides[-1],)
     return np.lib.stride_tricks.as_strided(a_ext, shape=(a.shape + (size,)), strides=strides)
+
 
 def array_to_clipboard(array):
     """
@@ -526,11 +536,13 @@ def array_to_clipboard(array):
     # Put string into clipboard
     pyperclip.copy(array_string)
 
+
 def x2pdate(xldate):
     """
     converts Excel date serial to numpy datetime
     """
     return np.array(['1899-12-30'], dtype='datetime64[D]') + xldate
+
 
 def p2xdate(pdate):
     """
@@ -538,6 +550,7 @@ def p2xdate(pdate):
     """
     delta = pdate.to_datetime() - dt.datetime(1899, 12, 30)
     return (delta.days.astype(float) + delta.seconds.astype(float) / 86400).astype(int)
+
 
 def daysToInt(days):
     '''
@@ -549,6 +562,7 @@ def daysToInt(days):
     ## wherever there are NaT, return 0 days, as integer arrays cannot hold nan
     days[days == identifyNAT] = 0
     return (days)
+
 
 def to_array(*args):
     """
@@ -591,6 +605,7 @@ def to_array(*args):
         else:
             raise ValueError('unable to convert to array')
 
+
 def prep_fund_data(df_path, name='Date', remove_na=True):
     """Prep fund data (csv) using char to date and setting index"""
     df = pd.read_csv(df_path)
@@ -598,6 +613,7 @@ def prep_fund_data(df_path, name='Date', remove_na=True):
     df = char_to_date(df)  # convert all dates to np datetime64
     df.set_index('Date', inplace=True)
     return df
+
 
 def readExcel(file):
     '''
@@ -623,6 +639,7 @@ def readExcel(file):
 
     return out
 
+
 def formatCsvCommas(path):
     """ Reads in data and replaces ", " with "" before returning List of cleaned data"""
     data = []
@@ -636,3 +653,78 @@ def formatCsvCommas(path):
     data.columns = data.iloc[0, :]
     data = data.iloc[1:].reset_index(drop=True)
     return data
+
+
+def all_unique(lst):
+    """
+    Check if a given list has duplicate elements
+    >>> all_unique([1,2,3,4]) # True
+    >>> all_unique([1,2,2,4]) # False
+    """
+    return len(lst) == len(set(lst))
+
+
+def average(*args):
+    """
+    Finds arithmetic mean of an array input
+    >>> average(*[1,2,3]) #  2.0
+    >>> average(1,2,5) # 2.6666666666666665
+    """
+    return sum(args,0.0)/len(args)
+
+
+def chunk(lst, chunk_size):
+    """
+    Split a list into a list of smaller lists defined by chunk_size
+    >>> chunk([1,2,4,5,6,6],5)
+    >>> chunk([1,2,4,5,6,6],2)
+    """
+    return list(
+                map(lambda x: lst[x * chunk_size: x * chunk_size + chunk_size],
+                    list(range(0, ceil(len(lst)/ chunk_size))))
+                )
+
+
+def count_occurences(lst, value):
+    """
+    Function to count occurrences of value in a list
+    >>> count_occurences([1,2,3,4,4,4,4], 4) # 4
+    """
+    return len([x for x in lst if x == value and type(x) == type(value)])
+
+
+def comma_sep(lst):
+    """
+    Gets a list and returns one single string with elements separated by a comma
+    >>> comma_sep(["hello","this","is","an", "example"]) # 'hello,this,is,an,example'
+    """
+    return ",".join(lst)
+
+
+def spread(arg):
+    """Function used below for flattening lists"""
+    ls = []
+    for i in arg:
+        if isinstance(i, list):
+            ls.extend(i)
+        else:
+            ls.append(i)
+    return ls
+
+
+def flatten(lst):
+    """
+    Flatten a list using recursion
+    >>> flatten([1,2,[3,4,5,[6,7]]]) # [1, 2, 3, 4, 5, 6, 7]
+    """
+    res = []
+    res.extend(spread(list(map(lambda x: flatten(x) if type(x) == list else x,lst))))
+    return res
+
+
+def difference(a,b):
+    """
+    Give difference between two iterables by keeping values in first
+    >>> difference([3,10,9],[3,4,10])
+    """
+    return [item for item in a if item not in b]
