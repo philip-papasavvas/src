@@ -39,19 +39,19 @@ The following modules are needed for the library
 ## Fund Analysis 
 module: *New_Fund_Analysis.py*
 
-Technical analysis of security price data to calculate: (annualised & normalised) 
-return, volatility, Sharpe & Information ratios.
+*Technical analysis of security price data to calculate: (annualised & normalised) 
+return, volatility, Sharpe & Information ratios.*
 
-Supports:
+**Supports**:
 - [X] price data in long format, csv (date as index, columns as security prices)
 - [X] mapping table as inputs between security identifier and name
 - [ ] json input config 
 
-Methods:
+**Methods**:
  - [X] Summary tables: performance (annualised, normalised and custom time-period) and correlation
  - [X] Plots: normalised returns & rolling volatility, bollinger bands, rolling Sharpe Ratio (noisy!)
 
-Usage
+**Usage**
 ```python
 from New_Fund_Analysis import Analysis
 
@@ -60,23 +60,24 @@ rn.csv_summary(outputDir=os.path.join(wkdir, "output"))
 rn.plot_bollinger_bands(data=dataframe, window=60) # see below for example of returned plot
 ```
 
-Development
+**Development**
 - [ ] *Melt/vstack the securities data - summary table will then populate with NaNs if different lookbacks for 
 each security, with a column to display number of observations. Print statement for
 securities without data for entire lookback*
 - [ ] *Add mapping for each fund to benchmark - as {key:value} - plotting of individual fund with benchmark (if any)*
 - [ ] *Integrate **EfficientFrontier.py** script into (static) class method*
 
-Plots
+**Plots**
+![alt text][image] 
+
+[image]: https://github.com/philip-papasavvas/projects/blob/master/MONKS%20INVESTMENT%20TRUST%20PLC%20Price%20%26%20Vol%20History.png "Example Bollinger Band & Rolling Volatility Plot"
 - Bollinger band plot - Monks Investment Trust.
 
-![alt text][image] 
-[image] https://github.com/philip-papasavvas/projects/blob/master/MONKS%20INVESTMENT%20TRUST%20PLC%20Price%20%26%20Vol%20History.png "Example Bollinger Band & Rolling Volatility Plot"
  
 ## Efficient Frontier
 module: *Efficient Frontier.py*
-- Markowitz portfolio optimisation for an input portfolio- includes calculation of key
-technical measures (return, volatility, Sharpe Ratio).
+
+- *Markowitz portfolio optimisation for an input portfolio- includes calculation of key technical measures (return, volatility, Sharpe Ratio)*.
 - Optimisation is run for:
     1. Maximising Sharpe Ratio
     2. Minimising volatility
@@ -90,12 +91,12 @@ module: *Stationarity.py*
 - Augmented Dickey Fuller (ADF) test for unit roots, with null hypothesis,
   h<sub>0</sub> : &alpha; = 0.05, of non-stationary. Compute p-values for given threshold, default 
   &alpha; = 0.05. 
-  \s Within this method skewness and kurtosis is calculated, to be compared with the assumption of normal returns.
+  Skewness and kurtosis is calculated, to be compared with the assumption of normal returns.
 - *Development*
     - [ ] *Translate this into a Jupyter Notebook to display the theory behind the ADF test, and list the hypotheses*
 
 ## Roadmap
-I have the following modules planned out and hope to implement soon
+Modules due for implementation
 - finance-database.py
     - Download security data from Yahoo Finance using yfinance and store the data in MongoDB using Arctic
     - *Development*
@@ -106,6 +107,31 @@ I have the following modules planned out and hope to implement soon
 Pull requests are welcome.
 
 ## Other Modules
+
 - organise_files.py: *organise files by extension (supports xlsx and jpg) and move to specified folder*
+
 - password_generator.py: *custom-length alphanumeric password (and if requested special characters)*
+    ```python
+    import string
+    import random
+    random.seed(7) # to give the same result 
+
+    def passwordGen(length, special=False):
+        """Generates a password of a user given length, and can specify if want special characters"""
+        lowers = list(string.ascii_lowercase)
+        uppers = list(string.ascii_uppercase)
+        nums = [str(i) for i in range(0,10)]
+        specialChar = list("!\"£$%^&*()#@?<>")
+
+        if special:
+            charList = lowers + uppers + nums + specialChar
+        else:
+            charList = lowers + uppers + nums
+
+        result = "".join([random.choice(charList) for i in range(0, length)])
+        return result
+        
+    passwordGen(length = 8, special=True) # gives DVWqyfkr
+    ````
+
 
