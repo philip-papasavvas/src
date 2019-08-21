@@ -11,9 +11,9 @@
 
 
 Small projects, focused on:
-- technical analysis of security price data
-- portfolio optimisation 
-- stationarity (a stochastic process where the unconditional joint probability 
+- Technical analysis of security price data
+- Portfolio optimisation 
+- Stationarity (a stochastic process where the unconditional joint probability 
  distribution does not change when shifted in time) 
 
 
@@ -43,9 +43,9 @@ module: *New_Fund_Analysis.py*
 return, volatility, Sharpe & Information ratios.*
 
 **Supports**:
-- [X] price data in long format, csv (date as index, columns as security prices)
-- [X] mapping table as inputs between security identifier and name
-- [ ] json input config 
+- [X] Price data in long format, csv (date as index, columns as security prices)
+- [X] Mapping table as inputs between security identifier and name
+- [ ] Configs in json format
 
 **Methods**:
  - [X] Summary tables: performance (annualised, normalised and custom time-period) and correlation
@@ -107,9 +107,9 @@ Pull requests are welcome.
 
 ## Other Modules
 
-- organise_files.py: *organise files by extension (supports xlsx and jpg) and move to specified folder*
+- organise_files.py: *Organise files by extension (supports xlsx and jpg) and move to specified folder*
 
-- password_generator.py: *custom-length alphanumeric password (and if requested special characters)*
+- password_generator.py: *Custom-length alphanumeric password (and if requested special characters)*
     ```python
     import string
     import random
