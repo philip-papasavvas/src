@@ -14,7 +14,7 @@ Small projects, focused on:
 - Technical analysis of security price data
 - Portfolio optimisation 
 - Stationarity (a stochastic process where the unconditional joint probability 
- distribution does not change when shifted in time) 
+ distribution does not change when shifted in time) - see the Jupyter notebook above
 
 
 
