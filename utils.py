@@ -702,7 +702,10 @@ def comma_sep(lst):
 
 
 def spread(arg):
-    """Function used below for flattening lists"""
+    """
+    Function used for flattening lists
+    >>> spread([2,3,5,[7,8]])
+    """
     ls = []
     for i in arg:
         if isinstance(i, list):
@@ -727,4 +730,25 @@ def difference(a,b):
     Give difference between two iterables by keeping values in first
     >>> difference([3,10,9],[3,4,10])
     """
-    return [item for item in a if item not in b]
+    set_a, set_b = set(a), set(b)
+    return set_a.difference(set_b)
+
+
+def has_duplicates(lst):
+    """
+    Checks if a list has duplicate values
+    >>> has_duplicates([1,2,4,5]) # False
+    >>> has_duplicates([1,2,2,5]) # True
+    """
+    return len(lst) != len(set(lst))
+
+def return_keys(dict):
+    """
+    Returns keys of a dict in a list
+    >>> return_keys({'a':1, 'b':2, 'c':3})
+    """
+    return list(dict.keys())
+
+
+# merge dictionaries: {**a,**b}
+# merge two lists: dict(zip(list_one,list_two))
