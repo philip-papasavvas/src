@@ -749,6 +749,19 @@ def return_keys(dict):
     """
     return list(dict.keys())
 
+def return_values(dict):
+    """
+    Returns keys of a dict in a list
+    >>> return_values({'a':1, 'b':2, 'c':3})
+    """
+    return list(dict.values())
+
 
 # merge dictionaries: {**a,**b}
 # merge two lists: dict(zip(list_one,list_two))
+
+# if a function returns multiple arguments, label as follows for the variable unpacking: a,*_, b = var1, ...., var2
+# example
+# def func(dict):
+#     return list(dict.keys())[0], list(dict.keys())[1], list(dict.keys())[2],list(dict.keys())[3]
+ # (a, *_, c) = func({'a':1, 'b':2, 'c':3, 'd':4}) --> a= 'a', c='d'
