@@ -29,6 +29,7 @@ import matplotlib.pyplot as plt
 from matplotlib import ticker as mtick
 plt.style.use('ggplot')
 plt.tight_layout()
+plt.close()
 
 dateToStr = lambda d: d.astype(str).replace('-', '')
 
@@ -450,14 +451,14 @@ if __name__ == "main":
     # "example_data.csv", "example_data_na.csv" has NA rows, master= funds_stocks_2019.csv
     # os.chdir("C://Users//Philip.P_adm//Documents//Fund Analysis")
 
-    wkdir = "C://Users//Philip//Documents//python//"
-    inputFolder = os.path.join(wkdir, "input")
+    wkdir = "/Users/philip_p/Documents/python/"  #"C://Users//Philip//Documents//python//"
+    inputFolder = os.path.join(wkdir, "data/finance")
     outputFolder = os.path.join(wkdir, "output")
     df = prep_fund_data(df_path= os.path.join(inputFolder, "example_data_na.csv"))
 
     rn = Analysis(data=df, wkdir= wkdir)
     rn.csv_summary(outputDir=os.path.join(wkdir, "output"))
-    rn.plot_bollinger_bands(data=df, window=60)
+    # rn.plot_bollinger_bands(data=df, window=60)
 
     # tick_mapping = pd.read_csv(inputDir + 'tickerNameMapping.csv') #also:"tickerNameMapping.csv", 'securityMapping_subset.csv'
 

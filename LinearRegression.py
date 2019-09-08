@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import os
 import seaborn as sns
 
-wkdir = "C://Users//Philip//PyCharmProjects"
+wkdir = "/Users/philip_p/Documents/python/"  #"C://Users//Philip//PyCharmProjects"
 
 #load the data
 housing = pd.read_csv(wkdir + "/data" + "/USA_housing.csv")
