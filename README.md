@@ -99,7 +99,7 @@ module: *Stationarity.py*
 ## Roadmap
 I have the following modules planned out and hope to implement soon
 - cf_wod_email.py
-    - Script to scrape the [CrossFit](www.crossfit.com) website to get the daily WOD and 
+    - Script to scrape the [CrossFit](http://www.crossfit.com) website to get the daily WOD and 
     send as an email to intended recipients, as well as an inspirational quote (pulled from
     the database).
     - *Development*
