@@ -3,7 +3,7 @@ Script to scrape price of a product from Amazon
 """
 
 import bs4 #for beautiful soup 4
-from development import requests
+from archive import requests
 
 
 def getAmazonPrice(productURL):

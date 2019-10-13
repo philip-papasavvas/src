@@ -12,8 +12,8 @@ def timer(method):
 
     return timed
 
-@timer
-def func(num):
-    return np.sqrt(num)
+# @timer
+# def func(num):
+#     return np.sqrt(num)
 
 func(200)

@@ -10,8 +10,9 @@
 [![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 
-Small projects, focused on:
-- technical analysis of security price data
+A mixutre of different (small projects), focused on:
+- technical analysis of security price data 
+- daily email using web scraping and calling data from a database
 - portfolio optimisation 
 - stationarity (a stochastic process where the unconditional joint probability 
  distribution does not change when shifted in time) 
@@ -33,7 +34,8 @@ The following modules are needed for the library
 * [yfinance](https://github.com/ranaroussi/yfinance) >= 0.1.43
 * [matplotlib](https://github.com/matplotlib/matplotlib)
 * [pymongo](https://github.com/mher/pymongo)
-* [pyperclip](https://github.com/asweigart/pyperclip) 
+* [pyperclip](https://github.com/asweigart/pyperclip)
+* [smtplib](https://docs.python.org/3/library/smtplib.html)
 
 
 ## Fund Analysis 
@@ -96,11 +98,28 @@ module: *Stationarity.py*
 
 ## Roadmap
 I have the following modules planned out and hope to implement soon
+- cf_wod_email.py
+    - Script to scrape the [CrossFit](www.crossfit.com) website to get the daily WOD and 
+    send as an email to intended recipients, as well as an inspirational quote (pulled from
+    the database).
+    - *Development*
+        - [ ] *Wrap up into a class (to factorise the functions)*
+        - [ ] *Set up task scheduler to run daily*
+        - [ ] *Enrich email with photo and better looking format*
+        - [ ] *Store WODs daily to database*
+    - Example
+ > The WOD for 20191013:
+ > **4 rounds of Tabata row, bike, ski erg, jump rope, or other monostructural exercise.**
+ > **Hard work pays off** - *'Josh Bridges'*
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+4 rounds of Tabata row, bike, ski erg, jump rope, or other monostructural exercise..
+Hard work pays off Josh Bridges
 - finance-database.py
     - Download security data from Yahoo Finance using yfinance and store the data in MongoDB using Arctic
     - *Development*
-        - [ ] *Auto-run this for a given day and data stored down to database. Diagnostic tool to deal with bad data*
-
+        - [ ] *Schedule for daily run to download data and write to database (MongoDB)
+        - [ ] *Develop tool to cleanse data* 
 
 ## Contributing
 Pull requests are welcome.

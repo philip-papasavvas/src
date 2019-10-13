@@ -108,7 +108,6 @@ if __name__ == "__main__":
     #view/access the data
     item.data
 
-
     # ------------
     # JSON reading
     # ------------
