@@ -103,7 +103,7 @@ I have the following modules planned out and hope to implement soon
     send as an email to intended recipients, as well as an inspirational quote (pulled from
     the database).
     - *Development*
-        - [ ] *Wrap up into a class (to factorise the functions)*
+        - [X] *Wrap up into a class (to factorise the functions)*
         - [ ] *Set up task scheduler to run daily*
         - [ ] *Enrich email with photo and better looking format*
         - [ ] *Store WODs daily to database*
