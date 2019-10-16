@@ -1,3 +1,5 @@
-{"subject" : "CrossFit Daily WOD",
-  "source_email" : "pythonpaps@gmail.com",
-  "email_distrib_list":  "hayleycosgrove1@gmail.com,philip.papasavvas@gmail.com"}
+{"_comments" : "example@mail.com",
+  "subject" : "CrossFit Daily WOD",
+  "source_email" : "sender@mail.com",
+  "source_email_pwd" : "password",
+  "email_distrib_list":  "receiver1@mail.com,receiver2@mail.com"}

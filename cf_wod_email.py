@@ -134,8 +134,8 @@ class CF_email():
 
         msg_body_html = "WOD for {date}".format(date=self.date) + "<p>"
         msg_body_html += str(wod_text) + "<p>"
-        msg_body_html += "<em>" + quote + "</em>"
-        msg_body_html += "<em>" + author + "</em>"
+        msg_body_html += "<em>" + quote + " </em>"
+        msg_body_html += "<strong>" + author + "</strong>"
 
         return msg_body_html
 
@@ -176,23 +176,23 @@ class CF_email():
                                               quote=quote)
 
         self.send_email(body = email_text)
-        print("Successfully sent daily WOD email")
+        print("Successfully sent {} daily WOD email".format(self.date))
 
 if __name__ == "__main__":
 
-    with open('/Users/philip_p/python/projects/config/cf_email.json') as json_file:
+    with open('/Users/philip_p/python/projects/config/cf_email_private.json') as json_file:
         email_config = json.load(json_file)
 
-    with open('/Users/philip_p/python/projects/config/mongo.json') as json_file:
+    with open('/Users/philip_p/python/projects/config/mongo_private.json') as json_file:
         mongo_config = json.load(json_file)
 
     rn = CF_email(email_config=email_config, mongo_config=mongo_config)
     rn.run()
 
-    with open('/Users/philip_p/python/projects/import/quotes_db.json') as json_file:
-        quotes_json = json.load(json_file)
-
-    update_quote_db(mongo_config=mongo_config, quotes_import_json=quotes_json)
+    # with open('/Users/philip_p/python/projects/import/quotes_db.json') as json_file:
+    #     quotes_json = json.load(json_file)
+    #
+    # update_quote_db(mongo_config=mongo_config, quotes_import_json=quotes_json)
 
 
 # msg_body = "WOD for {date}: \n {workout}. \n \n {quote} - {person}".format(date=date_today_str,
