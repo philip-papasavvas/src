@@ -73,7 +73,7 @@ Plots
 - Bollinger band plot - Monks Investment Trust.
 
 ![alt text][image] 
-[image] https://github.com/philip-papasavvas/projects/blob/master/MONKS%20INVESTMENT%20TRUST%20PLC%20Price%20%26%20Vol%20History.png "Example Bollinger Band & Rolling Volatility Plot"
+[image] https://github.com/philip-papasavvas/projects/blob/master/images/MONKS%20INVESTMENT%20TRUST%20PLC%20Price%20%26%20Vol%20History.png "Example Bollinger Band & Rolling Volatility Plot"
  
 ## Efficient Frontier
 module: *Efficient Frontier.py*
@@ -96,29 +96,29 @@ module: *Stationarity.py*
 - *Development*
     - [ ] *Translate this into a Jupyter Notebook to display the theory behind the ADF test, and list the hypotheses*
 
+## CrossFit Daily WOD email & inspirational quote
+module: *cf_wod_email.py*  
+- Script to scrape the [CrossFit](http://www.crossfit.com) website to get the daily WOD and 
+send as an email to intended recipients, as well as an inspirational quote (pulled from
+the database).
+- *Development*
+    - [X] *Wrap up into a class (to factorise the functions)*
+    - [ ] *Store WODs daily to database*
+    - [ ] *Set up task scheduler to run daily*
+    - [ ] *Enrich email with photo and better looking format*
+
+- Example
+> The WOD for 20191013:  
+> 4 rounds of Tabata row, bike, ski erg, jump rope, or other monostructural exercise.   
+> **Hard work pays off** - *'Josh Bridges'*
+
 ## Roadmap
-I have the following modules planned out and hope to implement soon
-- cf_wod_email.py
-    - Script to scrape the [CrossFit](http://www.crossfit.com) website to get the daily WOD and 
-    send as an email to intended recipients, as well as an inspirational quote (pulled from
-    the database).
-    - *Development*
-        - [X] *Wrap up into a class (to factorise the functions)*
-        - [ ] *Set up task scheduler to run daily*
-        - [ ] *Enrich email with photo and better looking format*
-        - [ ] *Store WODs daily to database*
-    - Example
- > The WOD for 20191013:
- > **4 rounds of Tabata row, bike, ski erg, jump rope, or other monostructural exercise.**
- > **Hard work pays off** - *'Josh Bridges'*
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
-4 rounds of Tabata row, bike, ski erg, jump rope, or other monostructural exercise..
-Hard work pays off Josh Bridges
+I have the following module(s) planned out and hope to implement soon
+                                                                                                                             
 - finance-database.py
     - Download security data from Yahoo Finance using yfinance and store the data in MongoDB using Arctic
     - *Development*
-        - [ ] *Schedule for daily run to download data and write to database (MongoDB)
+        - [ ] *Schedule for daily run to download data and write to database (MongoDB)*
         - [ ] *Develop tool to cleanse data* 
 
 ## Contributing
