@@ -99,6 +99,7 @@ class CF_email():
             author, quote: str, str
         """
         # initialise the database
+        print("Retrieving random quote from database")
 
         if user is None:
             user = self.config['mongo_user']
@@ -123,6 +124,8 @@ class CF_email():
         author = random.choice(list(quote_dict.keys()))
         quote = quote_dict[author]
 
+        print("Quote retrieved!")
+
         # library.list_collection_names()  # lists collection names
         # type(library['quotes'])  # type pymongo.collection.Collection
 
@@ -132,6 +135,7 @@ class CF_email():
     def generate_email_text(self, wod_text, author, quote):
         """Function to put together message for email"""
 
+        print("Generating email...")
         msg_body_html = "WOD for {date}".format(date=self.date) + "<p>"
         msg_body_html += str(wod_text) + "<p>"
         msg_body_html += "<em>" + quote + " </em>"
@@ -161,6 +165,8 @@ class CF_email():
 
         html_obj = MIMEText(msg_body_html, "html")
         message.attach(html_obj)
+
+        print("Sending email...")
 
         context = ssl.create_default_context()
         with smtplib.SMTP_SSL("smtp.gmail.com", port=465, context=context) as server:
