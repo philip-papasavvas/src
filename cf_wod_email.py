@@ -11,6 +11,7 @@ import json
 import re
 import random
 import datetime
+from utils import get_config_path, get_db_path, get_import_path
 
 import smtplib
 import ssl
@@ -23,7 +24,6 @@ import requests
 from bs4 import BeautifulSoup
 
 import pymongo
-
 
 def update_quote_db(mongo_config, quotes_import_json):
     """Function to update database with quotes, mongo_config and quote_import_json as inputs"""
@@ -203,29 +203,16 @@ class CF_email():
 
 if __name__ == "__main__":
 
-    with open('/Users/philip_p/python/projects/config/cf_email_private.json') as json_file:
-        email_config = json.load(json_file)
+    with open(get_config_path("mongo_private.json")) as mongo_json:
+        mongo_config = json.load(mongo_json)
 
-    with open('/Users/philip_p/python/projects/config/mongo_private.json') as json_file:
-        mongo_config = json.load(json_file)
+    with open(get_config_path("cf_email_private.json")) as cf_email_json:
+        email_config = json.load(cf_email_json)
 
     rn = CF_email(email_config=email_config, mongo_config=mongo_config)
     rn.run()
 
-    # with open('/Users/philip_p/python/projects/import/quotes_db.json') as json_file:
-    #     quotes_json = json.load(json_file)
+    # with open(get_import_path("new_quotes.json")) as quotes_js:
+    #     quotes_json = json.load(quotes_js)
     #
     # update_quote_db(mongo_config=mongo_config, quotes_import_json=quotes_json)
-
-
-# msg_body = "WOD for {date}: \n {workout}. \n \n {quote} - {person}".format(date=date_today_str,
-#                                                                                  workout=repo_contents[0],
-#                                                                                  quote = random_quote,
-#                                                                                  person= random_quote_key)
-# msg_body_html = "WOD for <strong>{date}</strong>:" \
-#                 "<p>" \
-#                 " <strong> {workout} </strong>" \
-#                 "</p>" \
-#                 "<br> <br> <strong> {quote} </strong> " \
-#                 "<em> {person} </em>".format(date=date_today_str, workout=repo_contents[0],
-#                                                quote = random_quote, person= random_quote_key)

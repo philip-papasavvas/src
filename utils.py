@@ -18,6 +18,34 @@ get_folder = lambda path: os.path.split(path)[0]
 
 dateToStr = lambda d: d.astype(str).replace('-', '')
 
+_ROOT = os.path.abspath(os.path.dirname(__file__))
+def get_config_path(path):
+    return os.path.join(_ROOT, 'config', path)
+
+def get_db_path(path):
+    return os.path.join(_ROOT, 'db', path)
+
+def get_import_path(path):
+    return os.path.join(_ROOT, 'import', path)
+
+def flatten_dict(d):
+    """
+    Flatten dictionary d
+
+    Example
+        >>> flatten_dict(d={"a":{1}, "b":{"yes":{"more detail"}, "no": "level below" }})
+        returns {'a': {1}, 'b.yes': {'more detail'}, 'b.no': 'level below'}
+    """
+    def items():
+        for key, value in d.items():
+            if isinstance(value, dict):
+                for subkey, subvalue in flatten_dict(value).items():
+                    yield key + "." + subkey, subvalue
+            else:
+                yield key, value
+
+    return dict(items())
+
 
 def datePlusTenorNew(date, pillar, reverse = False, expressInDays=False):
     '''
@@ -742,12 +770,14 @@ def has_duplicates(lst):
     """
     return len(lst) != len(set(lst))
 
+
 def return_keys(dict):
     """
     Returns keys of a dict in a list
     >>> return_keys({'a':1, 'b':2, 'c':3})
     """
     return list(dict.keys())
+
 
 def return_values(dict):
     """
