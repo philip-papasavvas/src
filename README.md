@@ -48,7 +48,7 @@ inspirational quote (retrieved from MongoDB Atlas database) at the end, then sen
 - Example
 > The WOD for 20191013:  
 > 4 rounds of Tabata row, bike, ski erg, jump rope, or other monostructural exercise.   
-> **Hard work pays off** - *'Josh Bridges'*
+> **Hard work pays off** - *Josh Bridges*
 
 ## Fund Analysis 
 module: *New_Fund_Analysis.py*
