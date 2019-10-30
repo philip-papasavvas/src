@@ -9,15 +9,12 @@
 [![GitHub license](https://img.shields.io/badge/License-MIT-brightgreen.svg?style=flat-square)](https://github.com/VivekPa/AIAlpha/blob/master/LICENSE) 
 [![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-
 A mixutre of different (small projects), focused on:
+- daily email (the [CrossFit](http://www.crossfit.com) Workout of the Day (WOD)) using web scraping and pulling a random quote from a MongoDB Atlas database
 - technical analysis of security price data 
-- daily email using web scraping and calling data from a database
 - portfolio optimisation 
 - stationarity (a stochastic process where the unconditional joint probability 
  distribution does not change when shifted in time) 
-
-
 
 ## Contents
 - [Prerequisities](#prerequisites)
@@ -37,6 +34,21 @@ The following modules are needed for the library
 * [pyperclip](https://github.com/asweigart/pyperclip)
 * [smtplib](https://docs.python.org/3/library/smtplib.html)
 
+## CrossFit Daily WOD email & inspirational quote
+module: *cf_wod_email.py*  
+- Script to scrape the [CrossFit](http://www.crossfit.com) website to get the daily WOD and add an 
+inspirational quote (retrieved from MongoDB Atlas database) at the end, then send daily email to distribution list (specified by json config).
+- Supports updating of quote database using an input json
+- *Development*
+    - [X] *Wrap up into a class (to factorise the functions)*
+    - [X] *Set up task scheduler (on Raspberry Pi) to run daily*
+    - [ ] *Store WODs to database (date as key)*
+    - [ ] *Enrich email with embedded photo*
+
+- Example
+> The WOD for 20191013:  
+> 4 rounds of Tabata row, bike, ski erg, jump rope, or other monostructural exercise.   
+> **Hard work pays off** - *'Josh Bridges'*
 
 ## Fund Analysis 
 module: *New_Fund_Analysis.py*
@@ -82,7 +94,6 @@ technical measures (return, volatility, Sharpe Ratio).
 - Optimisation is run for:
     1. Maximising Sharpe Ratio
     2. Minimising volatility
-
 - *Development*
     - [ ] *Support json config as input*
 
@@ -95,22 +106,6 @@ module: *Stationarity.py*
   \s Within this method skewness and kurtosis is calculated, to be compared with the assumption of normal returns.
 - *Development*
     - [ ] *Translate this into a Jupyter Notebook to display the theory behind the ADF test, and list the hypotheses*
-
-## CrossFit Daily WOD email & inspirational quote
-module: *cf_wod_email.py*  
-- Script to scrape the [CrossFit](http://www.crossfit.com) website to get the daily WOD and 
-send as an email to intended recipients, as well as an inspirational quote (pulled from
-the database).
-- *Development*
-    - [X] *Wrap up into a class (to factorise the functions)*
-    - [ ] *Store WODs daily to database*
-    - [ ] *Set up task scheduler to run daily*
-    - [ ] *Enrich email with photo and better looking format*
-
-- Example
-> The WOD for 20191013:  
-> 4 rounds of Tabata row, bike, ski erg, jump rope, or other monostructural exercise.   
-> **Hard work pays off** - *'Josh Bridges'*
 
 ## Roadmap
 I have the following module(s) planned out and hope to implement soon
