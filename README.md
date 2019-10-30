@@ -81,12 +81,13 @@ securities without data for entire lookback*
 - [ ] *Add mapping for each fund to benchmark - as {key:value} - plotting of individual fund with benchmark (if any)*
 - [ ] *Integrate **EfficientFrontier.py** script into (static) class method*
 
+<!---
 Plots
 - Bollinger band plot - Monks Investment Trust.
 
-![alt text][image] 
-[image] https://github.com/philip-papasavvas/projects/blob/master/images/MONKS%20INVESTMENT%20TRUST%20PLC%20Price%20%26%20Vol%20History.png "Example Bollinger Band & Rolling Volatility Plot"
- 
+![alt text][image] https://github.com/philip-papasavvas/projects/blob/master/images/MONKS%20INVESTMENT%20TRUST%20PLC%20Price%20%26%20Vol%20History.png "Example Bollinger Band & Rolling Volatility Plot"
+-->
+
 ## Efficient Frontier
 module: *Efficient Frontier.py*
 - Markowitz portfolio optimisation for an input portfolio- includes calculation of key
@@ -103,7 +104,7 @@ module: *Stationarity.py*
 - Augmented Dickey Fuller (ADF) test for unit roots, with null hypothesis,
   h<sub>0</sub> : &alpha; = 0.05, of non-stationary. Compute p-values for given threshold, default 
   &alpha; = 0.05. 
-  \s Within this method skewness and kurtosis is calculated, to be compared with the assumption of normal returns.
+  Within this method skewness and kurtosis is calculated, to be compared with the assumption of normal returns.
 - *Development*
     - [ ] *Translate this into a Jupyter Notebook to display the theory behind the ADF test, and list the hypotheses*
 
