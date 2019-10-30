@@ -11,7 +11,7 @@ import json
 import re
 import random
 import datetime
-from utils import get_config_path, get_db_path, get_import_path
+from utils import get_config_path, get_path, get_db_path, get_import_path
 
 import smtplib
 import ssl
@@ -52,13 +52,20 @@ class CF_email():
 
     Parameters
     ----------
-    config: json
-        json config with email address list
+    email_config: json
+        json config with the following keys: "subject", "source_email",
+        "source_email_pwd", "email_distrib_list"
+    mongo_config: json
+        json config with the following keys: "mongo_user", "mongo_pwd",
+        "url_cluster""
+    image: bool, default False
+        To print images in the HTML email- CrossFit logo, photo
     """
 
-    def __init__(self, email_config, mongo_config):
+    def __init__(self, email_config, mongo_config, image=False):
 
         self.config = {**email_config, **mongo_config}
+        self.print_images = image
 
         date_today_dt = datetime.datetime.now()
         date_today_str = date_today_dt.strftime("%Y%m%d")
@@ -150,7 +157,7 @@ class CF_email():
 
         return msg_body_html
 
-    def send_email(self, body, image=False,password=None):
+    def send_email(self, body, password=None):
         """Function to send email at the final step to the user
         with the information
 
@@ -169,18 +176,14 @@ class CF_email():
         msg["To"] = self.config['email_distrib_list']
 
         msg_body_html = body
+        body = MIMEText(msg_body_html, "html")
+        msg.attach(body)
 
-        if image:
-            img_data = open('/Users/philip_p/python/projects/crossfit-logo.png', 'rb').read()
+        if self.print_images:
+            img_data = open(get_path("crossfit-logo.png"), 'rb').read()
             img = MIMEImage(img_data, 'png')
             img.add_header('Content-Id', '<cf_logo>')  # angle brackets are important
             img.add_header("Content-Disposition", "inline", filename="cf_logo")
-
-        body = MIMEText(msg_body_html, "html")
-
-        msg.attach(body)
-
-        if image:
             msg.attach(img)
 
         print("Sending email...")
@@ -209,7 +212,7 @@ if __name__ == "__main__":
     with open(get_config_path("cf_email_private.json")) as cf_email_json:
         email_config = json.load(cf_email_json)
 
-    rn = CF_email(email_config=email_config, mongo_config=mongo_config)
+    rn = CF_email(email_config=email_config, mongo_config=mongo_config, image=True)
     rn.run()
 
     # with open(get_import_path("new_quotes.json")) as quotes_js:

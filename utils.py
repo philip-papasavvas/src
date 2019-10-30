@@ -28,6 +28,9 @@ def get_db_path(path):
 def get_import_path(path):
     return os.path.join(_ROOT, 'import', path)
 
+def get_path(path):
+    return os.path.join(_ROOT, path)
+
 def flatten_dict(d):
     """
     Flatten dictionary d
