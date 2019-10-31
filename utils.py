@@ -31,6 +31,12 @@ def get_import_path(path):
 def get_path(path):
     return os.path.join(_ROOT, path)
 
+def get_data_path(path):
+    return os.path.join(_ROOT, "data", path)
+
+def get_images_path(path):
+    return os.path.join(_ROOT, "images", path)
+
 def flatten_dict(d):
     """
     Flatten dictionary d

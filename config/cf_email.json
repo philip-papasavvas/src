@@ -1,5 +1,5 @@
 {"_comments" : "example@mail.com",
-  "subject" : "CrossFit Daily WOD",
+  "subject" : "Insert email eubject here",
   "source_email" : "sender@mail.com",
   "source_email_pwd" : "password",
   "email_distrib_list":  "receiver1@mail.com,receiver2@mail.com"}

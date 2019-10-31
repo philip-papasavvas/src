@@ -119,10 +119,10 @@ if __name__ == "__main__":
 
     #securities = data.columns
 
-        tab, summary = calculate_performance(data=data,
-                                         security='MSCI ACWI',
-                                         dates_transacted=dates_transacted,
-                                         units=units)
+    tab, summary = calculate_performance(data=data,
+                                     security='MSCI ACWI',
+                                     dates_transacted=dates_transacted,
+                                     units=units)
 
     # % timeit - n 5 calculate_performance(data=data, \
     #                       security='MSCI ACWI', \

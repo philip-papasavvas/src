@@ -11,7 +11,7 @@ import json
 import re
 import random
 import datetime
-from utils import get_config_path, get_path, get_db_path, get_import_path
+from utils import get_config_path, get_images_path, get_path, get_db_path, get_import_path
 
 import smtplib
 import ssl
@@ -62,10 +62,9 @@ class CF_email():
         To print images in the HTML email- CrossFit logo, photo
     """
 
-    def __init__(self, email_config, mongo_config, image=False):
+    def __init__(self, email_config, mongo_config):
 
         self.config = {**email_config, **mongo_config}
-        self.print_images = image
 
         date_today_dt = datetime.datetime.now()
         date_today_str = date_today_dt.strftime("%Y%m%d")
@@ -105,16 +104,9 @@ class CF_email():
 
         return workout_bs4_element
 
-    def get_random_quote(self, user=None, password=None, mongo_url=None):
-        """Function to get random quote from database for the email
 
-        Returns
-        -------
-            author, quote: str, str
-        """
-        # initialise the database
-        print("Retrieving random quote from database")
-
+    def access_mongodb(self, user=None, password=None, mongo_url=None):
+        """Function to login to MongoDB and initialise library to enable writing"""
         if user is None:
             user = self.config['mongo_user']
 
@@ -124,8 +116,22 @@ class CF_email():
         if mongo_url is None:
             mongo_url = self.config['url_cluster']
 
-        host_url = "".join(["mongodb+srv://",user,":",password,"@",mongo_url])
+        host_url = "".join(["mongodb+srv://", user, ":", password, "@", mongo_url])
         client = pymongo.MongoClient(host_url)
+
+        return client
+
+    def get_random_quote(self, mongo_client):
+        """Function to get random quote from database for the email
+
+        Returns
+        -------
+            author, quote: str, str
+        """
+        # initialise the database
+        print("Retrieving random quote from database")
+
+        client = mongo_client
         # client = pymongo.MongoClient("mongodb+srv://username:<password>@cluster0-iooan.mongodb.net/test?retryWrites=true&w=majority")
 
         library = client['email']  # type pymongo.database.Database
@@ -145,63 +151,96 @@ class CF_email():
         # quote_dict = {author: quote}
         return author, quote
 
-    def generate_email_text(self, wod_text, author, quote):
+    def generate_email_text(self, wod_text, get_quote=False, author=None, quote=None):
         """Function to put together message for email"""
 
         print("Generating email...")
         msg_body_html = "WOD for {date}".format(date=self.date) + "<p>"
         msg_body_html += str(wod_text) + "<p>"
-        msg_body_html += "<br> <strong> Quote of the day </strong> </br> <p>"
-        msg_body_html += "<em>" + quote + " </em>"
-        msg_body_html += "<strong>" + author + "</strong>"
+        if get_quote:
+            msg_body_html += "<br> <strong> Quote of the day </strong> </br> <p>"
+            msg_body_html += "<em>" + quote + " </em>"
+            msg_body_html += "<strong>" + author + "</strong>"
 
         return msg_body_html
 
+    def prepare_mime_format(self, body, embed_image):
+        """Method to prepare the MIME format of the email, specifying the HTML body"""
+
+        mime_msg = MIMEMultipart("alternative") # MIMEMultipart(_subtype='related')
+        mime_msg["Subject"] = " ".join([self.date, self.config['subject']])
+        mime_msg["From"] = self.config['source_email']
+        mime_msg["To"] = self.config['email_distrib_list']
+
+        # if embed_image:
+        #     msg_body_html = '<br><img src="cid: cf_logo_id"/><br>' + body
+        #     img_data = open(get_images_path("crossfit-logo.png"), 'rb').read()
+        #     img = MIMEImage(img_data, 'png')
+        #     img.add_header('Content-Id', '<cf_logo_id>')  # angle brackets are important
+        #
+        # msg_body_html = body
+        #
+        # body = MIMEText(msg_body_html, "html")
+        # mime_msg.attach(body)
+        #
+        # if embed_image:
+        #     mime_msg.attach(img)
+
+        # # We reference the image in the IMG SRC attribute by the ID we give it below
+        # msgText = MIMEText('<b>Some <i>HTML</i> text</b> and an image.<br><img src="cid:image1"><br>Nifty!', 'html')
+        # msgAlternative.attach(msgText)
+        #
+        # # This example assumes the image is in the current directory
+        # fp = open('test.jpg', 'rb')
+        # msgImage = MIMEImage(fp.read())
+        # fp.close()
+        #
+        # # Define the image's ID as referenced above
+        # msgImage.add_header('Content-ID', '<image1>')
+        # msgRoot.attach(msgImage)
+
+        return mime_msg
+
     def send_email(self, body, password=None):
-        """Function to send email at the final step to the user
-        with the information
+        """
+        Function to send email at the final step to the email body
 
         Params
         ------
             body: str
                 HTML string
         """
+        msg = body
+        print("Sending email...")
+
         # password = getpass.getpass()
         if password is None:
             password = self.config['source_email_pwd']
-
-        msg = MIMEMultipart("alternative") # MIMEMultipart(_subtype='related')
-        msg["Subject"] = " ".join([self.date, self.config['subject']])
-        msg["From"] = self.config['source_email']
-        msg["To"] = self.config['email_distrib_list']
-
-        msg_body_html = body
-        body = MIMEText(msg_body_html, "html")
-        msg.attach(body)
-
-        if self.print_images:
-            img_data = open(get_path("crossfit-logo.png"), 'rb').read()
-            img = MIMEImage(img_data, 'png')
-            img.add_header('Content-Id', '<cf_logo>')  # angle brackets are important
-            img.add_header("Content-Disposition", "inline", filename="cf_logo")
-            msg.attach(img)
-
-        print("Sending email...")
 
         context = ssl.create_default_context()
         with smtplib.SMTP_SSL("smtp.gmail.com", port=465, context=context) as server:
             server.login(msg["From"], password)
             server.sendmail(msg["From"], msg["To"].split(','), msg.as_string())
 
-    def run(self):
-        """Run function to bring it all together"""
+    def run(self, get_quote=True, get_image=True):
+        """
+        Run function to bring it all together
+
+        Params:
+            get_quote: bool
+
+        """
         wod_text = self.scrape_workout()
-        author, quote = self.get_random_quote()
 
-        email_text = self.generate_email_text(wod_text=wod_text, author=author,
-                                              quote=quote)
+        mg_client = self.access_mongodb()
 
-        self.send_email(body = email_text)
+        if get_quote:
+            author, quote = self.get_random_quote(mongo_client=mg_client)
+
+        email_text = self.generate_email_text(wod_text=wod_text, get_quote=get_quote, author=author, quote=quote)
+        mime_text = self.prepare_mime_format(body = email_text, embed_image=get_image)
+
+        self.send_email(body = mime_text)
         print("Successfully sent {} daily WOD email".format(self.date))
 
 if __name__ == "__main__":
@@ -212,8 +251,8 @@ if __name__ == "__main__":
     with open(get_config_path("cf_email_private.json")) as cf_email_json:
         email_config = json.load(cf_email_json)
 
-    rn = CF_email(email_config=email_config, mongo_config=mongo_config, image=True)
-    rn.run()
+    rn = CF_email(email_config=email_config, mongo_config=mongo_config)
+    rn.run(get_image=True, get_quote=True)
 
     # with open(get_import_path("new_quotes.json")) as quotes_js:
     #     quotes_json = json.load(quotes_js)
