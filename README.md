@@ -81,12 +81,9 @@ securities without data for entire lookback*
 - [ ] *Add mapping for each fund to benchmark - as {key:value} - plotting of individual fund with benchmark (if any)*
 - [ ] *Integrate **EfficientFrontier.py** script into (static) class method*
 
-<!---
 Plots
-- Bollinger band plot - Monks Investment Trust.
-
-![alt text][image] https://github.com/philip-papasavvas/projects/blob/master/images/MONKS%20INVESTMENT%20TRUST%20PLC%20Price%20%26%20Vol%20History.png "Example Bollinger Band & Rolling Volatility Plot"
--->
+- Example: Bollinger Band & Rolling Volatility Plot - MONKS INVESTMENT TRUST
+<img src="https://pythonpapshome.files.wordpress.com/2019/10/monks-investment-trust-plc-price-vol-history.png">
 
 ## Efficient Frontier
 module: *Efficient Frontier.py*
