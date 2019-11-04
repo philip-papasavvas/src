@@ -1,29 +1,26 @@
 """
-Author: Philip.Papasavvas
-Date created (n-th version): 16/03/19
-Date updated: 26/05/19
+Author: Philip.P
+Date created: 16/03/19
 
-Class to analyse financial data.
-Input data includes:
-    - Financial data with dates, stocks and prices
-    - Optional, mapping table between Bloomberg ticker and Fund name
+Analyse financial security (mainly price) data.
+Input securities data either sourced from Bloomberg or YahooFinance via the API.
+Mapping between ticker and fund name can be specified
 
 To do:
+ - Refactor the init in Analysis class to load in the data, fewer setting of start and end dates
+
  - Charts for lookback performance, limiting the number if more than 5 funds
- - Charts (2 subplots) for volatility of each stock and name properly, or do charting overlay
  - Produce yearly (& maybe monthly) returns
  - Plotting capabilities for stock charts
 """
 
+# usual suspects
 import os
 import pandas as pd
 import numpy as np
 import datetime as dt
 from re import sub, search
 import utils
-from utils import previousDate, prep_fund_data
-
-pd.set_option('display.max_columns', 5)
 
 import matplotlib.pyplot as plt
 from matplotlib import ticker as mtick
@@ -31,22 +28,23 @@ plt.style.use('ggplot')
 plt.tight_layout()
 plt.close()
 
+pd.set_option('display.max_columns', 5)
 dateToStr = lambda d: d.astype(str).replace('-', '')
+extract_str_timestamp = lambda d: dt.datetime.strftime(d, "%Y%m%d")
 
 class Analysis():
     """
-    Class to store clean historical prices for financial/fund data- will automatically remove
-    NA values in the data.
+    Analysis of historical security data, providing analytics on performance- will remove NANs
     Methods for analysing returns and volatilities etc.
 
     Params:
         data: dataframe
             Financial data with the (date) index labelled 'Date'
 
-        startDate & endDate: str "YYYY-MM-DD" or "YYYYMMDD", default None
+        start_date & end_date: str "YYYY-MM-DD" or "YYYYMMDD", default None
             Lookback periods for analysing financial data
 
-        tickerMapping: dataframe
+        ticker_mapping: dataframe, default None
             Mapping between Bloomberg ticker and name of the fund/security
 
         drop: bool, default False
@@ -60,90 +58,79 @@ class Analysis():
     #     volatility is displayed, as well as the Sharpe Ratio over the total
     #     lookback period
     """
-    def __init__(self, data, wkdir, startDate=None, endDate=None, tickerMapping=None, drop_na=False):
-
+    def __init__(self, data, wkdir, data_src, start_date=None, end_date=None, ticker_mapping=None, drop_na=False):
         """
-        Parameters
-        ----------
-
+        Params
+        ------
         data: dataframe
-            Security data of price over time period
+            Security data of price over time period, with first column as date, other columns as individual stock
+            close prices
+        data_src: str, acceptable sources 'bbg', 'yfin'
+            Source of financial data, whether from Bloomberg (bbg) or YahooFinance via the API (yfin).
         wkdir: str
-            Path of working directory
-        startDate: str, default None
-            Analyse data from the specified start date in the format YYYY-MM-DD. Will default to start of
-            time series
-        endDate: str, default None
-            Analyse data from the specified end date in the format YYYY-MM-DD. Will default to end of
-            time series
+        start_date, end_date: str, default None
+            Specify slicing of dataframe on which to do analysis (defaults to end points of dataframe). format "YYYY-MM-DD"
         drop_na: bool, default False
-            Drop NA columns to not pollute the results
-        tickerMapping: dataframe
-            Mapping between the BBG Ticker of the security, and
-            the security name
-            #TODO: make the above into a dict with keys and values
+            Drop securities with any NA values
+        ticker_dict: dict
+            Mapping between the Bloomberg ticket and (custom) name
         """
+        self.run_date = extract_str_timestamp(dt.datetime.now())
+        self.wkdir = wkdir
+        self.set_output_folder()
+        print("Output folder: {}".format(self.output_dir))
 
-        # Load & clean data for efficient analysis for all products
+        if data_src == 'bbg':
+            dataframe = utils.char_to_date(data)
 
-        dataframe = utils.char_to_date(data)
+            self.start_date = extract_str_timestamp(dataframe.index.min())
+            self.end_date = extract_str_timestamp(dataframe.index.max())
+            print("Data for period runs {start} to {end}".format(start=self.start_date, end=self.end_date))
 
+            self.data = dataframe
+        elif data_src == 'yfin':
+            pass
+
+    def clean_slice_data(self, df, drop_na=True, start=None, end=None):
+        """
+        Method to clean/slice (or both) data by removing NAs from the analysis, and restricting the time frame
+
+        Params
+        ------
+            df: dataframe of security data in wide, short format
+            drop_na: bool, default True
+            start, end: str, default None
+                Start and end dates for analysing the data, if not defined will default to beginning and end
+                of dates in df
+
+        """
         # check for NaN values and drop, alerting user for what has been dropped
-        na_securities = dataframe.columns[dataframe.isnull().any()].values
-        if len(na_securities) > 0:
-            print("The following securities have NaNs in the dataset but "
-                  "will be included in the analysis: \n {}".format(na_securities))
-
-        beginDateStr = str(dt.datetime.strftime(dataframe.index.min(), "%Y-%m-%d"))
-        finalDateStr = str(dt.datetime.strftime(dataframe.index.max(), "%Y-%m-%d"))
-        print("Time series for data runs " + beginDateStr + " to " + finalDateStr + "\n")
-
-        if startDate is not None:
-            self.startDate = np.datetime64(startDate)
-        else:
-            self.startDate = np.datetime64(beginDateStr)
-        if endDate is not None:
-            self.endDate = np.datetime64(endDate)
-        else:
-            self.endDate = np.datetime64(finalDateStr)
-
-        self.runDate = np.datetime64(dt.datetime.now().strftime("%Y-%m-%d"))
+        na_secs_names = df.columns[df.isnull().any()].values
+        if len(na_secs_names) > 0:
+            print("The following securities have NaNs in the dataset and will"
+                  "be included in the analysis: \n {}".format(na_secs_names))
 
         if drop_na:
-            dataframe.dropna(axis=0, inplace=True)
+            df.dropna(axis=0, inplace=True)
 
         try:
-            df = dataframe.loc[startDate: endDate, : ]
+            clean_df = df.loc[self.start_date: self.end_date, :]
         except KeyError:
-            df = dataframe
+            clean_df = df
 
-        print("Data analysed for period " + self.startDate.astype(str) +
-              " to " + self.endDate.astype(str))
+        print("Data analysed for period {start} to {end}".format(start=self.start_date, end=self.end_date))
 
-        if tickerMapping is not None:
-            self.fundDict = dict(zip(tickerMapping['Ticker'], tickerMapping['Security Name']))
-            if any(np.isnan(df.columns.map(self.fundDict).values)):
-                pass
-            else:
-                df.columns = df.columns.map(self.fundDict)
-
-        self.data = df
-        self.wkdir = wkdir
-        # self.returns = None
-        # self.summary = None
-
-        self.set_output_folder()
-        print("Output folder set as " + self.output_dir)
+        return clean_df
 
     def set_output_folder(self):
         """Set output """
-        output_path = self.wkdir + "output/" + dateToStr(self.runDate) + "/"
-        if not os.path.exists(output_path):
-            os.mkdir(output_path)
-            self.output_dir = output_path
+        output_path = os.path.join(self.wkdir, "output", self.run_date)
         self.output_dir = output_path
+        if not os.path.exists(self.output_dir):
+            os.mkdir(self.output_dir)
 
-    def daily_returns(self, data):
+    @staticmethod
+    def daily_returns(data):
         """Give daily returns"""
         dailyReturn = data.pct_change(1).iloc[1:, ]
         return dailyReturn
@@ -154,93 +141,147 @@ class Analysis():
         log_dailyReturn = data.apply(lambda x: np.log(x) - np.log(x.shift(1)))[1:]
         return log_dailyReturn
 
-    def annualReturns(self, toCsv=True):
+    @staticmethod
+    def calculate_sortino_ratio(input_data, target, rfr, return_period=1):
+        """
+        Method to calculate Sortino Ratio (gives a better measure of downside
+        volatility and therefore risk). Unlike the Sharpe Ratio it does not
+        penalise upside volatility.
+
+        Params
+        ------
+            input_data: df
+                Original dataframe of input data
+            target: float
+                Target return (for the return period)
+            rfr: float, default 1
+                Risk free rate
+            return_period: float, default 1
+                Specify the return period (number of days) for the ratio.
+
+        Returns
+        -------
+            sortino: ndarray
+        """
+
+        prd_return = input_data.pct_change(return_period).iloc[1:, ]
+        downside_return = np.array(prd_return.values - target)
+        # subtract_array = np.ones(downside_return.shape[1])*target
+
+        inner_bit = np.minimum(np.zeros(shape=downside_return.shape[1]), downside_return)
+
+        tdd_sum = np.sum(np.square(inner_bit), axis=0)
+        target_downside_dev = np.sqrt(tdd_sum / len(prd_return))
+
+        sortino = (prd_return.mean() - rfr) / target_downside_dev
+
+        return sortino
+
+    def annual_return_table(self, data, save_results=True):
         """
         Basic summary table of annual returns of stocks
+
+        Params
+        ------
+            data: df
+            save_results: bool, default True
+
+        Returns
+        -------
+            annual_rtn: df
+                Annual returns dataframe
         """
 
-        df = self.data
+        df = data.copy(True)
+        total_annual_rtn = (df.groupby(df.index.year).last()/ df.groupby(df.index.year).first())
 
-        df = df.copy(True)
-        #df.dropna(axis=1, inplace = True) #drop NA columns
-        annualReturn = (df.groupby(df.index.year).last()/ \
-                        df.groupby(df.index.year).first() -1).T
-        # annualReturn = round((annualReturn*100),3)
-        annualReturn.index.name = "Fund / Annual Return"
+        annual_rtn = (total_annual_rtn - 1).T
+        annual_rtn.index.name = "Security / Annual Return"
 
-        if toCsv:
-            annualReturn.to_csv(self.output_dir + dateToStr(self.runDate) + " Securities Annual Return.csv")
-            print("Summary table has been written to csv file in directory: " + self.output_dir)
+        if save_results:
+            annual_rtn.to_csv(os.path.join(self.output_dir, self.run_date + "_sec_annual_return.csv"))
+            print("Annual returns table saved as csv in {dir}".format(dir=self.output_dir))
 
-        return annualReturn
+        return annual_rtn
 
-    def summaryTable(self, toCsv = False, r = 1):
+    def performance_summary(self, data, rfr=0, target=0, risk_measures=True, save_results=False):
         """
         Summarises return and volatility for input data over whole period
 
         Params:
             toCsv:  bool, default False. If True, written into output_dir
-            r: float, default None
-                Risk free rate of return, default 1% (you can get this in banks)
+            rfr: float, default 0
+                Risk Free Rate of annual return, default 0%
+            target: float, default 0
+                Target rate of (daily) period return, default 0%
+            risk_measures: bool, default True
+                Whether to include Sharpe and Sortino Ratios in the summary table
+            save_results: bool, default False
 
         Returns:
             summary: table of returns and volatility of securities entered
         """
 
-        df = self.data
-        dailyReturn = df.pct_change(1).iloc[1:, ]
-        annualReturn = np.mean(dailyReturn) * 252
-        annualVolatility = np.std(dailyReturn) * np.sqrt(252)
-        infoRatio = annualReturn / annualVolatility
+        df = data.copy(True)
 
-        if r is None:
-            summary = pd.concat([annualReturn, annualVolatility, infoRatio], axis=1)
-            summary.columns = ['Annualised Return', 'Annual Volatility', 'Information Ratio']
-        else:
-            sharpe = (annualReturn - r) / annualVolatility
-            summary = pd.concat([annualReturn, annualVolatility, infoRatio, sharpe], axis=1)
-            summary.columns = ['Annualised Return', 'Annual Volatility', 'Information Ratio', 'Sharpe Ratio']
+        daily_rtn = self.daily_returns(df)
+        annual_rtn = np.mean(daily_rtn) * 252
+        annual_vol = np.std(daily_rtn) * np.sqrt(252)
+        info_ratio = np.divide(annual_rtn, annual_vol)
+
+        cols = ['Annual Return', 'Annual Volatility', 'Info Ratio']
+        summary = pd.concat([annual_rtn, annual_vol, info_ratio], axis=1)
+        summary.columns = cols
+
+        if risk_measures:
+            if rfr is None:
+                rfr = 0
+
+            sharpe = np.divide(annual_rtn-rfr, annual_vol)
+            sortino = self.calculate_sortino_ratio(input_data=df, target=target, rfr=rfr)
+
+            cols += ['Sharpe Ratio', 'Sortino Ratio']
+            summary = pd.concat([summary, sharpe, sortino], axis=1)
+            summary.columns = cols
 
         summary.dropna(inplace=True)
         summary.index.name = "Fund/Stock"
-        # summary = round(summary, 3)
 
-        log = "Fund Stats for " + str(self.startDate) + " to " + str(self.endDate)
+        log = " ".join(["Fund Stats for", self.start_date, "to", self.end_date])
         errors = df.columns.difference(summary.index).values.tolist()
 
         print(log)
-        if len(errors) >0:
-            print("The following funds were not analysed due to errors in the dataset: ")
-            print(errors)
+        if len(errors) > 0:
+            print("The following funds were not analysed due to errors in the dataset: \n {}".format(errors))
 
-        if toCsv:
-            summary.to_csv(self.output_dir + "SummaryTable " + \
-                           dateToStr(self.startDate) + "-" + dateToStr(self.endDate) + ".csv")
-            print("Summary table has been written to csv file in directory: " + self.output_dir)
+        if save_results:
+            summary.to_csv(os.path.join(self.output_dir, \
+                                        "_".join(["securities_summary", self.start_date, self.end_date, ".csv"])))
+            print("Summary table has been written to csv file in directory: {}".format(self.output_dir))
 
         return summary
 
-    def lookbackPerformance(self, endDate = None, lookbackList = ["0D", "6M", "1Y", "2Y", "3Y"],
+    def lookbackPerformance(self, end_date = None, lookbackList = ["0D", "6M", "1Y", "2Y", "3Y"],
                             results = False, returnPlot = False):
         """
         Analyse performance of certain funds over a custom lookback period
 
         Params:
-            endDate:        type np.datetime64
+            end_date:        type np.datetime64
                 Defaults to last valid date in dataset
             lookbackList:   type list.
                 default ["0D", "6M", "1Y", "2Y", "3Y"]
         """
         df = self.data
 
-        if endDate is None:
-            endDate = self.endDate
+        if end_date is None:
+            end_date = self.end_date
 
         if lookbackList is None:
             lookbackList = ["0D", "3M", "6M", "9M", "12M", "18M", "24M"]
 
         #TODO: if a date in the lookback is not in the range of the dataset then we drop this date
-        target_dates = [previousDate(df, endDate, i) for i in lookbackList]
+        target_dates = [utils.previousDate(df, end_date, i) for i in lookbackList]
         target_prices = [df.loc[i,:].values for i in target_dates]
 
         # iloc[::-1] is to reverse the dataframe by the date index --> earliest to latest
@@ -254,7 +295,7 @@ class Analysis():
                                             cumulativeReturn.columns.tolist()[:-1]]
 
         if results:
-            fileName = dateToStr(self.startDate) + "_" + dateToStr(self.endDate) + "_"
+            fileName = dateToStr(self.start_date) + "_" + dateToStr(self.end_date) + "_"
             writer = pd.ExcelWriter(self.output_dir + fileName + "Security Performance.xlsx")
 
             lookbackTable.index = lookbackTable.index.values.astype("datetime64[D]")
@@ -355,8 +396,8 @@ class Analysis():
 
     # def monthlyReturnTable(self):
     #     """Table for monthly returns"""
-    #     if isinstance(self.startDate, np.datetime64) & isinstance(self.endDate, np.datetime64):
-    #         df = self.data.loc[self.startDate: self.endDate, :]
+    #     if isinstance(self.start_date, np.datetime64) & isinstance(self.end_date, np.datetime64):
+    #         df = self.data.loc[self.start_date: self.end_date, :]
     #     else:
     #         df = self.data
     #     df = df.copy(True)
@@ -446,23 +487,33 @@ class Analysis():
 
 if __name__ == "main":
 
-    from New_Fund_Analysis import Analysis
+    from securities_analysis import Analysis
 
-    # "example_data.csv", "example_data_na.csv" has NA rows, master= funds_stocks_2019.csv
-    # os.chdir("C://Users//Philip.P_adm//Documents//Fund Analysis")
+    wkdir = "/Users/philip_p/Documents/python/"
+    input_folder = os.path.join(wkdir, "data/finance")
+    output_folder = os.path.join(wkdir, "output")
+    # df = utils.prep_fund_data(df_path= os.path.join(input_folder, "example_data_na.csv"))
+    df = utils.prep_fund_data(df_path=os.path.join(input_folder, "funds_stocks_2019.csv"))
 
-    wkdir = "/Users/philip_p/Documents/python/"  #"C://Users//Philip//Documents//python//"
-    inputFolder = os.path.join(wkdir, "data/finance")
-    outputFolder = os.path.join(wkdir, "output")
-    df = prep_fund_data(df_path= os.path.join(inputFolder, "example_data_na.csv"))
+    import json
+    from utils import get_config_path
 
-    rn = Analysis(data=df, wkdir= wkdir)
-    rn.csv_summary(outputDir=os.path.join(wkdir, "output"))
+    with open(get_config_path("bbg_ticker.json")) as f:
+        ticker_map_dict = json.load(f)
+
+    data = df
+    wkdir = wkdir
+    data_src = 'bbg'
+
+    rn = Analysis(data=df, wkdir= wkdir, data_src='bbg')
+    clean_df = rn.clean_slice_data(df=df)
+    results = rn.performance_summary(data=clean_df, save_results=True)
+    # rn.csv_summary(outputDir=os.path.join(wkdir, "output"))
     # rn.plot_bollinger_bands(data=df, window=60)
 
     # tick_mapping = pd.read_csv(inputDir + 'tickerNameMapping.csv') #also:"tickerNameMapping.csv", 'securityMapping_subset.csv'
 
-    # rn = Analysis(data = df, startDate = "2014-01-01", endDate = "2019-06-01", tickerMapping = None)
+    # rn = Analysis(data = df, start_date = "2014-01-01", end_date = "2019-06-01", ticker_mapping = None)
     # rn.summaryTable(toCsv=True, r = 0.015)
     # rn.annualReturns(toCsv=True)
     # rn.lookbackPerformance(lookbackList = ["0D", "6M", "1Y", "2Y", "3Y"], results=True, returnPlot=False)
@@ -481,15 +532,15 @@ if __name__ == "main":
     # for i, e in enumerate(null_lst):
     #     slice = df.iloc[e:, i]
     #     slice.dropna(axis=0, inplace=True)
-    #     startDate = slice.index[0].strftime("%Y-%m-%d")
+    #     start_date = slice.index[0].strftime("%Y-%m-%d")
     #     name = pd.Series(slice).name
     #
     #     try:
-    #         rn = Analysis(data=slice, startDate=startDate, endDate="2019-07-05")
+    #         rn = Analysis(data=slice, start_date=start_date, end_date="2019-07-05")
     #     except (AttributeError) or (IndexError):
-    #         rn = Analysis(data=pd.DataFrame(slice), startDate=startDate, endDate="2019-07-05")
+    #         rn = Analysis(data=pd.DataFrame(slice), start_date=start_date, end_date="2019-07-05")
     #
-    #     # rn = Analysis(data=slice, startDate=startDate, endDate="2019-07-05")
+    #     # rn = Analysis(data=slice, start_date=start_date, end_date="2019-07-05")
     #     rn.excel_summary()
     #     os.rename(os.path.join(outputDir, "Stock Summary Measures.xlsx"),
     #               os.path.join(outputDir, "Stock Summary Measures_" + name + ".xlsx"))

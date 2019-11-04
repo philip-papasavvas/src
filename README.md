@@ -67,7 +67,7 @@ Methods:
 
 Usage
 ```python
-from New_Fund_Analysis import Analysis
+from securities_analysis import Analysis
 
 rn = Analysis(data=dataframe, wkdir= wkdir)
 rn.csv_summary(outputDir=os.path.join(wkdir, "output"))  

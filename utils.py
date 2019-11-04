@@ -37,6 +37,9 @@ def get_data_path(path):
 def get_images_path(path):
     return os.path.join(_ROOT, "images", path)
 
+def get_custom_path(path, directory_name):
+    return os.path.join(_ROOT, directory_name, path)
+
 def flatten_dict(d):
     """
     Flatten dictionary d
