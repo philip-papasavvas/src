@@ -105,8 +105,9 @@ results, optimal_weights = random_portfolios(n_pts=1000, mean_returns=mean_retur
 res = display_simulated_frontier_random(mean_returns= mean_return, cov= covariance_return, n_pts=500, \
                                         risk_free=0.015, wk_dir=wkdir, save_results=True, save_plots=False)
 ```
-
+Console output
 ```
+------------------------------------------
 Maximum Sharpe Ratio Portfolio Allocation: 
  
  	 Sharpe Ratio: 	1.436 
@@ -116,7 +117,7 @@ Maximum Sharpe Ratio Portfolio Allocation:
              Dow Jones  MSCI World  Fundsmith Equity  LindsellTrain Global Eq
 allocation      866.0      7701.0            1304.0                    130.0
 
-
+------------------------------------------
 Minimum volatility Portfolio Allocation: 
  	 Sharpe Ratio: 	1.436 
  	 Annualised Return: 	0.1128  
@@ -135,6 +136,9 @@ module: *stationarity.py*
   Within this method skewness and kurtosis is calculated, to be compared with the assumption of normal returns.
 - *Development*
     - [ ] *Translate this into a Jupyter Notebook to display the theory behind the ADF test, and list the hypotheses*
+
+## Quick start
+Clone the repo: `git clone https://github.com/philip-papasavvas/projects.git`
 
 ## Roadmap
 I have the following module(s) planned out and hope to implement soon
