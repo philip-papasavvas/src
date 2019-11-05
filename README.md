@@ -9,32 +9,24 @@
 [![GitHub license](https://img.shields.io/badge/License-MIT-brightgreen.svg?style=flat-square)](https://github.com/VivekPa/AIAlpha/blob/master/LICENSE) 
 [![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-A mixutre of different (small projects), focused on:
-- daily email (the [CrossFit](http://www.crossfit.com) Workout of the Day (WOD)) using web scraping and pulling a random quote from a MongoDB Atlas database
-- technical analysis of security price data 
-- portfolio optimisation 
-- stationarity (a stochastic process where the unconditional joint probability 
+This repositroy has a few different small projects, including:
+- Automated [daily email](#cf-wod) sending the [CrossFit](http://www.crossfit.com) Workout of the Day. This uses web scraping and pulling a random quote from a MongoDB Atlas database
+- [Technical analysis](#securities-analysis) (risk-adjusted) of security price data 
+- [Portfolio optimisation](#efficient-frontier)/Markowitz Efficient frontier 
+- [Stationarity](#stationarity) (a stochastic process where the unconditional joint probability 
  distribution does not change when shifted in time) 
 
 ## Contents
 - [Prerequisities](#prerequisites)
-- [Fund Analysis](#fund-analysis)
+- [CrossFit WOD email](#cf-wod)
+- [Securities Analysis](#securities-analysis)
 - [Efficient Frontier](#efficient-frontier)
 - [Stationarity](#stationarity)
 - [Roadmap](#roadmap)
 - [Other Modules](#other-modules)
 
 
-## Prerequisites
-The following modules are needed for the library
-* [Arctic](https://github.com/manahl/arctic) >= 1.79.0
-* [yfinance](https://github.com/ranaroussi/yfinance) >= 0.1.43
-* [matplotlib](https://github.com/matplotlib/matplotlib)
-* [pymongo](https://github.com/mher/pymongo)
-* [pyperclip](https://github.com/asweigart/pyperclip)
-* [smtplib](https://docs.python.org/3/library/smtplib.html)
-
-## CrossFit Daily WOD email & inspirational quote
+## CF WOD
 module: *cf_wod_email.py*  
 - Script to scrape the [CrossFit](http://www.crossfit.com) website to get the daily WOD and add an 
 inspirational quote (retrieved from MongoDB Atlas database) at the end, then send daily email to distribution list (specified by json config).
@@ -50,8 +42,8 @@ inspirational quote (retrieved from MongoDB Atlas database) at the end, then sen
 > 4 rounds of Tabata row, bike, ski erg, jump rope, or other monostructural exercise.   
 > **Hard work pays off** - *Josh Bridges*
 
-## Fund Analysis 
-module: *New_Fund_Analysis.py*
+## Securities Analysis 
+module: *securities_analysis.py*
 
 Technical analysis of security price data to calculate: (annualised & normalised) 
 return, volatility, Sharpe & Information ratios.
@@ -63,15 +55,19 @@ Supports:
 
 Methods:
  - [X] Summary tables: performance (annualised, normalised and custom time-period) and correlation
+ - [X] Risk adjusted measures: individual (static) methods for calculating [Information Ratio](https://www.investopedia.com/terms/i/informationratio.asp),
+  [Sharpe Ratio](https://www.investopedia.com/terms/s/sharperatio.asp) and [Sortino Ratio](https://www.investopedia.com/terms/s/sortinoratio.asp)
  - [X] Plots: normalised returns & rolling volatility, bollinger bands, rolling Sharpe Ratio (noisy!)
 
 Usage
 ```python
 from securities_analysis import Analysis
 
-rn = Analysis(data=dataframe, wkdir= wkdir)
-rn.csv_summary(outputDir=os.path.join(wkdir, "output"))  
-rn.plot_bollinger_bands(data=dataframe, window=60) # see below for example of returned plot
+# df is some financial data, wkdir defined here
+rn = Analysis(data=df, wkdir= wkdir)
+clean_df = rn.clean_slice_data(df=df)
+results = rn.performance_summary(data=clean_df, save_results=True)
+rn.plot_bollinger_bands(data=df, window=60) #see example of plot below
 ```
 
 Development
@@ -86,20 +82,55 @@ Plots
 <img src="https://pythonpapshome.files.wordpress.com/2019/10/monks-investment-trust-plc-price-vol-history.png">
 
 ## Efficient Frontier
-module: *Efficient Frontier.py*
+module: *efficient_frontier.py*
 - Markowitz portfolio optimisation for an input portfolio- includes calculation of key
-technical measures (return, volatility, Sharpe Ratio).
-- Optimisation is run for:
-    1. Maximising Sharpe Ratio
-    2. Minimising volatility
-- *Development*
-    - [ ] *Support json config as input*
+technical measures (return, volatility, Sharpe Ratio)
+- Supports plotting of raw data using matplotlib
+- Optimisation is run for both maximising Sharpe Ratio, and minimising volatility
+```python
+# df is some financial security price data
+daily_return = df.pct_change()
+mean_return = daily_return.mean()
+covariance_return = daily_return.cov()
+risk_free = 0.015
+
+# return the performance of a four-securuity portfolio with equal weighting
+sample_returns, sample_cov = port_perform_annual(mean_returns=mean_return, cov=covariance_return, weights=np.repeat(0.25,4))
+
+# return optimal portfolio weighting by running analysis with 1000 different portfolio weight combinations
+results, optimal_weights = random_portfolios(n_pts=1000, mean_returns=mean_return, cov=covariance_return, risk_free=0.015)
+
+# Plot efficient frontier for portfolios (annualised return versus volatility) - bullet shape,
+# highlighting most efficient portfolio (risk/reward and lowest volatility)
+res = display_simulated_frontier_random(mean_returns= mean_return, cov= covariance_return, n_pts=500, \
+                                        risk_free=0.015, wk_dir=wkdir, save_results=True, save_plots=False)
+```
+
+```
+Maximum Sharpe Ratio Portfolio Allocation: 
+ 
+ 	 Sharpe Ratio: 	1.436 
+ 	 Annualised Return: 	0.1128  
+ 	 Annualised Volatility: 	0.0681 
+ 
+             Dow Jones  MSCI World  Fundsmith Equity  LindsellTrain Global Eq
+allocation      866.0      7701.0            1304.0                    130.0
+
+
+Minimum volatility Portfolio Allocation: 
+ 	 Sharpe Ratio: 	1.436 
+ 	 Annualised Return: 	0.1128  
+ 	 Annualised Volatility: 	0.0681 
+ 
+             Dow Jones  MSCI World  Fundsmith Equity  LindsellTrain Global Eq
+allocation      866.0      7701.0            1304.0                    130.0
+```
 
 ## Stationarity
-module: *Stationarity.py*
-- Investigate time-series of securites, by computing daily returns assess if returns are stationary
+module: *stationarity.py*
+- Module with theory and explanation investigating time-series of securites, by computing daily returns assess if returns are stationary
 - Augmented Dickey Fuller (ADF) test for unit roots, with null hypothesis,
-  h<sub>0</sub> : &alpha; = 0.05, of non-stationary. Compute p-values for given threshold, default 
+  h<sub>0</sub> : &alpha; = 0.05, of non-stationarity. Compute p-values for given threshold, default 
   &alpha; = 0.05. 
   Within this method skewness and kurtosis is calculated, to be compared with the assumption of normal returns.
 - *Development*
@@ -114,10 +145,21 @@ I have the following module(s) planned out and hope to implement soon
         - [ ] *Schedule for daily run to download data and write to database (MongoDB)*
         - [ ] *Develop tool to cleanse data* 
 
+
+## Prerequisites
+The following modules are needed for the library
+* [Arctic](https://github.com/manahl/arctic) >= 1.79.0
+* [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
+* [matplotlib](https://github.com/matplotlib/matplotlib)
+* [pymongo](https://github.com/mher/pymongo)
+* [pyperclip](https://github.com/asweigart/pyperclip)
+* [requests](https://pypi.org/project/requests/2.7.0/)
+* [smtplib](https://docs.python.org/3/library/smtplib.html)
+* [yfinance](https://github.com/ranaroussi/yfinance) >= 0.1.43
+
 ## Contributing
 Pull requests are welcome.
 
 ## Other Modules
-- organise_files.py: *organise files by extension (supports xlsx and jpg) and move to specified folder*
+- organise_files_extension.py: *organise files by extension (supports xlsx and jpg) and move to specified folder*
 - password_generator.py: *custom-length alphanumeric password (and if requested special characters)*
-

@@ -31,7 +31,7 @@ inputFolder = wkdir + "input/"
 inputDir = wkdir + "input/"
 outputFolder = wkdir + "output/"
 
-from New_Fund_Analysis import Analysis
+from securities_analysis import Analysis
 
 import plotly.plotly as py
 import plotly.graph_objs as go

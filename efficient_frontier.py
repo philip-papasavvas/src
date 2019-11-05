@@ -217,11 +217,11 @@ if __name__ == "__main__":
     # --------------
     # plot the prices - using plot_raw_data method defined above
 
-    plot_raw_data(df= df, file_name="price_plot", y_label="Price (p)", to_close=True)
+    # plot_raw_data(df= df, file_name="price_plot", y_label="Price (p)", to_close=True)
 
-    # Now look at 1 day returns (should follow something resembling a normal distribution)
-    returns = df.pct_change()
-    plot_raw_data(df= returns, file_name="returns_plot", y_label="Daily Return (%)", to_close=True)
+    # # Now look at 1 day returns (should follow something resembling a normal distribution)
+    # returns = df.pct_change()
+    # plot_raw_data(df= returns, file_name="returns_plot", y_label="Daily Return (%)", to_close=True)
 
     # Explore the methods
     daily_return = df.pct_change()
@@ -236,6 +236,6 @@ if __name__ == "__main__":
     results, optimal_weights = random_portfolios(n_pts=20, mean_returns=mean_return, cov=covariance_return, risk_free=0.015)
 
     # Plot efficient frontier for portfolios (annualised return versus volatility) - bullet shape,
-    #  highlighting most efficient portfolio (risk/reward and lowest volatility)
+    # highlighting most efficient portfolio (risk/reward and lowest volatility)
     res = display_simulated_frontier_random(mean_returns= mean_return, cov= covariance_return, n_pts=50, \
                                             risk_free=0.015, wk_dir=today_output_dir, save_results=True, save_plots=True)
