@@ -10,7 +10,7 @@
 [![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 This repository has a few different small projects, including:
-- Automated [daily email](#cf-wod) sending the [CrossFit](http://www.crossfit.com) Workout of the Day. This uses web scraping and pulling a random quote from a MongoDB Atlas database
+- Automated [daily email](#cf-wod) sending the [CrossFit](http://www.crossfit.com) Workout of the Day. This uses web scraping and chooses a random quote from my MongoDB (Atlas) database of inspirational quotes
 - [Technical analysis](#securities-analysis) (risk-adjusted) of security price data 
 - [Portfolio optimisation](#efficient-frontier)/Markowitz Efficient frontier 
 - [Stationarity](#stationarity) (a stochastic process where the unconditional joint probability 
