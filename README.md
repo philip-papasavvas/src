@@ -17,20 +17,24 @@ This repository has a few different small projects, including:
  distribution does not change when shifted in time) 
 
 ## Contents
-- [Prerequisities](#prerequisites)
+
 - [CrossFit WOD email](#cf-wod)
 - [Securities Analysis](#securities-analysis)
 - [Efficient Frontier](#efficient-frontier)
 - [Stationarity](#stationarity)
+- [Quick start](#quick-start)
 - [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [Prerequisities](#prerequisites)
 - [Other Modules](#other-modules)
 
 
 ## CF WOD
 module: *cf_wod_email.py*  
 - Script to scrape the [CrossFit](http://www.crossfit.com) website to get the daily WOD and add an 
-inspirational quote (retrieved from MongoDB Atlas database) at the end, then send daily email to distribution list (specified by json config).
-- Supports updating of quote database using an input json
+inspirational quote (retrieved from MongoDB Atlas database) at the end, then send daily email to distribution list (specified in json config).
+- Supports updating of quote database using json input
+- Runs on a scheduler on [Raspberry Pi](https://www.raspberrypi.org/) every morning
 - *Development*
     - [X] *Wrap up into a class (to factorise the functions)*
     - [X] *Set up task scheduler (on Raspberry Pi) to run daily*
@@ -46,7 +50,7 @@ inspirational quote (retrieved from MongoDB Atlas database) at the end, then sen
 module: *securities_analysis.py*
 
 Technical analysis of security price data to calculate: (annualised & normalised) 
-return, volatility, Sharpe & Information ratios.
+return, volatility, Information, Sharpe and Sortino ratios.
 
 Supports:
 - [X] price data in long format, csv (date as index, columns as security prices)
@@ -75,7 +79,7 @@ Development
 each security, with a column to display number of observations. Print statement for
 securities without data for entire lookback*
 - [ ] *Add mapping for each fund to benchmark - as {key:value} - plotting of individual fund with benchmark (if any)*
-- [ ] *Integrate **EfficientFrontier.py** script into (static) class method*
+- [ ] *Integrate **efficient_frontier.py** script into (static) class method*
 
 Plots
 - Example: Bollinger Band & Rolling Volatility Plot - MONKS INVESTMENT TRUST
@@ -129,7 +133,7 @@ allocation      866.0      7701.0            1304.0                    130.0
 
 ## Stationarity
 module: *stationarity.py*
-- Module with theory and explanation investigating time-series of securites, by computing daily returns assess if returns are stationary
+- Module with theory and explanation investigating time-series of securites. Computes daily returns to assess if returns are stationary
 - Augmented Dickey Fuller (ADF) test for unit roots, with null hypothesis,
   h<sub>0</sub> : &alpha; = 0.05, of non-stationarity. Compute p-values for given threshold, default 
   &alpha; = 0.05. 
