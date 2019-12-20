@@ -6,36 +6,41 @@ Provide summary statistics on the data
 Introduce tests (such as Augmented Dickey Fuller) to check stationarity of time series
 """
 
-
-import os
+# built in imports
 import pandas as pd
 import numpy as np
-import datetime as dt
-import utils
 from re import sub, search
-from utils import previousDate
+import os
+from datetime import datetime
+import datetime as dt
+
+
+# third party modules
 import scipy.stats as stats
 from scipy.stats import kurtosis, skew
 from statsmodels.tsa.stattools import adfuller
-
 import matplotlib.pyplot as plt
+import plotly.plotly as py
+import plotly.graph_objs as go
+
+# local imports
+import utils
+# from utils import Date # previousDate
+from securities_analysis import Analysis
+
+
 plt.style.use('seaborn')
 
 pd.set_option('display.max_columns', 5)
 
-dateToStr = lambda d: d.astype(str).replace('-', '')
+date_to_str = lambda d: d.astype(str).replace('-', '')
 
 # os.chdir("C://Users//Philip.P_adm//Documents//Fund Analysis")
 wkdir = "C://Users//Philip//Documents//python//"
-inputFolder = wkdir + "input/"
+inputFolder, outputFolder = os.path.join(wkdir, "input"), os.path.join(wkdir, "output")
 inputDir = wkdir + "input/"
-outputFolder = wkdir + "output/"
 
-from securities_analysis import Analysis
 
-import plotly.plotly as py
-import plotly.graph_objs as go
-from datetime import datetime
 
 # "example_data.csv", "example_data_na.csv" has NA rows
 # df = pd.read_csv(inputDir + 'example_data.csv') #, parse_dates=True)

@@ -6,14 +6,19 @@ Script to look at producing an efficient frontier for a given portfolio of secur
 Used the following for inspiration on https://towardsdatascience.com/efficient-frontier-portfolio-optimisation-in-python-e7844051e7f
 """
 
-# usual suspects
+# import build in modules
 import os
 import pandas as pd
 import numpy as np
 import datetime as dt
 from re import sub, search
+
+# third party imports
 import matplotlib.pyplot as plt
-from utils import char_to_date, get_data_path
+
+# local imports
+from utils import Date # char_to_date, get_data_path
+from projects import get_data_path
 
 dateToStr = lambda d: d.astype(str).replace('-', '')
 plt.style.use('seaborn')
@@ -210,7 +215,7 @@ if __name__ == "__main__":
         os.mkdir(today_output_dir)
 
     df = pd.read_csv(get_data_path("example_data.csv"), index_col='Date')
-    df = char_to_date(df)
+    df = Date.char_to_date(df)
     df.dropna(axis=0, inplace=True)
 
     # EXPLORATORY DATA ANALYSIS
