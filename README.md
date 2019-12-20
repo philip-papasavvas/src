@@ -145,7 +145,13 @@ module: *stationarity.py*
 Clone the repo: `git clone https://github.com/philip-papasavvas/projects.git`
 
 ## Roadmap
-I have the following module(s) planned out and hope to implement soon
+- Need to clean up lots of things first and foremost, many different functions being
+used across many scripts but being duplicated, so will refactor functions for calculating
+returns, log returns, period (annual/monthly) returns. All to go into Utils functions
+- Finish off unit testing calss for the Utils functions, and then start to add unit tests 
+for core functionality/scripts
+
+- I have the following module(s) planned out and hope to implement soon
                                                                                                                              
 - finance-database.py
     - Download security data from Yahoo Finance using yfinance and store the data in MongoDB using Arctic
