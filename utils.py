@@ -263,11 +263,6 @@ class Date():
 
 
     @staticmethod
-    def x2pdate(xldate):
-        """Excel date serial to numpy datetime"""
-        return np.array(['1899-12-30'], dtype='datetime64[D]') + xldate
-
-    @staticmethod
     def timeDelta_to_days(td):
         """Returns the day difference of a pandas series of timedelta64[ns]"""
         return (td.values / np.timedelta64(1, 'D')).astype(int)
@@ -585,7 +580,7 @@ class Utils():
 
 
     @staticmethod
-    def prep_fund_data(df_path, date_col = "Date"):
+    def prep_fund_data(df_path, date_col="Date"):
         """Prep fund data (csv) using char to date and setting 'Date' as the index
 
         Args:
@@ -603,7 +598,7 @@ class Utils():
         return df
 
 
-class DictMethods():
+class Dict():
     """Compiling all the utils methods for dictionaries"""
 
     @staticmethod
@@ -611,14 +606,14 @@ class DictMethods():
         """Flatten dictionary d
 
         Example
-            >>> DictMethods.flatten_dict(d={"a":{1}, "b":{"yes":{"more detail"}, "no": "level below" }})
+            >>> Dict.flatten_dict(d={"a":{1}, "b":{"yes":{"more detail"}, "no": "level below" }})
             returns {'a': {1}, 'b.yes': {'more detail'}, 'b.no': 'level below'}
         """
 
         def items():
             for key, value in d.items():
                 if isinstance(value, dict):
-                    for subkey, subvalue in Utils.flatten_dict(value).items():
+                    for subkey, subvalue in Dict.flatten_dict(value).items():
                         yield key + "." + subkey, subvalue
                 else:
                     yield key, value
@@ -630,7 +625,7 @@ class DictMethods():
     def return_keys(dict):
         """
         Returns keys of a dict in a list
-        >>> DictMethods.return_keys({'a':1, 'b':2, 'c':3})
+        >>> Dict.return_keys({'a':1, 'b':2, 'c':3}) #
         """
         return list(dict.keys())
 
@@ -639,18 +634,18 @@ class DictMethods():
     def return_values(dict):
         """
         Returns keys of a dict in a list
-        >>> DictMethods.return_values({'a':1, 'b':2, 'c':3})
+        >>> Dict.return_values({'a':1, 'b':2, 'c':3})
         """
         return list(dict.values())
 
 
-class ListMethods():
+class List():
     """Collection of list methods"""
 
     @staticmethod
     def comma_sep(lst):
         """Gets a list and returns one single string with elements separated by a comma
-        >>> ListMethods.comma_sep(["hello","this","is","an", "example"]) # 'hello,this,is,an,example'
+        >>> List.comma_sep(["hello","this","is","an", "example"]) # 'hello,this,is,an,example'
         """
         return ",".join(lst)
 
@@ -659,8 +654,8 @@ class ListMethods():
     def has_duplicates(lst):
         """
         Checks if a list has duplicate values
-        >>> ListMethods.has_duplicates([1,2,4,5]) # False
-        >>> ListMethods.has_duplicates([1,2,2,5]) # True
+        >>> List.has_duplicates([1,2,4,5]) # False
+        >>> List.has_duplicates([1,2,2,5]) # True
         """
         return len(lst) != len(set(lst))
 
@@ -669,8 +664,8 @@ class ListMethods():
     def all_unique(lst):
         """
         Check if a given list has duplicate elements
-        >>> ListMethods.all_unique([1,2,3,4]) # True
-        >>> ListMethods.all_unique([1,2,2,4]) # False
+        >>> List.all_unique([1,2,3,4]) # True
+        >>> List.all_unique([1,2,2,4]) # False
         """
         return len(lst) == len(set(lst))
 
@@ -679,8 +674,8 @@ class ListMethods():
     def chunk(lst, chunk_size):
         """
         Split a list into a list of smaller lists defined by chunk_size
-        >>> ListMethods.chunk([1,2,4,5,6,6],5)
-        >>> ListMethods.chunk([1,2,4,5,6,6],2)
+        >>> List.chunk([1,2,4,5,6,6],5)
+        >>> List.chunk([1,2,4,5,6,6],2)
         """
         return list(
             map(lambda x: lst[x * chunk_size: x * chunk_size + chunk_size],
@@ -692,7 +687,7 @@ class ListMethods():
     def count_occurences(lst, value):
         """
         Function to count occurrences of value in a list
-        >>> ListMethods.count_occurences(lst=[1,2,3,4,4,4,4], value=4) # 4
+        >>> List.count_occurences(lst=[1,2,3,4,4,4,4], value=4) # 4
         """
         return len([x for x in lst if x == value and type(x) == type(value)])
 
@@ -701,17 +696,17 @@ class ListMethods():
     def flatten(lst):
         """
         Flatten a list using recursion
-        >>> ListMethods.flatten(lst=[1,2,[3,4,5,[6,7]]]) # [1, 2, 3, 4, 5, 6, 7]
+        >>> List.flatten(lst=[1,2,[3,4,5,[6,7]]]) # [1, 2, 3, 4, 5, 6, 7]
         """
         res = []
-        res.extend(ListMethods.flatten_list(list(map(lambda x: ListMethods.flatten(x) if type(x) == list else x, lst))))
+        res.extend(List.flatten_list(list(map(lambda x: List.flatten(x) if type(x) == list else x, lst))))
         return res
 
     @staticmethod
     def flatten_list(arg):
         """Flatten lists
         Function used for flattening lists
-        >>> ListMethods.flatten_list([2,3,5,[7,8]])
+        >>> List.flatten_list([2,3,5,[7,8]])
         """
         ls = []
         for i in arg:
@@ -722,11 +717,101 @@ class ListMethods():
         return ls
 
 
-class bloombergDf():
+class SecuritiesAnalysis():
+    """Collate together all methods to do with securities analysis - returns/log returns/Sharpe/Sortino Ratio"""
+
+    @staticmethod
+    def log_daily_returns(data):
+        """Give log daily returns"""
+        log_daily_return = data.apply(lambda x: np.log(x) - np.log(x.shift(1)))[1:]
+        return log_daily_return
+
+
+    @staticmethod
+    def daily_return(data):
+        """Function to generate daily returns given input data (in dataframe, dtypes float, no time data)
+
+        Example:
+            >>> SecuritiesAnalysis.daily_return(data=pd.DataFrame([1,2,3,4]))
+        """
+        return data.pct_change(1).iloc[1:, ]
+
+
+    @staticmethod
+    def annual_return(data):
+        """Annual return from securities data(frame)"""
+        daily_rtn = data.pct_change(1).iloc[1:, ]
+        ann_rtn = np.mean(daily_rtn) * 252
+        return ann_rtn
+
+
+    @staticmethod
+    def annual_vol(data):
+        """Annual return from securities data(frame)"""
+        daily_rtn = data.pct_change(1).iloc[1:, ]
+        ann_vol = np.std(daily_rtn) * np.sqrt(252)
+        return ann_vol
+
+
+    @staticmethod
+    def info_ratio(data):
+        """Annual return from securities data(frame)"""
+        daily_rtn = data.pct_change(1).iloc[1:, ]
+        annual_rtn = np.mean(daily_rtn) * 252
+        ann_vol = np.std(daily_rtn) * np.sqrt(252)
+        info_ratio = np.divide(annual_rtn, ann_vol)
+        return info_ratio
+
+
+    @staticmethod
+    def sharpe_ratio(data, risk_free):
+        """Function to give annualised Sharpe Ratio measure from input data, as well as risk free rate
+
+        Args:
+            data (dataframe)
+            risk_free (float): Risk free rate, as a decimal, so RFR of 6% = 0.06
+        """
+        daily_rtn = data.pct_change(1).iloc[1:, ]
+        annual_rtn = np.mean(daily_rtn) * 252
+        ann_vol = np.std(daily_rtn) * np.sqrt(252)
+        sharpe_ratio = np.divide(annual_rtn - risk_free, ann_vol)
+        return sharpe_ratio
+
+
+    @staticmethod
+    def sortino_ratio(data, target_return, risk_free, rtn_period=1):
+        """Method to calculate Sortino Ratio (gives a better measure of downside volatility, thus risk.
+        Unlike the Sharpe Ratio it does not penalise upside volatility.
+
+        Args:
+            data (dataframe): Original dataframe of input data
+            target_return (float): Target return (for the return period)
+            risk_free (float): Risk free rate, usually annualised
+            rtn_period (float, default 1): Specify the return period (number of days) for the ratio.
+
+        Returns:
+            sortino (ndarray)
+        """
+
+        prd_return = data.pct_change(rtn_period).iloc[1:, ]
+        downside_return = np.array(prd_return.values - target_return)
+
+        inner_bit = np.minimum(np.zeros(shape=downside_return.shape[1]), downside_return)
+
+        tdd_sum = np.sum(np.square(inner_bit), axis=0)
+        target_downside_dev = np.sqrt(tdd_sum / len(prd_return))
+
+        sortino = (prd_return.mean() - risk_free) / target_downside_dev
+
+        return sortino
+
+
+
+class BloombergData():
     """Bring together all Bloomberg raw data methods to clean the data"""
 
     @staticmethod
-    def cleanBBGdataframe(inputFile):
+    def return_clean_df(inputFile):
         """
         Params:
             inputFile: csv
@@ -743,7 +828,7 @@ class bloombergDf():
                 Melted dataframe
 
         Example:
-            >>> ex = cleanBBGdataframe("D:/Root_D/Philip/20181201 Practice/example-bbg-df.csv")
+            >>> ex = BloombergData.return_clean_df("D:/Root_D/Philip/20181201 Practice/example-bbg-df.csv")
 
         """
         a = pd.read_csv(inputFile, header=None)
@@ -763,7 +848,7 @@ class bloombergDf():
         return data
 
     @staticmethod
-    def createMelted_bbg_Df(inputFile):
+    def return_melted_df(input_file):
         """
         Read csv file with Bloomberg data (in format below with or without blank columns) and create
         melted pivot format inputFile
@@ -776,11 +861,11 @@ class bloombergDf():
         xxxx        | dd/mm/yy  | ##.##
 
         Example:
-            >>> sample_df = createMelted_bbg_Df("D:/Root_D/Philip/20181201 Practice/example-bbg-df2.csv")
+            >>> sample_df = BloombergData.return_melted_df(input_file="D:/Root_D/Philip/20181201 Practice/example-bbg-df2.csv")
         """
 
-        x = pd.read_csv(inputFile, header=None, parse_dates=True)
-        x.dropna(axis = 1, how='all', inplace=True)
+        x = pd.read_csv(input_file, header=None, parse_dates=True)
+        x.dropna(axis=1, how='all', inplace=True)
 
         if any(pd.DataFrame(x.iloc[1,:]).drop_duplicates() == ['Date', "PX_LAST"]):
             x = x.copy(True)
