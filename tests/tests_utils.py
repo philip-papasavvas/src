@@ -8,6 +8,7 @@ Module to unit-test Utils functions
 import unittest
 import pandas as pd
 import numpy as np
+import datetime
 import pandas.testing as pd_testing
 
 # local imports
@@ -35,6 +36,14 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(Utils.difference([3,10,9],[3,4,10]), {9}, "Difference function not working as expected")
 
     def test_Date_funcs(self):
+        self.assertEqual(Date.date_shift(date=datetime.datetime(year=2010, month=10, day=10), m=2),
+                         datetime.datetime(2010, 8, 10, 0, 0),
+                         "Date should be 10 Aug 2010")
+
+        self.assertEqual(Date.date_shift(date=datetime.datetime(year=2010, month=10, day=10), y=1, reverse=False),
+                         datetime.datetime(2011, 10, 10, 0, 0),
+                         "Date should be 10 Oct 2011")
+
         self.assertEqual(Date.datePlusTenorNew(date=np.datetime64("2019-10-12"), pillar="1M", reverse=True), \
                          np.datetime64('2019-09-12'), \
                          "Date should be 12 Sep 2019")

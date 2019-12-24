@@ -8,7 +8,11 @@ Utils module for generic useful functions, divided into classes
 # usual (built-in) imports
 import pandas as pd
 import numpy as np
+
 import datetime as dt
+import datetime
+from dateutil.relativedelta import *
+
 import os
 from re import sub, search, escape
 import re
@@ -26,6 +30,33 @@ date_to_str = lambda d: d.astype(str).replace('-', '')
 
 class Date():
     """Gathered all methods that deal with dates here"""
+    @staticmethod
+    def date_shift(date, d=0, w=0, m=0, y=0, reverse=True):
+        """Method to take an input time and specify a difference offset
+
+        Args:
+            date (datetime)
+            d, w, m , y (int, default 0): Days, weeks, months, years offset
+            reverse (bool, default True): Reverse the data (or False to add the difference)
+
+        Returns:
+            new_date (datetime)
+
+        Examples
+            >>> Date.date_shift(date=datetime.datetime(year=2010, month=10, day=10), m=10) # datetime.datetime(2009, 12, 10, 0, 0)
+            >>> Date.date_shift(date=datetime.datetime(year=2010, month=10, day=10), y=5, reverse=False) # datetime.datetime(2015, 10, 10, 0, 0)
+
+        """
+        orig_date = date
+        time_offset = relativedelta(years=y, months=m, weeks=w, days=d)
+
+        if not reverse:
+            new_date = orig_date + time_offset
+        else:
+            new_date = orig_date - time_offset
+
+        return new_date
+
     @staticmethod
     def datePlusTenorNew(date, pillar, reverse=False, expressInDays=False):
         '''
