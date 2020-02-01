@@ -19,22 +19,21 @@ import datetime as dt
 import json
 from re import sub, search
 
-
 import matplotlib.pyplot as plt
 from matplotlib import ticker as mtick
+
 plt.style.use('ggplot')
 plt.tight_layout()
 plt.close()
 
 # local imports
-from utils import Securities, Utils, Date
 import utils
-
 
 dateToStr = lambda d: d.astype(str).replace('-', '')
 extract_str_timestamp = lambda d: dt.datetime.strftime(d, "%Y%m%d")
 
-class Analysis():
+
+class Analysis:
     """Analysis of historical security data, providing analytics on performance- will remove nan
 
     Args:
@@ -61,7 +60,7 @@ class Analysis():
         self.set_output_folder()
 
         if data_src == 'bbg':
-            dataframe = Date.char_to_date(data)
+            dataframe = utils.char_to_date(data)
 
             self.start_date = extract_str_timestamp(dataframe.index.min())
             self.end_date = extract_str_timestamp(dataframe.index.max())
@@ -93,7 +92,7 @@ class Analysis():
         except KeyError:
             clean_df = df
 
-        print("Data analysed for period {start} to {end}".format(start=self.start_date, end=self.end_date))
+        print(f"Data analysed for period {self.start_date} to {self.end_date}")
 
         return clean_df
 
@@ -103,7 +102,7 @@ class Analysis():
         self.output_dir = output_path
         if not os.path.exists(self.output_dir):
             os.mkdir(self.output_dir)
-        print(f"Output folder created: {}".format(self.output_dir))
+        print(f"Output folder created: {self.output_dir}")
 
     def annual_return_table(self, data, save_results=True):
         """Basic summary table of annual returns of stocks
@@ -117,7 +116,7 @@ class Analysis():
         """
 
         df = data.copy(True)
-        total_annual_rtn = (df.groupby(df.index.year).last()/ df.groupby(df.index.year).first())
+        total_annual_rtn = (df.groupby(df.index.year).last() / df.groupby(df.index.year).first())
 
         annual_rtn = (total_annual_rtn - 1).T
         annual_rtn.index.name = "Security / Annual Return"
@@ -126,7 +125,6 @@ class Analysis():
             annual_rtn.to_csv(os.path.join(self.output_dir, self.run_date + "_sec_annual_return.csv"))
             print("Annual returns table saved as csv in {dir}".format(dir=self.output_dir))
         return annual_rtn
-
 
     def performance_summary(self, data, rfr=0, target=0, risk_measures=True, save_results=False):
         """
@@ -145,14 +143,9 @@ class Analysis():
 
         df = data.copy(True)
 
-        # daily_rtn = self.daily_returns(df)
-        # annual_rtn = np.mean(daily_rtn) * 252
-        # annual_vol = np.std(daily_rtn) * np.sqrt(252)
-        # info_ratio = np.divide(annual_rtn, annual_vol)
-
-        annual_rtn = Securities.annual_return(data=df)
-        annual_vol = Securities.annual_vol(data=df)
-        info_ratio = Securities.info_ratio(data=df)
+        annual_rtn = utils.annual_return(data=df)
+        annual_vol = utils.annual_vol(data=df)
+        info_ratio = utils.calc_info_ratio(data=df)
 
         cols = ['Annual Return', 'Annual Volatility', 'Info Ratio']
         summary = pd.concat([annual_rtn, annual_vol, info_ratio], axis=1)
@@ -162,11 +155,8 @@ class Analysis():
             if rfr is None:
                 rfr = 0
 
-            sharpe = Securities.sharpe_ratio(data=data, risk_free=rfr)
-            sortino = Securities.sortino_ratio(data=data, target_return=target, risk_free=rfr)
-
-            # sharpe = np.divide(annual_rtn-rfr, annual_vol)
-            # sortino = self.calculate_sortino_ratio(input_data=df, target=target, rfr=rfr)
+            sharpe = utils.calc_sharpe_ratio(data=data, risk_free=rfr)
+            sortino = utils.calc_sortino_ratio(data=data, target_return=target, risk_free=rfr)
 
             cols += ['Sharpe Ratio', 'Sortino Ratio']
             summary = pd.concat([summary, sharpe, sortino], axis=1)
@@ -180,16 +170,17 @@ class Analysis():
 
         print(log)
         if len(errors) > 0:
-            print("The following funds were not analysed due to errors in the dataset: \n {}".format(errors))
+            print(f"The following funds were not analysed due to errors in the dataset: \n {errors}")
 
         if save_results:
             summary.to_csv(os.path.join(self.output_dir, \
                                         "_".join(["securities_summary", self.start_date, self.end_date, ".csv"])))
-            print("Summary table has been written to csv file in directory: {}".format(self.output_dir))
+            print(f"Summary table has been written to csv file in directory: {self.output_dir}")
 
         return summary
 
-    def lookbackPerformance(self, end_date=None, lookback_prds=["0D", "6M", "1Y", "2Y", "3Y"], results=False, returnPlot=False):
+    def lookbackPerformance(self, end_date=None, lookback_prds=["0D", "6M", "1Y", "2Y", "3Y"], results=False,
+                            returnPlot=False):
         """Analyse performance of certain funds over a custom lookback period (list)
 
         Args:
@@ -204,22 +195,22 @@ class Analysis():
         if lookback_prds is None:
             lookback_prds = ["0D", "3M", "6M", "9M", "12M", "18M", "24M"]
 
-        #TODO: if a date in the lookback is not in the range of the dataset then we drop this date
-        target_dates = [Date.previousDate(df, end_date, i) for i in lookback_prds]
-        target_prices = [df.loc[i,:].values for i in target_dates]
+        # TODO: if a date in the lookback is not in the range of the dataset then we drop this date
+        target_dates = [utils.return_date_diff(df, end_date, i) for i in lookback_prds]
+        target_prices = [df.loc[i, :].values for i in target_dates]
 
         # iloc[::-1] is to reverse the dataframe by the date index --> earliest to latest
         lookbackTable = pd.DataFrame.from_records(target_prices, index=target_dates, columns=df.columns)
-        lookbackTable.sort_index(ascending = True, inplace=True)
+        lookbackTable.sort_index(ascending=True, inplace=True)
 
         # Period return
-        cumulativeReturn = lookbackTable.apply(lambda x: x/x[0])
+        cumulativeReturn = lookbackTable.apply(lambda x: x / x[0])
         cumulativeReturn['Return Period'] = lookback_prds
         cumulativeReturn = cumulativeReturn[cumulativeReturn.columns.tolist()[-1:] +
                                             cumulativeReturn.columns.tolist()[:-1]]
 
         if results:
-            fileName = dateToStr(self.start_date) + "_" + dateToStr(self.end_date) + "_"
+            fileName = utils.date_to_str(self.start_date) + "_" + utils.date_to_str(self.end_date) + "_"
             writer = pd.ExcelWriter(self.output_dir + fileName + "Security Performance.xlsx")
 
             lookbackTable.index = lookbackTable.index.values.astype("datetime64[D]")
@@ -230,7 +221,7 @@ class Analysis():
             cumulativeReturn.T.to_excel(writer, "Return")
 
             writer.save()
-            print("Lookback performance table has been written to directory: {dry}".format(dry = self.output_dir))
+            print("Lookback performance table has been written to directory: {dry}".format(dry=self.output_dir))
 
         # Plotting the results
         # if returnPlot:
@@ -270,7 +261,7 @@ class Analysis():
         Returns:
             roll_mean, roll_std, boll_high, boll_low
         """
-        assert isinstance(std_devs,int), "Standard deviations: {std} is not an integer".format(std=std_devs)
+        assert isinstance(std_devs, int), "Standard deviations: {std} is not an integer".format(std=std_devs)
         assert isinstance(window, int), "Window: {wnd} is not an integer".format(wnd=window)
 
         roll_mean = data.rolling(window).mean()
@@ -297,17 +288,17 @@ class Analysis():
             ax1.set_xlabel("Time")
             ax1.set_ylabel("Price")
             ax1.plot(roll_mn, color=color)
-            #ax1.tick_params(axis='y', labelcolor=color)
+            # ax1.tick_params(axis='y', labelcolor=color)
             ax1.plot(boll_high, linestyle="dashed", color="k", linewidth=0.5)
             ax1.plot(boll_low, linestyle="dashed", color="k", linewidth=0.5)
-            ax1.yaxis.set_major_locator(mtick.LinearLocator(6)) # set there to be N=6 lines on y-axis
+            ax1.yaxis.set_major_locator(mtick.LinearLocator(6))  # set there to be N=6 lines on y-axis
 
             norm_std_rolling = normed_px.rolling(window=window).std()
             ax2 = ax1.twinx()
             color = 'tab:blue'
             ax2.set_ylabel('Rolling Volatility')
             ax2.plot(norm_std_rolling, color=color)
-            #ax2.tick_params(axis='y', labelcolor=color)
+            # ax2.tick_params(axis='y', labelcolor=color)
             ax2.set_ylim(0, 0.25)
             ax2.yaxis.set_major_locator(mtick.LinearLocator(6))
 
@@ -337,7 +328,7 @@ class Analysis():
             slice = data.loc[:, col]
 
             if isLog:
-                normed_px = 1 + np.log(slice/slice[0])
+                normed_px = 1 + np.log(slice / slice[0])
             else:
                 normed_px = slice / slice[0]
 
@@ -356,9 +347,9 @@ class Analysis():
 
             plt.show()
             if isLog:
-                plt.savefig(os.path.join(output_dir, "{stock} - Log Total Return Chart.png".format(stock = col)))
+                plt.savefig(os.path.join(output_dir, "{stock} - Log Total Return Chart.png".format(stock=col)))
             else:
-                plt.savefig(os.path.join(output_dir,  "{stock} - Total Return Chart.png".format(stock=col)))
+                plt.savefig(os.path.join(output_dir, "{stock} - Total Return Chart.png".format(stock=col)))
             plt.close()
 
     def csv_summary(self, output_dir):
@@ -368,23 +359,24 @@ class Analysis():
             output_dir = self.output_dir
 
         writer = pd.ExcelWriter(os.path.join(output_dir, "Stock Summary Measures.xlsx"))
-        summary_one = self.summaryTable(toCsv=False, r=0.01) # Summary table- return/volatility/info & sharpe ratio
+        summary_one = self.summaryTable(toCsv=False, r=0.01)  # Summary table- return/volatility/info & sharpe ratio
 
         summary_one[['Annualised Return', 'Annual Volatility']] *= 100
         summary_one[['Annualised Return', 'Annual Volatility']] = \
             summary_one[['Annualised Return', 'Annual Volatility']].applymap("{0:.2f}%".format)
-        summary_one[['Information Ratio', 'Sharpe Ratio']] = summary_one[['Information Ratio', 'Sharpe Ratio']].applymap("{0:.4}".format)
+        summary_one[['Information Ratio', 'Sharpe Ratio']] = summary_one[
+            ['Information Ratio', 'Sharpe Ratio']].applymap("{0:.4}".format)
 
         summary_one.to_excel(writer, "Summary Table")
 
         annual_table = self.annualReturns(toCsv=False)
         annual_table.columns = annual_table.columns.astype(str)
 
-        print_annual_table = annual_table*100
+        print_annual_table = annual_table * 100
         print_annual_table = print_annual_table.applymap("{0:.2f}%".format)
         print_annual_table.to_excel(writer, "Annual Return")
 
-        correlation_mat = self.data.corr() # correlation matrix
+        correlation_mat = self.data.corr()  # correlation matrix
         correlation_mat.to_excel(writer, "Correlation")
 
         writer.save()
@@ -405,7 +397,7 @@ if __name__ == "main":
     with open(get_config_path("bbg_ticker.json")) as f:
         ticker_map_dict = json.load(f)
 
-    rn = Analysis(data=df, wkdir= wkdir, data_src='bbg')
+    rn = Analysis(data=df, wkdir=wkdir, data_src='bbg')
     clean_df = rn.clean_slice_data(df=df)
     results = rn.performance_summary(data=clean_df, save_results=True)
     # rn.csv_summary(output_dir=os.path.join(wkdir, "output"))
