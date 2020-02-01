@@ -13,7 +13,7 @@ import numpy as np
 import datetime as dt
 import utils
 from re import sub, search
-from utils import previousDate
+from utils import return_date_diff
 import scipy.stats as stats
 from scipy.stats import kurtosis, skew
 
@@ -30,7 +30,7 @@ inputFolder = wkdir + "input/"
 inputDir = wkdir + "input/"
 outputFolder = wkdir + "output/"
 
-from New_Fund_Analysis import Analysis
+from securities_analysis import Analysis
 
 import plotly.plotly as py
 import plotly.graph_objs as go

@@ -604,6 +604,13 @@ def return_dict_values(dict):
     return list(dict.values())
 
 
+def change_dict_keys(in_dict, text):
+    """Change the keys of an input dictionary as with the text specified"""
+    return {text + "_" + str(key): (change_dict_keys(value) if
+                                    isinstance(value, dict) else
+                                    value) for key, value in in_dict.items()}
+
+
 # LIST METHODS
 def list_as_comma_sep(lst):
     """Gets a list and returns one single string with elements separated by a comma

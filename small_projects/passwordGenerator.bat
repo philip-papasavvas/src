@@ -1,2 +1,2 @@
-@py.exe C:\Users\ppapasav\Documents\python\passwordGenerator.py %*
+@py.exe C:\Users\ppapasav\Documents\python\password_generator.py %*
 @pause
