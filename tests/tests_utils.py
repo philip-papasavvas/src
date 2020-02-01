@@ -92,7 +92,7 @@ class Testutils(unittest.TestCase):
 
         self.assertEqual(utils.has_duplicates(lst=[1, 2, 3, 4, 5]), False, "No repeated values")
 
-        self.assertEqual(utils.comma_sep(lst=['hello','test','list']), 'hello,test,list', \
+        self.assertEqual(utils.list_as_comma_sep(lst=['hello','test','list']), 'hello,test,list', \
                          "Should've returned 'hello,test,list' ")
 
         self.assertEqual(utils.all_unique(lst=[1,2,3,4]), True, "All elements are unique")
