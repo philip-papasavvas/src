@@ -8,16 +8,15 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-data_dir = "/Users/philip_p/Documents/whoop/"
-
 pd.set_option("display.max_columns", 10)
 pd.set_option("display.width", 600)
+
 
 def clean_input_whoop_data(input_data: pd.DataFrame) -> pd.DataFrame:
     """Method to clean input Whoop dataframe from HabitDash.com
 
     Args:
-        input_df: Input csv titled YYYY-MM-DD Habit Dash (flat file).csv
+        input_data: Input csv titled "YYYY-MM-DD Habit Dash (flat file).csv"
 
     Returns:
         input_date: Cleaned dataframe with columns ['date', 'field', 'value']
@@ -40,6 +39,7 @@ def clean_input_whoop_data(input_data: pd.DataFrame) -> pd.DataFrame:
 if __name__ == "__main__":
 
     # --- READ WHOOP DATA
+    data_dir = "/Users/philip_p/Documents/whoop/"
     whoop_file = [x for x in os.listdir(data_dir) if re.search("flat file", x)][0]
     habit_dash_df = pd.read_csv(os.path.join(data_dir, whoop_file))
 
