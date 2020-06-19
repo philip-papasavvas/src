@@ -1,25 +1,19 @@
+# Created 5 May 2019
 """
-Author: Philip
-Date created: 05 May 2019
-
 Script to look at producing an efficient frontier for a given portfolio of securities, thus portfolio optimisation
 Used the following for inspiration on https://towardsdatascience.com/efficient-frontier-portfolio-optimisation-in-python-e7844051e7f
 """
-# import build in modules
-import os
-import pandas as pd
-import numpy as np
+
 import datetime as dt
-from re import sub, search
+import os
 
-# third party imports
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
-# local imports
-import utils
+import utils_date
 from __init__ import get_data_path
 
-date_to_str = lambda d: d.astype(str).replace('-', '')
 plt.style.use('seaborn')
 
 
@@ -189,7 +183,7 @@ if __name__ == "main":
         os.mkdir(today_output_dir)
 
     df = pd.read_csv(get_data_path("example_data.csv"), index_col='Date')
-    df = utils.char_to_date(df)
+    df = utils_date.char_to_date(df)
     df.dropna(axis=0, inplace=True)
 
     # EXPLORATORY DATA ANALYSIS

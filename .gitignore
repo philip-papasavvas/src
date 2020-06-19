@@ -1,8 +1,6 @@
 # Development files
-/archive
-/data
-/db
-/images
-/private
-# /development
-# /small_projects
+#/dataload
+/small_projects
+/securityAnalysis/data
+
+

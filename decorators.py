@@ -1,9 +1,5 @@
-"""
-Created by: Philip.P
-Created on: 30 Jul 2019
+# Created on 30 Jul 2019. Python decorators
 
-Python decorators
-"""
 import functools
 from time import time
 
@@ -19,9 +15,3 @@ def timer(method):
         return result
 
     return timed
-
-# import numpy as np
-# @timer
-# def func(num):
-#     return np.sqrt(num)
-# func(200)

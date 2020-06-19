@@ -11,23 +11,25 @@ TODO:
  - Plotting capabilities for stock charts
 """
 
-# built in imports
-import os
-import pandas as pd
-import numpy as np
 import datetime as dt
 import json
-from re import sub, search
+# built in imports
+import os
 
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 from matplotlib import ticker as mtick
+
+import securityAnalysis.utils_finance
+import utils_date
 
 plt.style.use('ggplot')
 plt.tight_layout()
 plt.close()
 
 # local imports
-import utils
+import utils_generic
 
 dateToStr = lambda d: d.astype(str).replace('-', '')
 extract_str_timestamp = lambda d: dt.datetime.strftime(d, "%Y%m%d")
@@ -60,7 +62,7 @@ class Analysis:
         self.set_output_folder()
 
         if data_src == 'bbg':
-            dataframe = utils.char_to_date(data)
+            dataframe = utils_date.char_to_date(data)
 
             self.start_date = extract_str_timestamp(dataframe.index.min())
             self.end_date = extract_str_timestamp(dataframe.index.max())
@@ -143,9 +145,9 @@ class Analysis:
 
         df = data.copy(True)
 
-        annual_rtn = utils.annual_return(data=df)
-        annual_vol = utils.annual_vol(data=df)
-        info_ratio = utils.calc_info_ratio(data=df)
+        annual_rtn = securityAnalysis.utils_finance.annual_return(data=df)
+        annual_vol = securityAnalysis.utils_finance.annual_vol(data=df)
+        info_ratio = securityAnalysis.utils_finance.calc_info_ratio(data=df)
 
         cols = ['Annual Return', 'Annual Volatility', 'Info Ratio']
         summary = pd.concat([annual_rtn, annual_vol, info_ratio], axis=1)
@@ -155,8 +157,8 @@ class Analysis:
             if rfr is None:
                 rfr = 0
 
-            sharpe = utils.calc_sharpe_ratio(data=data, risk_free=rfr)
-            sortino = utils.calc_sortino_ratio(data=data, target_return=target, risk_free=rfr)
+            sharpe = securityAnalysis.utils_finance.calc_sharpe_ratio(data=data, risk_free=rfr)
+            sortino = securityAnalysis.utils_finance.calc_sortino_ratio(data=data, target_return=target, risk_free=rfr)
 
             cols += ['Sharpe Ratio', 'Sortino Ratio']
             summary = pd.concat([summary, sharpe, sortino], axis=1)
@@ -196,7 +198,7 @@ class Analysis:
             lookback_prds = ["0D", "3M", "6M", "9M", "12M", "18M", "24M"]
 
         # TODO: if a date in the lookback is not in the range of the dataset then we drop this date
-        target_dates = [utils.return_date_diff(df, end_date, i) for i in lookback_prds]
+        target_dates = [utils_date.return_date_diff(df, end_date, i) for i in lookback_prds]
         target_prices = [df.loc[i, :].values for i in target_dates]
 
         # iloc[::-1] is to reverse the dataframe by the date index --> earliest to latest
@@ -210,7 +212,7 @@ class Analysis:
                                             cumulativeReturn.columns.tolist()[:-1]]
 
         if results:
-            fileName = utils.date_to_str(self.start_date) + "_" + utils.date_to_str(self.end_date) + "_"
+            fileName = utils_date.date_to_str(self.start_date) + "_" + utils_date.date_to_str(self.end_date) + "_"
             writer = pd.ExcelWriter(self.output_dir + fileName + "Security Performance.xlsx")
 
             lookbackTable.index = lookbackTable.index.values.astype("datetime64[D]")
@@ -386,13 +388,13 @@ class Analysis:
 if __name__ == "main":
     pd.set_option('display.max_columns', 5)
 
-    from securities_analysis import Analysis
+    from securityAnalysis.securities_analysis import Analysis
     from __init__ import get_config_path
 
     wkdir = "/Users/philip_p/Documents/python/"
     input_folder = os.path.join(wkdir, "data/finance")
     output_folder = os.path.join(wkdir, "output")
-    df = utils.prep_fund_data(df_path=os.path.join(input_folder, "funds_stocks_2019.csv"))
+    df = utils_generic.prep_fund_data(df_path=os.path.join(input_folder, "funds_stocks_2019.csv"))
 
     with open(get_config_path("bbg_ticker.json")) as f:
         ticker_map_dict = json.load(f)

@@ -1,51 +1,35 @@
+# Created on 30 June 2019
 """
-Created on 30/06/19
-
 Look at the stationarity of stock time series, carry out analysis on the log-returns of a stock.
 Provide summary statistics on the data
 Introduce tests (such as Augmented Dickey Fuller) to check stationarity of time series
 """
 
-# built in imports
-import pandas as pd
-import numpy as np
-from re import sub, search
 import os
-from datetime import datetime
-import datetime as dt
 
-
-# third party modules
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import scipy.stats as stats
 from scipy.stats import kurtosis, skew
 from statsmodels.tsa.stattools import adfuller
-import matplotlib.pyplot as plt
-import plotly.plotly as py
-import plotly.graph_objs as go
 
-# local imports
-import utils
-# from utils import Date # previousDate
-from securities_analysis import Analysis
-
+import utils_date
 
 plt.style.use('seaborn')
 
 pd.set_option('display.max_columns', 5)
 
-date_to_str = lambda d: d.astype(str).replace('-', '')
 
 # os.chdir("C://Users//Philip.P_adm//Documents//Fund Analysis")
 wkdir = "C://Users//Philip//Documents//python//"
 inputFolder, outputFolder = os.path.join(wkdir, "input"), os.path.join(wkdir, "output")
 inputDir = wkdir + "input/"
 
-
-
 # "example_data.csv", "example_data_na.csv" has NA rows
 # df = pd.read_csv(inputDir + 'example_data.csv') #, parse_dates=True)
 df = pd.read_csv(inputDir + "funds_stocks_2019.csv")
-df = utils.char_to_date(df) #convert all dates to np datetime64
+df = utils_date.char_to_date(df) #convert all dates to np datetime64
 df.set_index('Date', inplace=True)
 
 # deal with returns not time series of prices, as prices are non-stationary
@@ -173,30 +157,33 @@ def get_descriptive_stats(data, alpha = 0.05):
 
     return df
 
-get_descriptive_stats(data= clean_df_returns, alpha=0.05)
 
-#Use a simple Augmented Dickey Fuller test to test stationarity of time series:
+get_descriptive_stats(data=clean_df_returns, alpha=0.05)
 
-# Look at the price time series first:
-df = pd.read_csv(inputDir + "funds_stocks_2019.csv")
-df = utils.char_to_date(df) #convert all dates to np datetime64
-df.set_index('Date', inplace=True)
+if __name__ == '__main__':
 
-# Drop the null columns - but do not take log returns
-clean_df = dropNullCols(df)
+    # Use a simple Augmented Dickey Fuller test to test stationarity of time series:
 
-result_prices = get_descriptive_stats(data= clean_df, alpha=0.05)
-# are any of the time series stationary?
-any(result_prices['Aug Dickey-Fuller Test']) # False
-# no, they are all time dependent
+    # Look at the price time series first:
+    df = pd.read_csv(inputDir + "funds_stocks_2019.csv")
+    df = utils_date.char_to_date(df) #convert all dates to np datetime64
+    df.set_index('Date', inplace=True)
+
+    # Drop the null columns - but do not take log returns
+    clean_df = dropNullCols(df)
+
+    result_prices = get_descriptive_stats(data= clean_df, alpha=0.05)
+    # are any of the time series stationary?
+    any(result_prices['Aug Dickey-Fuller Test']) # False
+    # no, they are all time dependent
 
 
-#Now look at log returns
-clean_df_returns = log_daily_returns(df)
+    #Now look at log returns
+    clean_df_returns = log_daily_returns(df)
 
-clean_df_log_rets = dropNullCols(clean_df_returns)
+    clean_df_log_rets = dropNullCols(clean_df_returns)
 
-result_returns = get_descriptive_stats(data = clean_df_log_rets, alpha=0.05)
-# are any of the time series stationary?
-all(result_returns['Aug Dickey-Fuller Test']) # True
-# Yes, they are all stationary
+    result_returns = get_descriptive_stats(data = clean_df_log_rets, alpha=0.05)
+    # are any of the time series stationary?
+    all(result_returns['Aug Dickey-Fuller Test']) # True
+    # Yes, they are all stationary

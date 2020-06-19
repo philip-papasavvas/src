@@ -8,23 +8,26 @@ import os
 
 _ROOT = os.path.abspath(os.path.dirname(__file__))
 
+
 def get_config_path(path):
     return os.path.join(_ROOT, 'config', path)
 
+
 def get_db_path(path):
-    return os.path.join(_ROOT, 'db', path)
+    return os.path.join(_ROOT, 'dataload', path)
+
 
 def get_import_path(path):
     return os.path.join(_ROOT, 'import', path)
 
+
 def get_path(path):
     return os.path.join(_ROOT, path)
+
 
 def get_data_path(path):
     return os.path.join(_ROOT, "data", path)
 
-def get_images_path(path):
-    return os.path.join(_ROOT, "images", path)
 
 def get_custom_path(path, directory_name):
     return os.path.join(_ROOT, directory_name, path)

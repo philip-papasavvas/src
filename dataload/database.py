@@ -1,20 +1,13 @@
-"""
-Created on 13 Oct 2019
-author: Philip P
+# Created 13 Oct 2019. How to use mongoDB, initialise library,
+# write to it (and with time-series data using Arctic too)
 
-Module to give an example of how to go into the MongoDB, intialise library, write to it
-(and with time-series data using Arctic too)
-"""
 import json
-import pymongo
-import dns
-import numpy as np
-import pandas as pd
-import os
-from utils import get_config_path
 
+import pymongo
 import yfinance as yf
 from arctic import Arctic
+
+from __init__ import get_config_path
 
 if __name__ == "__main__":
 

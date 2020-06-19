@@ -6,18 +6,14 @@ Provide summary statistics on the data
 Introduce tests (such as Augmented Dickey Fuller) to check stationarity of time series
 """
 
-
-import os
-import pandas as pd
+import matplotlib.pyplot as plt
 import numpy as np
-import datetime as dt
-import utils
-from re import sub, search
-from utils import return_date_diff
+import pandas as pd
 import scipy.stats as stats
 from scipy.stats import kurtosis, skew
 
-import matplotlib.pyplot as plt
+import utils_date
+
 plt.style.use('seaborn')
 
 pd.set_option('display.max_columns', 5)
@@ -30,16 +26,10 @@ inputFolder = wkdir + "input/"
 inputDir = wkdir + "input/"
 outputFolder = wkdir + "output/"
 
-from securities_analysis import Analysis
-
-import plotly.plotly as py
-import plotly.graph_objs as go
-from datetime import datetime
-
 # "example_data.csv", "example_data_na.csv" has NA rows
 # df = pd.read_csv(inputDir + 'example_data.csv') #, parse_dates=True)
 df = pd.read_csv(inputDir + "funds_stocks_2019.csv")
-df = utils.char_to_date(df) #convert all dates to np datetime64
+df = utils_date.char_to_date(df) #convert all dates to np datetime64
 df.set_index('Date', inplace=True)
 
 # deal with returns not time series of prices, as prices are non-stationary
