@@ -12,23 +12,23 @@ def log_daily_returns(data):
     return log_daily_return
 
 
-def daily_return(data):
+def calculate_daily_return(data):
     """Function to generate daily returns given input data (in dataframe, dtypes float, no time data)
 
     Example:
-        >>> daily_return(data=pd.DataFrame([1,2,3,4]))
+        >>> calculate_daily_return(data=pd.DataFrame([1,2,3,4]))
     """
     return data.pct_change(1).iloc[1:, ]
 
 
-def annual_return(data):
+def calculate_annual_return(data):
     """Annual return from securities data(frame)"""
     daily_rtn = data.pct_change(1).iloc[1:, ]
     ann_rtn = np.mean(daily_rtn) * 252
     return ann_rtn
 
 
-def annual_vol(data):
+def calculate_annual_volatility(data):
     """Annual return from securities data(frame)"""
     daily_rtn = data.pct_change(1).iloc[1:, ]
     ann_vol = np.std(daily_rtn) * np.sqrt(252)

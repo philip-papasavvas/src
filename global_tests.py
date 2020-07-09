@@ -1,4 +1,7 @@
-# Created on 12 June 2020. For collating all unit tests
+"""
+Created on 12 June 2020
+All unit tests
+"""
 
 import os
 import unittest
@@ -10,17 +13,16 @@ _ROOT = os.path.abspath(os.path.dirname(__file__))
 if __name__ == '__main__':
 
     # tests are stored here
-    extra_paths = [
+    EXTRA_PATHS = [
         "securityAnalysis/tests",
         "tests"
     ]
     t = time()
-    for p in extra_paths:
+    for path in EXTRA_PATHS:
 
         loader = unittest.TestLoader()
-        test_path = os.path.join(_ROOT, p)
+        test_path = os.path.join(_ROOT, path)
         suite = loader.discover(test_path, pattern="test_*.py")
-
 
         runner = unittest.TextTestRunner()
         runner.run(suite)

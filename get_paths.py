@@ -1,5 +1,8 @@
-# Created on 20 Dec 2019 by Philip.P
-# Functions to return paths of files/folders: Aim to move all data to the mongodb cloud to gather data etc
+"""
+Created on 20 Dec 2019 by Philip.P
+Functions to return paths of files/folders
+Aim to move all data to the mongodb cloud to gather data etc
+"""
 
 import os
 

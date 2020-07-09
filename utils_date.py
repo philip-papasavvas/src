@@ -1,14 +1,16 @@
-# Created 17 June 2020. Transplanted from utils_generic.py
+"""
+Created 17 June 2020
+Taken from utils_generic.py
+"""
 
 import datetime as dt
-from re import search, sub
 
 import numpy as np
 import pandas as pd
-from dateutil.relativedelta import relativedelta
 
 
 def date_to_str(d):
+    """Convert from np.datetime64 to str without hyphens"""
     return d.astype(str).replace("-", "")
 
 
