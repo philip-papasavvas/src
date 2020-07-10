@@ -1,64 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="66ff0a12-9e79-4e9e-b1a1-c2e3c81d0a7c" name="Default Changelist" comment="Updated EfficientFrontier, New_Fund_Analysis, and utils to all run with working examples. Source data can be found in data repository">
-      <change afterPath="$PROJECT_DIR$/global_tests.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/jupyter-notebooks/whoop_data_exploration.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/securityAnalysis/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/securityAnalysis/config/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/securityAnalysis/data/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/securityAnalysis/data/example_data.csv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/securityAnalysis/data/example_data_na.csv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/securityAnalysis/data/market_data.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/securityAnalysis/tests/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/securityAnalysis/utils_finance.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/test_utils_date.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/test_utils_generic.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/test_utils_lists.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils_date.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils_generic.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils_lists.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/whoop/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/whoop/exploratory_analysis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/python.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/python.iml" afterDir="false" />
+    <list default="true" id="66ff0a12-9e79-4e9e-b1a1-c2e3c81d0a7c" name="Default Changelist" comment="securityAnalysis\securities_analysis:  &#10;small_projects\LinearRegression: deleted">
+      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/pylint.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/archive/FundAnalysis.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/archive/MeasuringPerformance.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/archive/MiscellaneousMathStuff.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/archive/Random.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/archive/UdemyPythonStuff.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/archive/fpl.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/archive/pp_utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/archive/requests.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/archive/start.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/archive/workingWithPDFs.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cf_games_analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/cf_games_analysis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cf_wod_email.py" beforeDir="false" afterPath="$PROJECT_DIR$/cf_wod_email.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/bbg_ticker.json" beforeDir="false" afterPath="$PROJECT_DIR$/securityAnalysis/config/bbg_ticker.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/cf_email.json" beforeDir="false" afterPath="$PROJECT_DIR$/securityAnalysis/config/cf_email.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/mongo.json" beforeDir="false" afterPath="$PROJECT_DIR$/securityAnalysis/config/mongo.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/securities_cfg.json" beforeDir="false" afterPath="$PROJECT_DIR$/securityAnalysis/config/securities_cfg.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/security_data.json" beforeDir="false" afterPath="$PROJECT_DIR$/securityAnalysis/config/security_data.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/database.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataload/database.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/decorators.py" beforeDir="false" afterPath="$PROJECT_DIR$/decorators.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/development/Quiz q.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/development/dashboard/app.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/development/holding_period_return.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/development/scrapePrice.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/efficient_frontier.py" beforeDir="false" afterPath="$PROJECT_DIR$/securityAnalysis/efficient_frontier.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/images/MONKS INVESTMENT TRUST PLC Price &amp; Vol History.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/images/Scottish Mortgage Investment T Price &amp; Vol History.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/import/new_quotes.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/import/quotes_db.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/securities_analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/securityAnalysis/securities_analysis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/small_projects/Stationarity &amp; Random Walks.py" beforeDir="false" afterPath="$PROJECT_DIR$/small_projects/Stationarity &amp; Random Walks.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/stationarity.py" beforeDir="false" afterPath="$PROJECT_DIR$/securityAnalysis/stationarity.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/tests_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/tests_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/securityAnalysis/securities_analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/securityAnalysis/securities_analysis.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/securityAnalysis/stationarity.py" beforeDir="false" afterPath="$PROJECT_DIR$/securityAnalysis/stationarity.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/securityAnalysis/utils_finance.py" beforeDir="false" afterPath="$PROJECT_DIR$/securityAnalysis/utils_finance.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/small_projects/LinearRegression.py" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -69,24 +19,12 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Python Script" />
         <option value="Python Unit Test" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="PREVIOUS_COMMIT_AUTHORS">
-      <list>
-        <option value="Philip Papasavvas &lt;philip.papasavvas@gmail.com&gt;" />
-      </list>
-    </option>
-    <option name="ROOT_SYNC" value="DONT_SYNC" />
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-    <option name="RECENT_BRANCH_BY_REPOSITORY">
-      <map>
-        <entry key="$PROJECT_DIR$" value="projects" />
-      </map>
-    </option>
     <favorite-branches>
       <branch-storage>
         <map>
@@ -100,15 +38,45 @@
         </map>
       </branch-storage>
     </favorite-branches>
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="Philip Papasavvas &lt;philip.papasavvas@gmail.com&gt;" />
+      </list>
+    </option>
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="projects" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
+  </component>
+  <component name="Git.Update.Project.Info.Tabs.Properties">
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="master" />
+                </option>
+              </RecentGroup>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="ProjectId" id="1dX6UTixsR1aSmouNTwx1hpzdyP" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
   </component>
   <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="com.intellij.ide.scratch.LRUPopupBuilder$1/New Scratch File" value="Python" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/securityAnalysis/data" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="settings.editor.selected.configurable" value="preferences.sourceCode" />
     <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/utils.py" />
   </component>
   <component name="RecentsManager">
@@ -120,11 +88,11 @@
       <recent name="C:\Users\Philip\PycharmProjects\PythonSkills\small_projects" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/small_projects" />
       <recent name="$PROJECT_DIR$/securityAnalysis" />
       <recent name="$PROJECT_DIR$/securityAnalysis/config" />
       <recent name="C:\Users\Philip\PycharmProjects\PythonSkills\archive" />
       <recent name="C:\Users\Philip\PycharmProjects\PythonSkills\development" />
-      <recent name="C:\Users\Philip\PycharmProjects\PythonSkills\UdacityIntroML" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -139,28 +107,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python tests.Unittests in tests_utils.py">
-    <configuration name="New_Fund_Analysis (1)" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="python" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/New_Fund_Analysis.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
+  <component name="RunManager" selected="Python.securities_analysis">
     <configuration name="Practice" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="python" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -182,6 +129,48 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="global_tests" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="python" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/global_tests.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="securities_analysis" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="python" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/securityAnalysis" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/securityAnalysis/securities_analysis.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="Unittests in test_utils_date.py" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <module name="python" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -193,20 +182,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
       <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/test_utils_date.py&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
-      <method v="2" />
-    </configuration>
-    <configuration name="Unittests in test_utils_generic.py" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
-      <module name="python" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/test_utils_generic.py&quot;" />
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
@@ -240,19 +215,19 @@
     </configuration>
     <list>
       <item itemvalue="Python.Practice" />
-      <item itemvalue="Python.New_Fund_Analysis (1)" />
+      <item itemvalue="Python.global_tests" />
+      <item itemvalue="Python.securities_analysis" />
       <item itemvalue="Python tests.Unittests in test_utils_date.py" />
-      <item itemvalue="Python tests.Unittests in test_utils_generic.py" />
       <item itemvalue="Python tests.Unittests in test_utils_lists.py" />
       <item itemvalue="Python tests.Unittests in tests_utils.py" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.securities_analysis" />
+        <item itemvalue="Python.global_tests" />
         <item itemvalue="Python tests.Unittests in tests_utils.py" />
         <item itemvalue="Python tests.Unittests in test_utils_lists.py" />
         <item itemvalue="Python tests.Unittests in test_utils_date.py" />
-        <item itemvalue="Python tests.Unittests in test_utils_generic.py" />
-        <item itemvalue="Python.New_Fund_Analysis (1)" />
       </list>
     </recent_temporary>
   </component>
@@ -393,7 +368,77 @@
       <option name="project" value="LOCAL" />
       <updated>1565814636327</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="archive: deleted files and moved to outside git repository, as not developed&#10;development: moved files to outside git root, not developed&#10;images: moved files to outside git root, not developed">
+      <created>1592561406767</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1592561406767</updated>
+    </task>
+    <task id="LOCAL-00020" summary="securityAnalysis: split out utils_finance from utils.py&#10;utils.py: deleted in favour of separate utils files&#10;utils_date: transplanted from utils.py&#10;utils_generic: transplanted from utils.py&#10;utils_lists: transplanted from utils.py">
+      <created>1592565669524</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1592565669524</updated>
+    </task>
+    <task id="LOCAL-00021" summary="securityAnalysis: moved all files to this package that were relevant, including json configs">
+      <created>1592566056405</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1592566056405</updated>
+    </task>
+    <task id="LOCAL-00022" summary="tests: added unit tests for different utils_*.py files&#10;global_tests: added file to collate all unit tests in one place">
+      <created>1592568240142</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1592568240142</updated>
+    </task>
+    <task id="LOCAL-00023" summary="dataload\database: rehoused from db directory&#10;jupyter-notebooks: whoop_data_exploration&#10;securityAnalysis\efficient_frontier: optimised imports&#10;securityAnalysis\stationarity: optimised imports&#10;whoop: new directory for files to analyse WHOOP data downloaded from HABITDASH.com&#10;decorators.py: cleaned imports&#10;README.md: updated as I will start a new one to reflect new direction of library going forward">
+      <created>1592568428525</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1592568428525</updated>
+    </task>
+    <task id="LOCAL-00024" summary="dataload\database: added functionality to download multiple stocks from yahoo finance and melt results&#10;securityAnalysis\efficient_frontier: added Typing to all methods, optimised imports, some refactoring">
+      <created>1594310759336</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1594310759336</updated>
+    </task>
+    <task id="LOCAL-00025" summary="__init__: emptied this and moved method to get_paths&#10;get_paths: for loading config paths etc. Aiming to move all data to mongoDB cloud">
+      <created>1594310804306</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1594310804306</updated>
+    </task>
+    <task id="LOCAL-00026" summary="dataload\database: added functionality to download multiple stocks from yahoo finance and melt results&#10;whoop\exploratory_analysis: to clean up methods here and put into functions for future exploration">
+      <created>1594310868332</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1594310868332</updated>
+    </task>
+    <task id="LOCAL-00027" summary="dataload\database: updated docstring to be in correct format, changed variables to UPPER_CASE, refactored&#10;securityAnalysis\efficient_frontier: sorted docstrings, added Typing, more meaningful names&#10;securityAnalysis\securities_analysis: sorted docstrings, added Typing, more meaningful names&#10;securityAnalysis\utils_finance: added some docstrings&#10;decorators: added docstring, f-strings&#10;get_paths: added docstring&#10;global_tests: more meaningful names&#10;utils_date: added docstring">
+      <created>1594373166082</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1594373166082</updated>
+    </task>
+    <task id="LOCAL-00028" summary="whoop\exploratory_analysis: cleaned code&#10;utils_generic: sorted out docstring and cleaned code">
+      <created>1594650285001</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1594650285001</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -427,12 +472,11 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="CHECK_NEW_TODO" value="false" />
     <ignored-roots>
       <path value="$PROJECT_DIR$/ud120-projects" />
     </ignored-roots>
-    <MESSAGE value="File for efficient frontier finance analysis, linear regression, and fund analysis, as well as utils" />
-    <MESSAGE value="Plot for prices and volatility on two axes per plot" />
-    <MESSAGE value="small project stuff" />
     <MESSAGE value="Physics lessons" />
     <MESSAGE value="Updated EfficientFrontier, New_Fund_Analysis, and utils to all run &#10;with working examples. Source data can be found in data repository" />
     <MESSAGE value="New Fund Analysis including Bollinger Band plots for dataset" />
@@ -448,7 +492,18 @@
     <MESSAGE value="Updated the following:&#10;- utils: optimised datePlusTenorNew for lookbacks, added array_to_clipboard function. Needs pyperclip&#10;- New_Fund_Analysis: added wkdir specification, startDate and endDate will autopopulate if not specified.&#10;NaNs no longer dropped, included in analysis &amp; summary tables. Summary table will include whole lookback for &#10;all securities.&#10;- README: added prerequisite of pyperclip" />
     <MESSAGE value="Updated README to reflect work done, updated summary table logic for printing output" />
     <MESSAGE value="New module to give holding period return of security data- inputs&#10;are dates transacted and units. Summary and detailed table given as outputs" />
-    <option name="LAST_COMMIT_MESSAGE" value="New module to give holding period return of security data- inputs&#10;are dates transacted and units. Summary and detailed table given as outputs" />
+    <MESSAGE value="archive: deleted files and moved to outside git repository, as not developed&#10;development: moved files to outside git root, not developed&#10;images: moved files to outside git root, not developed" />
+    <MESSAGE value="securityAnalysis: split out utils_finance from utils.py&#10;utils.py: deleted in favour of separate utils files&#10;utils_date: transplanted from utils.py&#10;utils_generic: transplanted from utils.py&#10;utils_lists: transplanted from utils.py" />
+    <MESSAGE value="securityAnalysis: moved all files to this package that were relevant, including json configs" />
+    <MESSAGE value="tests: added unit tests for different utils_*.py files&#10;global_tests: added file to collate all unit tests in one place" />
+    <MESSAGE value="dataload\database: rehoused from db directory&#10;jupyter-notebooks: whoop_data_exploration&#10;securityAnalysis\efficient_frontier: optimised imports&#10;securityAnalysis\stationarity: optimised imports&#10;whoop: new directory for files to analyse WHOOP data downloaded from HABITDASH.com&#10;decorators.py: cleaned imports&#10;README.md: updated as I will start a new one to reflect new direction of library going forward" />
+    <MESSAGE value="dataload\database: added functionality to download multiple stocks from yahoo finance and melt results&#10;securityAnalysis\efficient_frontier: added Typing to all methods, optimised imports, some refactoring" />
+    <MESSAGE value="__init__: emptied this and moved method to get_paths&#10;get_paths: for loading config paths etc. Aiming to move all data to mongoDB cloud" />
+    <MESSAGE value="dataload\database: added functionality to download multiple stocks from yahoo finance and melt results&#10;whoop\exploratory_analysis: to clean up methods here and put into functions for future exploration" />
+    <MESSAGE value="dataload\database: updated docstring to be in correct format, changed variables to UPPER_CASE, refactored&#10;securityAnalysis\efficient_frontier: sorted docstrings, added Typing, more meaningful names&#10;securityAnalysis\securities_analysis: sorted docstrings, added Typing, more meaningful names&#10;securityAnalysis\utils_finance: added some docstrings&#10;decorators: added docstring, f-strings&#10;get_paths: added docstring&#10;global_tests: more meaningful names&#10;utils_date: added docstring" />
+    <MESSAGE value="whoop\exploratory_analysis: cleaned code&#10;utils_generic: sorted out docstring and cleaned code" />
+    <option name="LAST_COMMIT_MESSAGE" value="whoop\exploratory_analysis: cleaned code&#10;utils_generic: sorted out docstring and cleaned code" />
+    <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

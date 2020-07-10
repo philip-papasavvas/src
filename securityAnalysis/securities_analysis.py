@@ -139,11 +139,11 @@ class Analysis:
             summary: table of returns and volatility of securities entered
         """
 
-        df = data.copy(True)
+        data_to_clean = data.copy(True)
 
-        annual_rtn = calculate_annual_return(data=df)
-        annual_vol = calculate_annual_volatility(data=df)
-        info_ratio = calc_info_ratio(data=df)
+        annual_rtn = calculate_annual_return(data=data_to_clean)
+        annual_vol = calculate_annual_volatility(data=data_to_clean)
+        info_ratio = calc_info_ratio(data=data_to_clean)
 
         cols = ['Annual Return', 'Annual Volatility', 'Info Ratio']
         summary = pd.concat([annual_rtn, annual_vol, info_ratio], axis=1)
@@ -167,7 +167,7 @@ class Analysis:
         summary.index.name = "Fund/Stock"
 
         log = " ".join(["Fund Stats for", self.start_date, "to", self.end_date])
-        errors = df.columns.difference(summary.index).values.tolist()
+        errors = data_to_clean.columns.difference(summary.index).values.tolist()
 
         print(log)
         if len(errors) > 0:

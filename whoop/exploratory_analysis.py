@@ -1,5 +1,7 @@
-# Created by Philip P on 23 May 2020
-# Exploratory data analysis into csv downloaded from habitdash.com
+"""
+Created by Philip P on 23 May 2020
+Exploratory data analysis into csv downloaded from habitdash.com
+"""
 
 import os
 import re
@@ -36,8 +38,8 @@ def clean_input_whoop_data(input_data: pd.DataFrame) -> pd.DataFrame:
 
     return input_data
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     # --- READ WHOOP DATA
     data_dir = "/Users/philip_p/Documents/whoop/"
     whoop_file = [x for x in os.listdir(data_dir) if re.search("flat file", x)][0]
@@ -45,10 +47,9 @@ if __name__ == "__main__":
 
     cleaned_df = clean_input_whoop_data(input_data=habit_dash_df)
 
-    cleaned_df['field'].nunique() # 31 measures
+    cleaned_df['field'].nunique()  # 31 measures
 
-    macro_fields = \
-        set([x.split("_")[0] for x in cleaned_df['field'].unique()])
+    macro_fields = {x.split("_")[0] for x in cleaned_df['field'].unique()}
 
     # recovery score plotting
     recovery = cleaned_df.loc[cleaned_df['field'] == 'recovery_score'].copy(True)
@@ -88,7 +89,8 @@ if __name__ == "__main__":
     x = StandardScaler().fit_transform(x)
 
     from sklearn.decomposition import PCA
-    pca = PCA(n_components=2) # fit to two main principal components
+
+    pca = PCA(n_components=2)  # fit to two main principal components
 
     principal_components = pca.fit_transform(x)
     principal_df = pd.DataFrame(
@@ -107,7 +109,6 @@ if __name__ == "__main__":
     targets = ['']
 
     # look at correlation between HRV, sleep performance and RHR and Recovery score
-    pca_df.columns
     from scipy.stats import spearmanr, pearsonr
 
     hrv_corr, _ = spearmanr(pca_df['recovery_hrv'], pca_df['recovery_score'])

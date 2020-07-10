@@ -1,4 +1,8 @@
-# Created 17 June 2020. Transplated from utils_generic.py
+"""
+Created 17 June 2020
+Utils specific for financial security data
+"""
+
 
 import numpy as np
 import pandas as pd
@@ -6,13 +10,13 @@ import pandas as pd
 from utils_date import excel_date_to_np
 
 
-def log_daily_returns(data):
+def log_daily_returns(data: pd.DataFrame) -> pd.DataFrame:
     """Give log daily returns"""
     log_daily_return = data.apply(lambda x: np.log(x) - np.log(x.shift(1)))[1:]
     return log_daily_return
 
 
-def calculate_daily_return(data):
+def calculate_daily_return(data: pd.DataFrame) -> pd.DataFrame:
     """Function to generate daily returns given input data (in dataframe, dtypes float, no time data)
 
     Example:
@@ -21,21 +25,21 @@ def calculate_daily_return(data):
     return data.pct_change(1).iloc[1:, ]
 
 
-def calculate_annual_return(data):
+def calculate_annual_return(data: pd.DataFrame) -> pd.DataFrame:
     """Annual return from securities data(frame)"""
     daily_rtn = data.pct_change(1).iloc[1:, ]
     ann_rtn = np.mean(daily_rtn) * 252
     return ann_rtn
 
 
-def calculate_annual_volatility(data):
+def calculate_annual_volatility(data: pd.DataFrame) -> pd.DataFrame:
     """Annual return from securities data(frame)"""
     daily_rtn = data.pct_change(1).iloc[1:, ]
     ann_vol = np.std(daily_rtn) * np.sqrt(252)
     return ann_vol
 
 
-def calc_info_ratio(data):
+def calc_info_ratio(data: pd.DataFrame) -> pd.DataFrame:
     """Annual return from securities data(frame)"""
     daily_rtn = data.pct_change(1).iloc[1:, ]
     annual_rtn = np.mean(daily_rtn) * 252
@@ -151,13 +155,14 @@ def return_melted_df(input_file):
 
                 # create a mask to ensure that all entries have the correct date format, not just Excel serial numbers
                 res = []
-                for i in dates:
-                    res.append(len(i))
+                for date in dates:
+                    res.append(len(date))
                 res = np.array(res)
                 mask = (res != 10)
-                datesToCorrect = pd.to_datetime(excel_date_to_np(np.array(dates[mask], dtype='int32'))).strftime(
-                    '%Y/%m/%d')
-                dates[mask] = datesToCorrect
+                corrected_dates = pd.to_datetime(
+                    excel_date_to_np(np.array(dates[mask], dtype='int32'))
+                ).strftime('%Y/%m/%d')
+                dates[mask] = corrected_dates
                 data['date'] = dates
 
                 data = data[['product', 'date', 'price']]

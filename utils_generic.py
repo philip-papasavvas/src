@@ -1,33 +1,25 @@
 """
 Created on: 6 May 2019
-Created by: Philip.P_adm
-
 Utils module for generic useful functions, divided into classes
 """
 
-# usual (built-in) imports
-import pandas as pd
-import numpy as np
-import os
-from re import escape
-import re
 import datetime as dt
+import os
+import re
+from re import escape
+from typing import Union
 
-# third party imports
+import numpy as np
+import pandas as pd
 import pyperclip
 import xlrd
 
-
-# Date utilities functions
 from utils_date import char_to_date
 
 
 # Generic Utilities functions
-def to_array(*args):
+def to_array(*args: Union[np.ndarray, list, tuple, pd.Series, np.datetime64, dt.datetime]):
     """Turning x into np.ndarray
-
-    Args:
-        x (list, tuple, np.ndarray, pd.Series, np.datetime64, datetime.datetime)
 
     Yields:
         :class:'np.ndarray'
