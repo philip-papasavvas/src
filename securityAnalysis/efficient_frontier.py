@@ -95,13 +95,14 @@ def random_portfolios(num_portfolios: int, mean_return_df: pd.DataFrame,
         weights /= np.sum(weights)
         weights_lst.append(weights)
 
-        port_st_dev, port_ret = port_perform_annual(weights=weights,
-                                                    mean_return_df=mean_return_df,
-                                                    covariance_returns=covariance_returns)
+        port_st_dev, portfolio_return = \
+            port_perform_annual(weights=weights,
+                                mean_return_df=mean_return_df,
+                                covariance_returns=covariance_returns)
 
         portfolio_results[i, 0] = port_st_dev
-        portfolio_results[i, 1] = port_ret
-        portfolio_results[i, 2] = (port_ret - risk_free_rate) / port_st_dev
+        portfolio_results[i, 1] = portfolio_return
+        portfolio_results[i, 2] = (portfolio_return - risk_free_rate) / port_st_dev
 
     return portfolio_results, weights_lst
 
@@ -165,7 +166,7 @@ def display_simulated_frontier_random(
 
     if to_save_results:
         perf_measures = pd.DataFrame(
-            data= portfolio_metrics * (100, 100, 1),
+            data=portfolio_metrics * (100, 100, 1),
             columns=['Annualised Volatility %', 'Annualised Return %', 'Sharpe Ratio']
         )
         perf_measures.index.name = 'Portfolio number'
@@ -207,10 +208,7 @@ def display_simulated_frontier_random(
 
     if to_save_plots:
         plt.savefig(
-            os.path.join(WORK_DIR,
-                         "_".join(["EfficientFrontier", num_portfolios, risk_free_rate + ".png"])
-                         )
-                    )
+            WORK_DIR + f"/EfficientFrontier_{num_portfolios}_{risk_free_rate}.png")
 
 
 if __name__ == "main":

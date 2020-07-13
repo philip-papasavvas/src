@@ -9,8 +9,6 @@ Introduce tests (such as Augmented Dickey Fuller) to check stationarity of time 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import scipy.stats as stats
-from scipy.stats import kurtosis, skew
 
 import utils_date
 
@@ -18,9 +16,6 @@ plt.style.use('seaborn')
 
 pd.set_option('display.max_columns', 5)
 
-dateToStr = lambda d: d.astype(str).replace('-', '')
-
-# os.chdir("C://Users//Philip.P_adm//Documents//Fund Analysis")
 wkdir = "C://Users//Philip//Documents//python//"
 inputFolder = wkdir + "input/"
 inputDir = wkdir + "input/"
@@ -61,27 +56,6 @@ def dropNullCols(data):
 
 clean_df_log_rets = dropNullCols(df_log_rets)
 
-
-# create high level summary stats for the log rets
-def get_descriptive_stats(data):
-    """Input clean dataframe containing no NaN values, and computes descriptive stats"""
-    df = pd.DataFrame(columns=['Size', 'Mean', 'Std Dev', 'Skewness', 'Excess Kurtosis']) #, 'K Min', 'K Max'])
-    df['Size'] = data.count()
-    df['Mean'] = data.mean()
-    df['Std Dev'] = np.std(data)
-    df['Min'] = np.min(data)
-    df['Max'] = np.max(data)
-    df['Skewness'] = skew(data)
-    df['Skewness t-statistic'] = df['Skewness'].values / np.sqrt(6/(df['Size'].values))
-    df['Skewness p-value'] = 1 - stats.t.cdf(df['Skewness t-statistic'], df=1)
-    # so, one can reject h_0 (skewness of log returns = 0) for a p-value of less than alpha
-
-    df['Excess Kurtosis'] = kurtosis(data) #if high excess kurtosis it means heavy tails
-    df['Excess Kurtosis t-statistic'] = df['Excess Kurtosis'].values / np.sqrt(24/(df['Size'].values))
-    df['Excess Kurtosis p-value'] = 1 - stats.t.cdf(df['Excess Kurtosis t-statistic'], df=1)
-
-    return df
-
 # test the hypothesis that the returns are normally distibuted by looking at skewness and kurtosis
 # under the normality assumption, s(x) and k(x) - 3 are distributed asymptotically as normal
 # with zero mean and variances of 6/T and 24/T respectively.
@@ -97,11 +71,4 @@ def get_descriptive_stats(data):
 
 # look at symmetry of return distribution
 
-
-
 df_log_rets.dropna(axis=1, inplace=True)
-
-
-
-
-df.loc[:,df_log_rets.isnull().sum() == 0]
