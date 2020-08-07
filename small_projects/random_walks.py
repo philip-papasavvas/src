@@ -6,47 +6,46 @@ Look at the random walk process and prove non-stationarity through tests,
 also show how the random walk process works
 """
 
-# RANDOM WALKS
 import random
+from typing import Tuple, List
 
-def random_walk(n):
+
+def random_walk(n: int) -> Tuple:
     """Return coordinates after n block random walk"""
-    x,y = 0,0
+    x, y = 0, 0
     for i in range(n):
-        (dx,dy) = random.choice([(0,1), (0,-1), (1,0), (-1,0)])
+        (dx, dy) = random.choice([(0, 1), (0, -1), (1, 0), (-1, 0)])
         x += dx
         y += dy
-    return (x,y)
+    return x, y
 
-def random_price(start, tick, walks):
+
+def random_price(start: int, tick: float, num_walks: int) -> List:
     """
     Quick function to generate brownian random motion price data
 
-    Params
-    ------
-        start: float
-            Start price for the random security data
-        tick: float
-            Tick size for price change
-        walks: int
-            Number of floats to move by
+    Args:
+        start: Start price for the random security data
+        tick: Tick size for price change
+        num_walks: Number of floats to move by
 
     Returns
-    -------
-        price_lst: list
-            List of prices with starting price and consequent walks
+        price_lst: List of prices with starting price and consequent walks
     """
     price_lst = [start]
-    for k in range(walks):
-        start += random.choice([(tick),(-tick)])
+    for k in range(num_walks):
+        start += random.choice([tick, (-tick)])
         price_lst.append(start)
     return price_lst
 
-# if __name__ == "__main__":
-    # for i in range(25):
-    #     walk = random_walk(10)
-    #     print(walk, "Distance from home is", (abs(walk[0]) + abs(walk[1])))
-    # What is the longest walk you can take so that you will end up only distance of 4 from home
+
+if __name__ == "__main__":
+
+    for i in range(25):
+        walk = random_walk(10)
+        print(walk, "Distance from home is", (abs(walk[0]) + abs(walk[1])))
+    # What is the longest walk you can take so that you will end up only
+    # distance of 4 from home
 
     # number_walks = 50000
     #
@@ -59,4 +58,4 @@ def random_price(start, tick, walks):
     #             no_transport += 1
     #     no_transport_pc = float(no_transport) / number_walks
     #
-    #     print("Walk size =", walk_length, "/ % no transport", 100*no_transport_pc)
+    #     print(f"Walk size: {walk_length}, % no transport: {100*no_transport_pc}")

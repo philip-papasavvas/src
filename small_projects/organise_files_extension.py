@@ -37,20 +37,22 @@ source_files = os.listdir(source_path)
 destination_list = [source_path + "Docs", source_path + "PDFs", source_path + "Photos"]
 destination_path = "C:/Users/ppapasav/Documents/Excel documents"
 if os.path.exists(destination_path):
-    print("Excel dump exists: {}".format(destination_path))
+    print(f"Excel dump exists: {destination_path}".format())
 else:
-    print("Creating directory: {}".format(destination_path))
+    print(f"Creating directory: {destination_path}")
     os.mkdir(destination_path)
 
 for file in source_files:
     if file.endswith(".xlsx"):
-        shutil.move(os.path.join(source_path, file), os.path.join(destination_path, file))
+        shutil.move(src=os.path.join(source_path, file),
+                    dst=os.path.join(destination_path, file))
     elif file.endswith(".jpg"):
         if os.path.exists(source_path + "Pictures/"):
             "Directory for photos exists"
         else:
             print("Creating directory for photos {}".format(source_path + "Pictures"))
             os.mkdir(source_path + "Pictures")
-            shutil.move(os.path.join(source_path, file), os.path.join(source_path + "Pictures", file))
+            shutil.move(src=os.path.join(source_path, file),
+                        dst=os.path.join(source_path + "Pictures", file))
     else:
         print("No more files to organise")
