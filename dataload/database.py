@@ -1,90 +1,201 @@
 """
-Created 13 Oct 2019
+Created: 13 Oct 2019
 How to use mongoDB, initialise library
 Write to it (and with time-series data using Arctic too)
-"""
 
+# TODO: add write to, append to, delete from database methods
+"""
 import json
-from typing import List, Union
+from typing import Union
 
 import pandas as pd
-import pymongo
-import yfinance as yf
-from arctic import Arctic
+from arctic import Arctic, VERSION_STORE, CHUNK_STORE, TICK_STORE
+from arctic.chunkstore.chunkstore import ChunkStore
+from arctic.store.version_store import VersionStore
+from pymongo import MongoClient
+from pymongo.collection import Collection
+from pymongo.errors import ServerSelectionTimeoutError
 
-from get_paths import get_config_path
+
+# connect to database
+def db_connect(mongo_config: dict, is_arctic: bool = True, lib_name: str = None
+               ) -> Union[object, Arctic, VersionStore, ChunkStore, Collection]:
+    """
+    Connect to the MongoDB Atlas instance using the mongo_user, mongo_password and url_cluster
+
+    Args:
+        mongo_config: Dict-like object with the keys ["mongo_user", "mongo_pwd", "url_cluster"]
+        is_arctic: If searching the Arctic database on MongoDB (for time-series data)
+        lib_name: Name of library within database, default to None
+
+    Returns:
+        object:
+            lib_store: arctic store
+            lib_collection: pymongo collection
+            db_connection: arctic.arctic.Arctic, pymongo.database.Database
+    """
+    user = mongo_config["mongo_user"]
+    password = mongo_config["mongo_pwd"]
+    mongo_url = mongo_config["url_cluster"]
+
+    host_url = "".join(["mongodb+srv://", user, ":", password, "@", mongo_url])
+    client = MongoClient(host=host_url)
+
+    # check the connection to the database
+    try:
+        print(f"Listing existing database names: {client.list_database_names()}")
+    except ServerSelectionTimeoutError:
+        raise ServerSelectionTimeoutError('MongoDB is not hosted.')
+
+    if is_arctic:
+        db_connection = Arctic(client)
+        library_list = db_connection.list_libraries()
+        if lib_name is not None:
+            assert lib_name in library_list, \
+                f"\n Library: '{lib_name}' does not exist in Arctic database"
+            lib_store = db_connection[lib_name]
+            return lib_store
+        else:
+            print(f"List of libraries in 'Arctic' database: \n {library_list}")
+            return db_connection
+    # non-arctic collection
+    else:
+        print("Have not yet configured non-Arctic database on MongoDB Atlas")
+        # Check if I want to add a non-time series dataset
 
 
-def download_yf_stock_data(stocks: Union[List[str], str],
-                           start_date: str = "2019-01-01",
-                           end_date: str = "2019-12-31") -> pd.DataFrame:
-    """Wrapper on Yahoo Finance on which to download stock data (daily returns), will return
-    a melted dataframe
+def db_keys_and_symbols(is_arctic: bool, library_name: str, mongo_config: dict) -> list:
+    """Returns list of keys in collection (arctic/non-arctic database).
 
-    Args
-        stocks: specify a list of stocks from the acceptable universe
-        start_date
-        end_date
+    Args:
+        is_arctic: True for arctic symbols, False for non_arctic keys
+        library_name: Library name
+        mongo_config: Dict-like object with the keys ["mongo_user", "mongo_pwd", "url_cluster"]
+
+    Returns:
+        keys / symbols: List of symbols or keys depending on arctic/non-arctic database
+    """
+
+    # Non arctic keys
+    if is_arctic is False:
+        cl = db_connect(is_arctic=False, lib_name=library_name)
+        try:
+            docs = cl.find_one()
+            keys = []
+            for x in docs:
+                keys.append(x)
+            return keys
+
+        except AttributeError:
+            print('\nIncorrect data type, mongodb collection should be the only acceptable type.')
+
+    # Arctic symbols
+    else:
+        lib = db_connect(is_arctic=True, lib_name=library_name, mongo_config=mongo_config)
+        symbols = lib.list_symbols()
+        return symbols
+
+
+def db_arctic_library(mongo_config: dict, library: str = None):
+    """Function to return Arctic store/list of library names in Arctic database
+
+    Args:
+        mongo_config: Dict-like object with the keys ["mongo_user", "mongo_pwd", "url_cluster"]
+        library: If None, returns list of available library names
 
     Returns
-        pd.DataFrame: with columns ["Open", "High", "Low", "Close", "Adj Close", "Volume"], index
-        is the dates in datetime
-
+        arctic_store
     """
-    print(f"Downloading data from YahooFinance for stocks: {stocks}")
-    data_download = yf.download(tickers=stocks,
-                                start=start_date,
-                                end=end_date,
-                                interval="1d")
+    store = db_connect(mongo_config=mongo_config, is_arctic=True)
 
-    melted_data = data_download.unstack().reset_index()
-    melted_data.columns = ["measure", "stock", "date", "value"]
-
-    return melted_data
+    if library is None:
+        return store.list_libraries()
+    else:
+        return store
 
 
-if __name__ == "__main__":
+# -----------------------
+# ARCTIC HELPER FUNCTIONS
+# -----------------------
+def db_arctic_initialise(mongo_config: dict, library_name: str, library_type: str):
+    """
+    Initialise new arctic library.
 
-    SAMPLE_STOCK_DATA = download_yf_stock_data(stocks=["TSLA", "AMZN"])
+    Args:
+        mongo_config: Dict-like object with the keys ["mongo_user", "mongo_pwd", "url_cluster"]
+        library_name: Name of the new library to create.
+        library_type: Acceptable types ["VERSION_STORE", "CHUNK_STORE", "TICK_STORE"]
+    """
+    arctic_stores = [VERSION_STORE, CHUNK_STORE, TICK_STORE]
 
-    with open(get_config_path("mongo_private.json")) as mongo_json:
-        MONGO_CONFIG = json.load(mongo_json)
+    if library_type not in arctic_stores:
+        raise KeyError(f"Library store must be an arctic store type: {VERSION_STORE}, "
+                       f"{CHUNK_STORE}, {TICK_STORE}")
 
-    with open(get_config_path("security_data.json")) as sec_json:
-        SEC_MAP = json.load(sec_json)
+    lib = db_connect(mongo_config=mongo_config, is_arctic=True, lib_name=None)
 
-    # Initialise the database
-    USER = MONGO_CONFIG["mongo_user"]
-    PASSWORD = MONGO_CONFIG["mongo_pwd"]
-    MONGO_URL = MONGO_CONFIG["url_cluster"]
+    lib.initialize_library(library=library_name, lib_type=library_type)
 
-    HOST_URL = "".join(["mongodb+srv://", USER, ":", PASSWORD, "@", MONGO_URL])
-    CLIENT = pymongo.MongoClient(HOST_URL)
+    # This is important because arctic will not show the existing
+    # libraries upon creation of a new library.
+    Arctic.reload_cache(lib)
 
-    CLIENT.list_database_names()  # list databases that exist
 
-    SECURITIES = CLIENT["arctic"]  # type pymongo.database.Database
+def db_arctic_write(mongo_config: dict, df: pd.DataFrame, symbol: str,
+                    library_name: str = None) -> None:
+    """
+    Writing to existing arctic library.
 
-    # use arctic to upload time-series financial data to mongoDB
-    STORE = Arctic(CLIENT)
-    STORE.list_libraries()  # see what libraries exist
+    Args:
+        mongo_config: Dict-like object with the keys ["mongo_user", "mongo_pwd", "url_cluster"]
+        df: Dataframe to write into library
+        symbol: Name of symbol
+        library_name: Name of arctic library to write on
+    """
+    assert library_name is not None, "library_name must be passed in to specify library to write."
 
-    # initialise
-    # store.initialize_library("security_data")
+    lib = db_connect(mongo_config=mongo_config, is_arctic=True, lib_name=library_name)
+    lib.write(symbol, df)
 
-    LIBRARY = STORE["security_data"]
-    LIBRARY.list_symbols()
 
-    # DOWNLOAD SAMPLE DATA AND STORE IN MONGODB using Arctic
-    SEC_DATA = {}
-    for stock_name, stock_ticker in SEC_MAP.items():
-        SEC_DATA[stock_name] = yf.download(tickers=stock_ticker,
-                                           start="2017-01-01",
-                                           end="2019-08-31",
-                                           interval="1d")
-        LIBRARY.write(stock_name, SEC_DATA[stock_name], metadata={"source": "yahoo finance"})
+def db_arctic_append(mongo_config: dict, df: pd.DataFrame, symbol: str,
+                     library_name: str = None) -> None:
+    """
+    Appending existing arctic library.
 
-    LIBRARY.list_symbols()  # smithson, apple, amazon
+    Args:
+        mongo_config: Dict-like object with the keys ["mongo_user", "mongo_pwd", "url_cluster"]
+        df: pd.DataFrame
+        symbol: Name of symbol
+        library_name: Name of arctic library to append on
+    """
 
-    sample = LIBRARY.read("amazon")
-    # sample.data # view the data
+    assert library_name is not None, "lib_name must be passed in to specify library to append."
+    lib = db_connect(mongo_config=mongo_config, is_arctic=True, lib_name=library_name)
+    lib.append(symbol, df, upsert=True)
+
+if __name__ == '__main__':
+
+    # pass
+    # mongo_path = '/Users/philip_p/python/src/dataload/config/mongo_private.json'
+    mongo_path = 'PATH TO PRIVATE MONGO DB HERE'
+    mongo_cfg = json.load(open(mongo_path, 'r'))
+
+    mongo_cfg_structure = {
+        'mongo_user': '', 'mongo_pwd': '', 'url_cluster': ''}
+
+    # # DOWNLOAD SAMPLE DATA AND STORE IN MONGODB using Arctic
+    # security_data = {}
+    # for stock_name, stock_ticker in SEC_MAP.items():
+    #     security_data[stock_name] = yf.download(tickers=stock_ticker,
+    #                                             start="2017-01-01",
+    #                                             end="2019-08-31",
+    #                                             interval="1d")
+    #     security_lib.write(stock_name,
+    #                        security_data[stock_name],
+    #                        metadata={"source": "yahoo finance"})
+    #
+    # security_lib.list_symbols()  # smithson, apple, amazon
+    #
+    # sample = security_lib.read("amazon")
+    # # sample.data # view the data
