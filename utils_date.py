@@ -4,25 +4,27 @@ Taken from utils_generic.py
 """
 
 import datetime as dt
+from typing import Union, List
 
 import numpy as np
 import pandas as pd
 
 
-def date_to_str(d):
+def date_to_str(d: np.datetime64) -> str:
     """Convert from np.datetime64 to str without hyphens"""
     return d.astype(str).replace("-", "")
 
 
-def char_to_date(s):
+def char_to_date(s: Union[pd.DataFrame, pd.Series, np.ndarray, List[str], str]
+                 ) -> Union[pd.DataFrame, pd.Series]:
     """
     Turning date from object to np.datetime64
 
     Args:
-        s (pd.Dataframe, pd.Series): Pass in DataFrame if multi column process is needed
+        s: Pass in DataFrame if multi column process is needed
 
-    Returns
-        (pd.Series, pd.DataFrame): all columns containing "date" (case in-sensitive) will be amended
+    Returns:
+        all columns containing "date" (case in-sensitive) will be amended
 
     Note
         This method can handle EITHER "/" or "-" date separators but not a combination of both.
@@ -37,63 +39,73 @@ def char_to_date(s):
                 sep = '-'
             x = pd.Series(s).str.split('/|-', expand=True).values
             x = x.astype(int)
-            monthPattern = '%m'
+            month_pattern = '%m'
         except ValueError:
-            monthPattern = '%b'
+            month_pattern = '%b'
 
-        yearCol, monthCol, dateCol = None, None, None
+        year_col, month_col, date_col = None, None, None
         for i in range(x.shape[-1]):
             if x[:, i].dtype != object:
                 if all(x[:, i].astype(int) > 1000):
-                    yearCol = i
+                    year_col = i
                 elif all(x[:, i].astype(int) <= 12):
-                    monthCol = i
+                    month_col = i
                 elif all(x[:, i].astype(int) <= 31):
-                    dateCol = i
+                    date_col = i
             else:
-                dateCol, monthCol, yearCol = 0, 1, 2  # only month can be string and must be in the middle
+                # only month can be string and must be in the middle
+                date_col, month_col, year_col = 0, 1, 2
                 break
 
-        assert yearCol is not None, 'cannot find year in date string'
+        assert year_col is not None, 'cannot find year in date string'
         try:
-            yearPattern = '%Y' if (x[:, yearCol].astype(int) > 1000).all() else '%y'
+            year_pattern = '%Y' if (x[:, year_col].astype(int) > 1000).all() else '%y'
         except (ValueError, TypeError, IndexError):
             return None  # last resort couldn't figure format out, let pandas do it
 
-        monthAndDate = lambda m, d, monthPattern: sep.join(('%d', '%s' % monthPattern)) if m > d else sep.join(
-            ('%s' % monthPattern, '%d'))
+        month_and_date = lambda m, d, month_pattern: sep.join(
+            ('%d', '%s' % month_pattern)) if m > d else sep.join(
+            ('%s' % month_pattern, '%d'))
 
-        if yearCol == 0:
-            if monthCol is not None and dateCol is not None:
-                fmt = sep.join((yearPattern, monthAndDate(monthCol, dateCol, monthPattern)))
+        if year_col == 0:
+            if month_col is not None and date_col is not None:
+                fmt = sep.join((year_pattern, month_and_date(month_col, date_col, month_pattern)))
             else:
-                fmt = sep.join((yearPattern, '%s' % monthPattern, '%d'))  # default to non US style
-        elif yearCol == 2:
-            if monthCol is not None and dateCol is not None:
-                fmt = sep.join((monthAndDate(monthCol, dateCol, monthPattern), yearPattern))
+                fmt = sep.join(
+                    (year_pattern, '%s' % month_pattern, '%d'))  # default to non US style
+        elif year_col == 2:
+            if month_col is not None and date_col is not None:
+                fmt = sep.join((month_and_date(month_col, date_col, month_pattern), year_pattern))
             else:
-                fmt = sep.join(('%d', '%s' % monthPattern, yearPattern))  # default to non US style
+                # default to non US style
+                fmt = sep.join(('%d', '%s' % month_pattern, year_pattern))
         else:
             raise ValueError('year in the middle of date separators!')
 
         return fmt
 
-    # This is an extremely fast approach to datetime parsing. Some dates are often repeated. Rather than
+    # This is an extremely fast approach to datetime parsing. Some dates are often repeated.
+    # Rather than
     # re-parse these, we store all unique dates, parse them, and use a lookup to convert all dates.
     if isinstance(s, pd.DataFrame):
         out = s.copy(True)  # this is the bottleneck
         for columnName, column in out.iteritems():
             # loop through all the columns passed in
             if 'date' in columnName.lower():
-                if column.dtype != '<M8[ns]' and ~column.isnull().all() and ~column.str.contains('^[a-zA-z]').all():
+                if column.dtype != '<M8[ns]' and \
+                        ~column.isnull().all() and \
+                        ~column.str.contains('^[a-zA-z]').all():
                     # if date is provided as a string then ignore and set to int
                     try:
                         col = column.astype(int)
                         out[columnName] = col
                     except:
-                        # find the date columns(case in-sensitive), if pandas cant find the format, ignore error and maintain input
-                        uDates = pd.to_datetime(column.unique(), format=findFormat(column.unique()), errors='ignore')
-                        dates = dict(zip(column.unique(), uDates.tolist()))
+                        # find the date columns(case in-sensitive), if pandas cant
+                        # find the format, ignore error and maintain input
+                        unique_dates = pd.to_datetime(column.unique(),
+                                                      format=findFormat(column.unique()),
+                                                      errors='ignore')
+                        dates = dict(zip(column.unique(), unique_dates.tolist()))
                         out[columnName] = column.map(dates.get)
 
         return out
@@ -101,8 +113,8 @@ def char_to_date(s):
     else:
         if s.dtype == '<M8[ns]':
             return s
-        uDates = pd.to_datetime(s.unique(), format=findFormat(s.unique()))
-        dates = dict(zip(s.unique(), uDates.tolist()))
+        unique_dates = pd.to_datetime(s.unique(), format=findFormat(s.unique()))
+        dates = dict(zip(s.unique(), unique_dates.tolist()))
 
         return s.map(dates.get)
 
