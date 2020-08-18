@@ -43,7 +43,8 @@ def db_connect(mongo_config: dict, is_arctic: bool = True, lib_name: str = None
 
     # check the connection to the database
     try:
-        print(f"Listing existing database names: {client.list_database_names()}")
+        client.PORT
+        # print(f"Listing existing database names: {client.list_database_names()}")
     except ServerSelectionTimeoutError:
         raise ServerSelectionTimeoutError('MongoDB is not hosted.')
 
@@ -117,6 +118,39 @@ def db_arctic_library(mongo_config: dict, library: str = None):
 # -----------------------
 # ARCTIC HELPER FUNCTIONS
 # -----------------------
+def db_arctic_read(mongo_config: dict,
+                   library: str,
+                   symbol: str = None) -> pd.DataFrame:
+    """
+    Returning the data frame stored in MongoDB Arctic database.
+
+    Args:
+        mongo_config: Dict-like object with the keys ["mongo_user", "mongo_pwd", "url_cluster"]
+        library: Name of library in individual mongo cluster
+        symbol: Named symbol present in library
+
+    Returns:
+        pd.DataFrame
+
+    Note
+    -----
+    To check on the available library names
+    >>> store = db_connect(mongo_config=mongo_config, is_arctic=True)
+    >>> store.list_libraries()
+    """
+
+    lib = db_connect(mongo_config=mongo_config, is_arctic=True, lib_name=library)
+
+    if symbol is not None:
+        assert lib.has_symbol(symbol), f"{symbol} not found in library: {library}"
+        out = lib.read(symbol)
+    else:
+        raise KeyError(f"No symbol chosen from the library, the following symbols can be"
+                       f" read from the {library}: {lib.list_symbols()}")
+
+    return out.sort_index()
+
+
 def db_arctic_initialise(mongo_config: dict, library_name: str, library_type: str):
     """
     Initialise new arctic library.
@@ -174,8 +208,8 @@ def db_arctic_append(mongo_config: dict, df: pd.DataFrame, symbol: str,
     lib = db_connect(mongo_config=mongo_config, is_arctic=True, lib_name=library_name)
     lib.append(symbol, df, upsert=True)
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     # pass
     # mongo_path = '/Users/philip_p/python/src/dataload/config/mongo_private.json'
     mongo_path = 'PATH TO PRIVATE MONGO DB HERE'
@@ -183,19 +217,3 @@ if __name__ == '__main__':
 
     mongo_cfg_structure = {
         'mongo_user': '', 'mongo_pwd': '', 'url_cluster': ''}
-
-    # # DOWNLOAD SAMPLE DATA AND STORE IN MONGODB using Arctic
-    # security_data = {}
-    # for stock_name, stock_ticker in SEC_MAP.items():
-    #     security_data[stock_name] = yf.download(tickers=stock_ticker,
-    #                                             start="2017-01-01",
-    #                                             end="2019-08-31",
-    #                                             interval="1d")
-    #     security_lib.write(stock_name,
-    #                        security_data[stock_name],
-    #                        metadata={"source": "yahoo finance"})
-    #
-    # security_lib.list_symbols()  # smithson, apple, amazon
-    #
-    # sample = security_lib.read("amazon")
-    # # sample.data # view the data

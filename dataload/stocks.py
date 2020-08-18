@@ -1,6 +1,6 @@
 """
-Created on 7 Aug 2020
-To house data retrieval for stock data (mainly using YahooFinance API
+Created: 7 Aug 2020
+Data retrieval for stock data (mainly using YahooFinance API
 """
 from typing import Union, List
 

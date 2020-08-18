@@ -1,6 +1,9 @@
 """
 Created by Philip P on 23 May 2020
 Exploratory data analysis into csv downloaded from habitdash.com
+
+# TODO: clean up this and sort out the plotting framework for charts,
+# TODO: try to fit a function for modelling strain using some AI to minimise the errors
 """
 
 import os
