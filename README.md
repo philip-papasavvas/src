@@ -12,6 +12,10 @@
 
 This repository is undergoing a makeover currently, to be updated soon...
 
+## Roadmap
+- [ ] Add a requirements.txt for compatibility
+- [ ] Refactor/rewrite poor code and add unit tests
+
 ## Prerequisites
 The following modules are needed for the library
 * [Arctic](https://github.com/manahl/arctic) >= 1.79.0
