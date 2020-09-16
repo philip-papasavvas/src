@@ -210,7 +210,7 @@ def db_arctic_append(mongo_config: dict, df: pd.DataFrame, symbol: str,
 
 
 if __name__ == '__main__':
-    # pass
+
     # mongo_path = '/Users/philip_p/python/src/dataload/config/mongo_private.json'
     mongo_path = 'PATH TO PRIVATE MONGO DB HERE'
     mongo_cfg = json.load(open(mongo_path, 'r'))

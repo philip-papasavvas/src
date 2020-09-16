@@ -1,0 +1,3 @@
+{"mongo_user": "INSERT-USER-HERE" ,
+"mongo_pwd": "INSERT-PASSWORD-HERE" ,
+"url_cluster": "PUT-CLUSTER-HERE"}
