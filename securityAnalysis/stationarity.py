@@ -31,27 +31,27 @@ df = utils_date.char_to_date(df)
 df.set_index('Date', inplace=True)
 
 
-# deal with returns not time series of prices, as prices are non-stationary
-# transform the time series so that it becomes stationary. If the non-stationary
-# is a random walk with or without drift, it is transformed to a stationary process by differencing - it is
-# now a stationary stochastic (random probability distribution) process
-# if time series data also exhibits a deterministic trend, spurious results can be avoided by detrending
-# if non-stationary time series are both stochastic and deterministic at the same time, differencing and detrending
-# should be applied - differencing removes the trend in variance and detrending removes determinstic trend
+# deal with returns not time series of prices, as prices are non-stationary transform the time
+# series so that it becomes stationary. If the non-stationary is a random walk with or without
+# drift, it is transformed to a stationary process by differencing - it is now a stationary
+# stochastic (random probability distribution) process if time series data also exhibits a
+# deterministic trend, spurious results can be avoided by detrending if non-stationary time
+# series are both stochastic and deterministic at the same time, differencing and detrending
+# should be applied - differencing removes the trend in variance and detrending removes
+# determinstic trend
 
 
 def log_daily_returns(data: pd.DataFrame) -> pd.DataFrame:
     """Give log daily returns"""
-    log_dailyReturn = data.apply(lambda x: np.log(x) - np.log(x.shift(1)))[1:]
-    return log_dailyReturn
+    log_daily_return = data.apply(lambda x: np.log(x) - np.log(x.shift(1)))[1:]
+    return log_daily_return
 
 
 df_returns = log_daily_returns(data=df)
 
 
-# trim the dataframe to ignore columns with null values
-
 def drop_null_columns(data: pd.DataFrame):
+    """Drop columns from the dataframe with null values"""
     original_columns = list(data.columns)
     cleaned_data = data.dropna(axis=1)
     new_columns = list(cleaned_data.columns)
@@ -80,52 +80,56 @@ clean_df_returns = drop_null_columns(df_returns)
 
 # ADF pulled from https://www.analyticsvidhya.com/blog/2018/09/non-stationary-time-series-python/
 
-def adf_test(timeseries):
-    # Perform Dickey-Fuller test:
-    # If the test statistic is less than the critical value then reject H_0, and the times series
-    # is stationary.
-    # If test statistic greater than critcal value, fail to reject H_0, and time series is
-    # non-stationary/it has time dependence
+def adf_test(time_series):
+    """
+    Perform Dickey-Fuller test:
+    If the test statistic is less than the critical value then reject H_0, and the times series
+    is stationary.
+    If test statistic greater than critcal value, fail to reject H_0, and time series is
+    non-stationary/it has time dependence
+    """
     print('Results of Dickey-Fuller Test:')
-    dftest = adfuller(timeseries, autolag='AIC')
-    dfoutput = pd.Series(dftest[0:4], index=['Test Statistic', 'p-value', '#Lags Used',
-                                             'Number of Observations Used'])
-    for key, value in dftest[4].items():
-        dfoutput['Critical Value (%s)' % key] = value
-    print(dfoutput)
+    df_test = adfuller(time_series, autolag='AIC')
+    df_output = pd.Series(df_test[0:4],
+                          index=['Test Statistic', 'p-value', '#Lags Used',
+                                 'Number of Observations Used'])
+    for key, value in df_test[4].items():
+        df_output['Critical Value (%s)' % key] = value
+    print(df_output)
 
 
 # Example: adf_test(clean_df_returns.iloc[:,0])
 
 def adf_test_result(timeseries, sig=5):
     # Perform Dickey-Fuller test and give True/False for stationarity of time series.
-    # If True (test statistic less than critical value at 5%), reject H_0, and time series stationary
+    # If True (test statistic less than critical value at 5%), reject H_0, and time series
+    # stationarity
     # Offered at 1, 5 or 10% significance level
     dftest = adfuller(timeseries, autolag='AIC')
     assert (sig == 1) or (sig == 5) or (sig == 10), "Choose a significance of 1, 5 or 10 pc"
     key = str(sig) + "%"
-    isStationary = dftest[0] < dftest[4][key]
-    return isStationary
+    is_stationary = dftest[0] < dftest[4][key]
+    return is_stationary
 
 
 # Example: adf_test_result(clean_df_returns.iloc[:,0])
 
-
 # test the hypothesis that the returns are normally distibuted by looking at skewness and kurtosis
 # under the normality assumption, s(x) and k(x) - 3 are distributed asymptotically as normal
 # with zero mean and variances of 6/T and 24/T respectively.
-# so in this case we have the (log) return series of the asset {r_1, ..., r_n}, and we want to test the skewness
-# of the returns, so consider the null hypothesis H_0: s(r) = 0 with the alternate hypthesis s(r) != 0.
+# so in this case we have the (log) return series of the asset {r_1, ..., r_n}, and we want
+# to test the skewness
+# of the returns, so consider the null hypothesis H_0: s(r) = 0 with the
+# alternate hypthesis s(r) != 0.
 # the t ratio statistic of the sample skewness is t = (s(hat)(r) / sqrt(6/T))
 # where you would reject null hypothesis at alpha sig level if |t| > z_(alpha/2) where
 # z_(alpha/2) is the upper 100(alpha/2)th quantile of a standard normal distribution.
 # or you could compute the p value of the test statistic t and reject H_0 iff p-value < alpha
 
-# can also test the excess kurtosis of the return series using hypotheses H_0: k(r) - 3 = 0, versus alternate
-# test statistic is then t = k(r) - 3 / sqrt(24/T)
+# can also test the excess kurtosis of the return series using hypotheses H_0: k(r) - 3 = 0,
+# versus alternate test statistic is then t = k(r) - 3 / sqrt(24/T)
 
 # look at symmetry of return distribution
-
 
 # create high level summary stats for the log returnss
 def get_descriptive_stats(data: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
@@ -138,44 +142,45 @@ def get_descriptive_stats(data: pd.DataFrame, alpha: float = 0.05) -> pd.DataFra
     Returns
         pd.DataFrame
     """
-    df = pd.DataFrame(columns=['Size', 'Mean', 'Std Dev', 'Skewness', 'Excess Kurtosis'])
+    result_df = pd.DataFrame(columns=['Size', 'Mean', 'Std Dev', 'Skewness', 'Excess Kurtosis'])
     # , 'K Min', 'K Max'])
-    df['Size'] = data.count()
-    df['Mean'] = data.mean()
-    df['Std Dev'] = np.std(data)
-    df['Min'] = np.min(data)
-    df['Max'] = np.max(data)
-    df['Skewness'] = skew(data)
-    df['Skewness t-statistic'] = df['Skewness'].values / np.sqrt(6 / (df['Size'].values))
-    df['Skewness p-value'] = 2 * (1 - stats.t.cdf(df['Skewness t-statistic'], df=1))
+    result_df['Size'] = data.count()
+    result_df['Mean'] = data.mean()
+    result_df['Std Dev'] = np.std(data)
+    result_df['Min'] = np.min(data)
+    result_df['Max'] = np.max(data)
+    result_df['Skewness'] = skew(data)
+    result_df['Skewness t-statistic'] = \
+        result_df['Skewness'].values / np.sqrt(6 / result_df['Size'].values)
+    result_df['Skewness p-value'] = 2 * (1 - stats.t.cdf(result_df['Skewness t-statistic'], df=1))
     # so, one can reject h_0 (skewness of log returns = 0) for a p-value of less than alpha
     skew_h0_title = "Skewness reject H_0 at " + str(100 * alpha) + "% sig level"
-    skew_h0_values = df['Skewness p-value'].values < alpha
-    df['Skewness accept H_0'] = skew_h0_values
-    df.rename(columns={'Skewness accept H_0': skew_h0_title}, inplace=True)
+    skew_h0_values = result_df['Skewness p-value'].values < alpha
+    result_df['Skewness accept H_0'] = skew_h0_values
+    result_df.rename(columns={'Skewness accept H_0': skew_h0_title}, inplace=True)
 
-    df['Excess Kurtosis'] = kurtosis(data)  # if high excess kurtosis it means heavy tails
-    df['Excess Kurtosis t-statistic'] = df['Excess Kurtosis'].values / np.sqrt(
-        24 / (df['Size'].values))
-    df['Excess Kurtosis p-value'] = 2 * (1 - stats.t.cdf(df['Excess Kurtosis t-statistic'], df=1))
+    result_df['Excess Kurtosis'] = kurtosis(data)  # if high excess kurtosis it means heavy tails
+    result_df['Excess Kurtosis t-statistic'] = \
+        result_df['Excess Kurtosis'].values / np.sqrt(24 / result_df['Size'].values)
+    result_df['Excess Kurtosis p-value'] = \
+        2 * (1 - stats.t.cdf(result_df['Excess Kurtosis t-statistic'], df=1))
     kurt_h0_title = "Kurtosis reject H_0 at " + str(100 * alpha) + "% sig level"
-    kurt_h0_values = df['Excess Kurtosis p-value'].values < alpha
-    df['Excess Kurtosis accept H_0'] = kurt_h0_values
-    df.rename(columns={'Excess Kurtosis accept H_0': kurt_h0_title}, inplace=True)
+    kurt_h0_values = result_df['Excess Kurtosis p-value'].values < alpha
+    result_df['Excess Kurtosis accept H_0'] = kurt_h0_values
+    result_df.rename(columns={'Excess Kurtosis accept H_0': kurt_h0_title}, inplace=True)
 
     res = []
     for i in data.columns:
         res.append(adf_test_result(data.loc[:, i]))
 
-    df['Aug Dickey-Fuller Test'] = res
+    result_df['Aug Dickey-Fuller Test'] = res
 
-    return df
+    return result_df
 
-
-get_descriptive_stats(data=clean_df_returns, alpha=0.05)
 
 if __name__ == '__main__':
     # Use a simple Augmented Dickey Fuller test to test stationarity of time series:
+    get_descriptive_stats(data=clean_df_returns, alpha=0.05)
 
     # Look at the price time series first:
     df = pd.read_csv(INPUT_FOLDER + "funds_stocks_2019.csv")

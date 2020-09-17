@@ -1,6 +1,6 @@
 """
 Author: Philip.P
-Date created: 16/03/19
+Date created: 16 Mar 2019
 
 Analyse financial security (mainly price) data (sourced from Bloomberg or YahooFinance (via API)).
 Can specify ticker:fund name json mapping in config
@@ -14,24 +14,26 @@ TODO:
 import datetime as dt
 import json
 import os
-from typing import Tuple
+from typing import Tuple, List
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib import ticker as mtick
 
-import utils_date
 from securityAnalysis.utils_finance import calc_info_ratio, calc_sharpe_ratio, calc_sortino_ratio, \
     calculate_annual_return, calculate_annual_volatility
-from utils_generic import prep_fund_data
+from utils_date import char_to_date
 
 plt.style.use('ggplot')
 plt.tight_layout()
 plt.close()
 pd.set_option('display.max_columns', 5)
 
-extract_str_timestamp = lambda d: dt.datetime.strftime(d, "%Y%m%d")
+
+def extract_str_timestamp(input_date: dt.datetime):
+    """Method to extract date in YYYYMMDD from datetime object"""
+    return dt.datetime.strftime(input_date, fmt="%Y%m%d")
 
 
 class Analysis:
@@ -39,9 +41,8 @@ class Analysis:
 
     Args:
         data: Security price data over time period (assumed daily)
-        is_bloomberg: Financial data source, acceptable sources Bloomberg (bbg) or YahooFinance via the API (yfin)
+        is_bloomberg: If not bloomber, assume it is from YahooFinance via the API (yfinance module)
         input_directory: Working directory
-
 
     Attributes:
         run_date: YYYMMDD
@@ -50,13 +51,14 @@ class Analysis:
         data: Data to be analysed
     """
 
-    def __init__(self, data: pd.DataFrame, input_directory: str, is_bloomberg: str) -> None:
+    def __init__(self, data: pd.DataFrame, input_directory: str, is_bloomberg: bool) -> None:
         self.run_date = extract_str_timestamp(dt.datetime.now())
         self.wkdir = input_directory
         self.set_output_folder()
+        self.output_dir = None
 
         if is_bloomberg:
-            input_data = utils_date.char_to_date(data)
+            input_data = char_to_date(data)
 
             self.start_date = extract_str_timestamp(input_data.index.min())
             self.end_date = extract_str_timestamp(input_data.index.max())
@@ -73,7 +75,6 @@ class Analysis:
 
         Args:
             input_data: Security data in wide, short format
-            drop_na
 
         Returns:
             pd.DataFrame
@@ -181,77 +182,85 @@ class Analysis:
         return summary
 
     # TODO: rewrite as this isn't good in terms of the timedelta
-    # def calculate_lookback_performance(
-    #         self, end_date: np.datetime64 = None,
-    #         lookback_periods: List[str] = ["0D", "6M", "1Y", "2Y", "3Y"],
-    #         to_save_results=False) -> pd.DataFrame:
-    #     """Analyse performance of certain funds over a custom lookback period (list)
-    #
-    #     Args:
-    #         end_date: If not specified, defaults to last valid date in dataset
-    #         lookback_periods
-    #     """
-    #     df = self.data
-    #
-    #     if end_date is None:
-    #         end_date = self.end_date
-    #
-    #     if lookback_periods is None:
-    #         lookback_periods = ["0D", "3M", "6M", "9M", "12M", "18M", "24M"]
-    #
-    #     # TODO: if a date in the lookback is not in the range of the dataset then we drop this date
-    #     target_dates = [utils_date.return_date_diff(df, end_date, i) for i in lookback_periods]
-    #     target_prices = [df.loc[i, :].values for i in target_dates]
-    #
-    #     # iloc[::-1] is to reverse the dataframe by the date index --> earliest to latest
-    #     lookbackTable = pd.DataFrame.from_records(target_prices, index=target_dates, columns=df.columns)
-    #     lookbackTable.sort_index(ascending=True, inplace=True)
-    #
-    #     # Period return
-    #     cumulativeReturn = lookbackTable.apply(lambda x: x / x[0])
-    #     cumulativeReturn['Return Period'] = lookback_periods
-    #     cumulativeReturn = cumulativeReturn[cumulativeReturn.columns.tolist()[-1:] +
-    #                                         cumulativeReturn.columns.tolist()[:-1]]
-    #
-    #     if to_save_results:
-    #         fileName = utils_date.date_to_str(self.start_date) + "_" + utils_date.date_to_str(self.end_date) + "_"
-    #         writer = pd.ExcelWriter(self.output_dir + fileName + "Security Performance.xlsx")
-    #
-    #         lookbackTable.index = lookbackTable.index.values.astype("datetime64[D]")
-    #         lookbackTable_print = lookbackTable.T
-    #         lookbackTable_print.to_excel(writer, "Prices")
-    #
-    #         cumulativeReturn.index = cumulativeReturn.index.values.astype("datetime64[D]")
-    #         cumulativeReturn.T.to_excel(writer, "Return")
-    #
-    #         writer.save()
-    #         print("Lookback performance table has been written to directory: {dry}".format(dry=self.output_dir))
-    #
-    #     # Plotting the results
-    #     # if returnPlot:
-    #     #     data_to_plot = cumulativeReturn.drop(['Return Period'], axis =1)
-    #     #     # plt.figure()
-    #     #     if data_to_plot.shape[1] > 5:
-    #     #         nSubplots = round(data_to_plot.shape[1]/5)
-    #     #         for i in range(nSubplots):
-    #     #             plt.figure()
-    #     #             subset_data = data_to_plot.iloc[:,(5*i):(5*i)+5]
-    #     #             plt.suptitle("Normalised Return Securities" + str(i))
-    #     #             plt.plot(subset_data)
-    #     #             plt.xlabel('Time Period')
-    #     #
-    #     #
-    #     #     ax = cumulativeReturn.drop(['Return Period'], axis =1).plot()
-    #     #
-    #     #     vals = ax.get_yticks()
-    #     #     ax.set_yticklabels(([format(x, ',') for x in vals]))
-    #     #     plt.ylabel("Normalised Return")
-    #     #     plt.grid()
-    #     #     plt.tight_layout()
-    #     #     plt.title("Normalised Return for funds")
-    #     #     plt.legend(loc="upper left", fontsize='xx-small', ncol=2)
-    #     #     plt.savefig(self.output_dir + "/CumulativeReturn Plot.png")
-    #     #     plt.close()
+    def calculate_lookback_performance(self, end_date: np.datetime64 = None,
+                                       lookback_periods: List[str] = None,
+                                       to_save_results=False) -> pd.DataFrame:
+        """Analyse performance of certain funds over a custom lookback period (list)
+
+        Args:
+            end_date: If not specified, defaults to last valid date in dataset
+            lookback_periods: Specify a list of lookback periods to compare stock prices to
+            to_save_results: If True, will save in output_directory
+
+        """
+        if lookback_periods is None:
+            lookback_periods = ["0D", "6M", "1Y", "2Y", "3Y"]
+
+        security_data = self.data
+
+        if end_date is None:
+            end_date = self.end_date
+
+        if lookback_periods is None:
+            lookback_periods = ["0D", "3M", "6M", "9M", "12M", "18M", "24M"]
+
+        # TODO: if a date in the lookback is not in the range of the dataset then we drop this date
+        # target_dates = [return_date_diff(df, end_date, i) for i in lookback_periods]
+        target_dates = []
+        target_prices = [security_data.loc[i, :].values for i in target_dates]
+
+        # iloc[::-1] is to reverse the dataframe by the date index --> earliest to latest
+        lookback_table = pd.DataFrame.from_records(target_prices,
+                                                   index=target_dates,
+                                                   columns=security_data.columns)
+        lookback_table.sort_index(ascending=True, inplace=True)
+
+        # Period return
+        cumulative_return = lookback_table.apply(lambda x: x / x[0])
+        cumulative_return['Return Period'] = lookback_periods
+        cumulative_return = cumulative_return[cumulative_return.columns.tolist()[-1:] +
+                                              cumulative_return.columns.tolist()[:-1]]
+
+        if to_save_results:
+            file_name = f"{self.start_date}_{self.end_date}_"
+            writer = pd.ExcelWriter(self.output_dir + file_name + "Security Performance.xlsx")
+
+            lookback_table.index = lookback_table.index.values.astype("datetime64[D]")
+            lookback_table_print = lookback_table.T
+            lookback_table_print.to_excel(writer, "Prices")
+
+            cumulative_return.index = cumulative_return.index.values.astype("datetime64[D]")
+            cumulative_return.T.to_excel(writer, "Return")
+
+            writer.save()
+            print(f"Lookback performance table has been written to directory: {self.output_dir}")
+
+        return lookback_table
+
+        # Plotting the results
+        # if returnPlot:
+        #     data_to_plot = cumulativeReturn.drop(['Return Period'], axis =1)
+        #     # plt.figure()
+        #     if data_to_plot.shape[1] > 5:
+        #         nSubplots = round(data_to_plot.shape[1]/5)
+        #         for i in range(nSubplots):
+        #             plt.figure()
+        #             subset_data = data_to_plot.iloc[:,(5*i):(5*i)+5]
+        #             plt.suptitle("Normalised Return Securities" + str(i))
+        #             plt.plot(subset_data)
+        #             plt.xlabel('Time Period')
+        #
+        #     ax = cumulativeReturn.drop(['Return Period'], axis =1).plot()
+        #
+        #     vals = ax.get_yticks()
+        #     ax.set_yticklabels(([format(x, ',') for x in vals]))
+        #     plt.ylabel("Normalised Return")
+        #     plt.grid()
+        #     plt.tight_layout()
+        #     plt.title("Normalised Return for funds")
+        #     plt.legend(loc="upper left", fontsize='xx-small', ncol=2)
+        #     plt.savefig(self.output_dir + "/CumulativeReturn Plot.png")
+        #     plt.close()
 
     @staticmethod
     def return_bollinger_band(data: pd.DataFrame, window: int, std_devs: int
@@ -281,15 +290,15 @@ class Analysis:
 
     def plot_bollinger_bands(self, data: pd.DataFrame, rolling_window: int = 20,
                              num_st_devs: int = 2) -> None:
-        """Function to do bollinger band plots for each of the stocks in the dataframe"""
+        """Bollinger band plots for each of the stocks in the dataframe"""
 
         for col in data.columns:
-            slice = data.loc[:, col]
-            normed_px = slice / slice[0]
+            slc = data.loc[:, col]
+            normed_px = slc / slc[0]
 
             # Info for bollinger plots, also useful elsewhere
             roll_mn, roll_std, boll_high, boll_low = \
-                Analysis.return_bollinger_band(data=slice,
+                Analysis.return_bollinger_band(data=slc,
                                                window=rolling_window,
                                                std_devs=num_st_devs)
 
@@ -302,8 +311,8 @@ class Analysis:
             # ax1.tick_params(axis='y', labelcolor=color)
             ax1.plot(boll_high, linestyle="dashed", color="k", linewidth=0.5)
             ax1.plot(boll_low, linestyle="dashed", color="k", linewidth=0.5)
-            ax1.yaxis.set_major_locator(
-                mtick.LinearLocator(6))  # set there to be N=6 lines on y-axis
+            # set there to be N=6 lines on y-axis
+            ax1.yaxis.set_major_locator(mtick.LinearLocator(6))
 
             norm_std_rolling = normed_px.rolling(window=rolling_window).std()
             ax2 = ax1.twinx()
@@ -325,12 +334,12 @@ class Analysis:
         """Plot the normalised return over time, anchored back to start of lookback period"""
 
         for col in input_data.columns:
-            slice = input_data.loc[:, col]
+            slce = input_data.loc[:, col]
 
             if log_returns:
-                normed_px = 1 + np.log(slice / slice[0])
+                normed_px = 1 + np.log(slce / slce[0])
             else:
-                normed_px = slice / slice[0]
+                normed_px = slce / slce[0]
 
             # Plot the charts
             fig, ax1 = plt.subplots()
@@ -359,7 +368,8 @@ class Analysis:
     #         output_dir = self.output_dir
     #
     #     writer = pd.ExcelWriter(os.path.join(output_dir, "Stock Summary Measures.xlsx"))
-    #     summary_one = self.summaryTable(toCsv=False, r=0.01)  # Summary table- return/volatility/info & sharpe ratio
+    #     summary_one = self.summaryTable(toCsv=False, r=0.01)
+    # Summary table- return/volatility/info & sharpe ratio
     #
     #     summary_one[['Annualised Return', 'Annual Volatility']] *= 100
     #     summary_one[['Annualised Return', 'Annual Volatility']] = \
@@ -384,16 +394,15 @@ class Analysis:
 
 
 if __name__ == "main":
-    from securityAnalysis.securities_analysis import Analysis
     from get_paths import get_config_path
 
     WK_DIR = "/Users/philip_p/Documents/python/"
     INPUT_FOLDER = os.path.join(WK_DIR, "data/finance")
     OUTPUT_FOLDER = os.path.join(WK_DIR, "output")
-    df = prep_fund_data(df_path=F"{INPUT_FOLDER}/funds_stocks_2019.csv")
+    df = pd.read_csv(f"{INPUT_FOLDER}/funds_stocks_2019.csv")
 
     with open(get_config_path("bbg_ticker.json")) as f:
-        TICKER_MAP_DICT = json.load(f)
+        ticker_map_dict = json.load(f)
 
     rn = Analysis(data=df, input_directory=WK_DIR, is_bloomberg=True)
     clean_df = rn.clean_slice_data(input_data=df)

@@ -270,8 +270,8 @@ if __name__ == "main":
     # cov = returns.cov()
     from small_projects.random_walks import random_price
 
-    a, b = pd.Series(random_price(start=500, tick=2, walks=499)), pd.Series(
-        random_price(start=1000, tick=1, walks=499))
+    a, b = pd.Series(random_price(start=500, tick=2, num_walks=499)), pd.Series(
+        random_price(start=1000, tick=1, num_walks=499))
     example_df = pd.DataFrame(data=pd.concat([a, b], axis=1))
     # index=pd.date_range(start="2000-01-01", periods=500)
     returns = example_df.pct_change()

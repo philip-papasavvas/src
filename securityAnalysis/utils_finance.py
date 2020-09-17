@@ -3,10 +3,10 @@ Created 17 June 2020
 Utils specific for financial security data
 """
 
-
 import numpy as np
 import pandas as pd
 
+from decorators import deprecated
 from utils_date import excel_date_to_np
 
 
@@ -17,7 +17,7 @@ def log_daily_returns(data: pd.DataFrame) -> pd.DataFrame:
 
 
 def calculate_daily_return(data: pd.DataFrame) -> pd.DataFrame:
-    """Function to generate daily returns given input data (in dataframe, dtypes float, no time data)
+    """Generate daily returns given input data (in dataframe, dtypes float, no time data)
 
     Example:
         >>> calculate_daily_return(data=pd.DataFrame([1,2,3,4]))
@@ -48,12 +48,15 @@ def calc_info_ratio(data: pd.DataFrame) -> pd.DataFrame:
     return info_ratio
 
 
-def calc_sharpe_ratio(data, risk_free):
+def calc_sharpe_ratio(data: pd.DataFrame, risk_free: float) -> np.ndarray:
     """Function to give annualised Sharpe Ratio measure from input data, as well as risk free rate
 
     Args:
-        data (dataframe)
-        risk_free (float): Risk free rate, as a decimal, so RFR of 6% = 0.06
+        data
+        risk_free: Risk free rate, as a decimal, so RFR of 6% = 0.06
+
+    Returns:
+        np.ndarray
     """
     daily_rtn = data.pct_change(1).iloc[1:, ]
     annual_rtn = np.mean(daily_rtn) * 252
@@ -62,18 +65,19 @@ def calc_sharpe_ratio(data, risk_free):
     return sharpe_ratio
 
 
-def calc_sortino_ratio(data, target_return, risk_free, rtn_period=1):
+def calc_sortino_ratio(data: pd.DataFrame, target_return: float, risk_free: float,
+                       rtn_period: int = 1) -> np.ndarray:
     """Method to calculate Sortino Ratio (gives a better measure of downside volatility, thus risk.
     Unlike the Sharpe Ratio it does not penalise upside volatility.
 
     Args:
-        data (dataframe): Original dataframe of input data
-        target_return (float): Target return (for the return period)
-        risk_free (float): Risk free rate, usually annualised
-        rtn_period (float, default 1): Specify the return period (number of days) for the ratio.
+        data: Original dataframe of input data
+        target_return: Target return (for the return period)
+        risk_free: Risk free rate, annualised
+        rtn_period: Specify the return period (number of days) for the ratio.
 
     Returns:
-        sortino (ndarray)
+        ndarray: sortino ratio
     """
 
     prd_return = data.pct_change(rtn_period).iloc[1:, ]
@@ -121,6 +125,7 @@ def return_clean_df(input_file):
     return data
 
 
+@deprecated
 def return_melted_df(input_file):
     """
     Read csv file with Bloomberg data (in format below with or without blank columns) and create
@@ -153,7 +158,8 @@ def return_melted_df(input_file):
                 # data['date'] = np.datetime64(data['date'])
                 dates = np.array(data['date'])
 
-                # create a mask to ensure that all entries have the correct date format, not just Excel serial numbers
+                # create a mask to ensure that all entries have the correct date format,
+                # not just Excel serial numbers
                 res = []
                 for date in dates:
                     res.append(len(date))
@@ -172,3 +178,6 @@ def return_melted_df(input_file):
             print("Dataframe is not in the correct format")
     else:
         raise TypeError("The dataframe is not in the format expected with columns: [Date, PX_LAST]")
+
+    if __name__ == '__main__':
+        pass
