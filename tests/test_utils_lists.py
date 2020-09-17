@@ -12,11 +12,12 @@ class TestUtilsLists(unittest.TestCase):
                          [1, 2, 3, 4, 5],
                          "Resulting list should be [1,2,3,4,5]")
 
-    def test_has_duplicated(self):
+    def test_has_duplicates__true(self):
         self.assertEqual(has_duplicates(lst=[1, 2, 3, 4, 4]),
                          True,
                          "Value 4 is repeated")
 
+    def test_has_duplicates__false(self):
         self.assertEqual(has_duplicates(lst=[1, 2, 3, 4, 5]),
                          False,
                          "No repeated values")
@@ -45,6 +46,7 @@ class TestUtilsLists(unittest.TestCase):
         self.assertEqual(flatten(lst=[1, 2, [3, 4, 5, [6, 7]]]),
                          [1, 2, 3, 4, 5, 6, 7],
                          "Flattened list should be [1, 2, 3, 4, 5, 6, 7]")
+
 
 if __name__ == '__main__':
     unittest.main()

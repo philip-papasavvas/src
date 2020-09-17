@@ -9,28 +9,31 @@ from utils_date import date_to_str, char_to_date, excel_date_to_np
 
 
 class TestDateFuncs(unittest.TestCase):
+    def setUp(self) -> None:
+        dates = np.arange("2010-01-01", "2010-01-05", dtype='datetime64[D]')
+        self.dates = dates
+        self.dataframe_dates = pd.DataFrame(
+            {'date': dates,
+             'date_as_str': dates.astype(str)}
+        )
+
     def test_date_to_str(self):
         np.testing.assert_equal(date_to_str(np.datetime64("2020-01-01")),
                                 "20200101")
 
-        np.testing.assert_equal(date_to_str(np.datetime64("2100-01-01")),
-                                "21000101")
-
-    def test_char_to_date(self):
-        d1 = np.arange("2010-01-01", "2011-01-01", dtype='datetime64[D]')
-        df = pd.DataFrame({'date1': d1, 'date2': d1.astype(str)})
-
+    def test_char_to_date__series_as_dt(self):
         # test for dataframe
-        df1 = char_to_date(df)
+        np.testing.assert_array_equal(
+            char_to_date(self.dataframe_dates['date']),
+            self.dates
+        )
 
-        for date_col in ['date1', 'date2']:
-            np.testing.assert_array_equal(df1[date_col].values,
-                                          d1)
-
-        # series
-        for date_col in ['date1', 'date2']:
-            np.testing.assert_array_equal(char_to_date(df[date_col]),
-                                          d1)
+    def test_char_to_date__series_as_str(self):
+        # test for dataframe
+        np.testing.assert_array_equal(
+            char_to_date(self.dataframe_dates['date_as_str']),
+            self.dates
+        )
 
     def test_x2pdate(self):
         self.assertEqual(list(excel_date_to_np(xl_date=43100)),
