@@ -12,12 +12,12 @@ from typing import Union
 import numpy as np
 import pandas as pd
 import pyperclip
-import xlrd
-
-from utils_date import char_to_date
 
 
-# Generic Utilities functions
+# local imports
+# from utils_date import char_to_date
+
+
 def to_array(*args: Union[np.ndarray, list, tuple, pd.Series, np.datetime64, dt.datetime]):
     """Turning x into np.ndarray
 
@@ -29,7 +29,7 @@ def to_array(*args: Union[np.ndarray, list, tuple, pd.Series, np.datetime64, dt.
 
     Example
     >>> import numpy as np
-    >>> x,y,z = to_array(2,["a","b"],None)
+    >>> x, y, z = to_array(2, ["a","b"], None)
     >>> date_array, =  to_array(np.datetime64("2019-01-01"))
     """
 
@@ -88,7 +88,8 @@ def match(cls, x, y, strict=True):
 
     if strict:
         # this is 40x faster pd.core.algorithms.match(x,y)
-        assert rowMask.all(), "%s not found, uniquely : %s " % ((~rowMask).sum(), np.array(x)[~rowMask])
+        assert rowMask.all(), "%s not found, uniquely : %s " % (
+            (~rowMask).sum(), np.array(x)[~rowMask])
         out = np.argmax(mask, axis=1)  # returns the index of the first match
 
     else:
@@ -142,7 +143,8 @@ def find(folder_path, pattern='.*', full_path=False, expect_one=True):
             # multi condition pattern matching
             ipattern = '|'.join(pattern)
             # strict matching of all required patters
-            files = [f for f in listOfFiles if np.unique(re.findall(ipattern, f, re.IGNORECASE)).size == n]
+            files = [f for f in listOfFiles if
+                     np.unique(re.findall(ipattern, f, re.IGNORECASE)).size == n]
         else:
             files = [f for f in listOfFiles if re.findall(pattern, f, re.IGNORECASE)]
 
@@ -153,7 +155,8 @@ def find(folder_path, pattern='.*', full_path=False, expect_one=True):
                     pattern = re.sub('[^A-Za-z0-9_.-]+', '', pattern)
                 else:
                     pattern = [re.sub('[^A-Za-z0-9_.-]+', '', pat) for pat in pattern]
-                raise FileNotFoundError('%s exists but no file names with pattern: %s' % (path, pattern))
+                raise FileNotFoundError(
+                    '%s exists but no file names with pattern: %s' % (path, pattern))
 
             elif len(files) > 1 and expect_one:
                 raise FileExistsError('%s exists but %s files found' % (path, len(files)))
@@ -164,7 +167,8 @@ def find(folder_path, pattern='.*', full_path=False, expect_one=True):
                 continue  # go for next folderPath
             # out of luck, raise with first folderPath
             err.args = (
-                re.sub(path.replace('\\', '/'), folder_path[0], err.args[0]),)  # re.sub doesn't like double backslashes
+                re.sub(path.replace('\\', '/'), folder_path[0],
+                       err.args[0]),)  # re.sub doesn't like double backslashes
             raise
 
         break  # stop loop when we got the files we wanted
@@ -186,34 +190,14 @@ def concat_columns(sep='', *args):
     for arg in args:
         df = pd.concat([df, arg], axis=1, ignore_index=True)
     try:
-        out = df.astype(str).add(sep).sum(axis=1).str.replace('%s+$' % escape(sep), '')  # removes trailing sep
+        out = df.astype(str).add(sep).sum(axis=1).str.replace('%s+$' % escape(sep),
+                                                              '')  # removes trailing sep
         # need to make any columns with nan to output NaN, which is the result when 'A' + '_' + 'NaN'
         mask = df.isnull().any(axis=1)
         out[mask] = np.nan
     except AttributeError:
         # incase of empty data frame
         out = pd.Series()
-    return out
-
-
-def read_excel(file):
-    """
-    Read excel files
-
-    Args:
-        file (str):  Excel file path
-
-    Returns
-        dict with keys as sheet names and items as sheet contents as pd.dataframe
-    """
-
-    xl_workbook = xlrd.open_workbook(file)
-    sheet_names = xl_workbook.sheet_names()
-    out = {}
-    for sheet in sheet_names:
-        fl = pd.read_excel(file, sheet_names[0])
-        out.update({sheet: fl})
-
     return out
 
 
@@ -282,25 +266,6 @@ def format_csv_commas(path):
     return data
 
 
-def prep_fund_data(df_path, date_col="Date"):
-    """Prep fund data (csv) using char to date and setting 'Date' as the index
-
-    Args:
-        df_path (str): Path to dataframe
-        date_col (str): Date column labelled in bloomberg dataframe
-
-    Returns:
-        df (dataframe): Dataframe with date columns converted to np.datetime64
-    """
-    df = pd.read_csv(df_path)
-    df = char_to_date(df)
-
-    assert date_col in df.columns, f"The date column: {date_col} is not specified in the function"
-
-    df.set_index('Date', inplace=True)
-    return df
-
-
 # DICT METHODS
 def flatten_dict(d):
     """Flatten dictionary d
@@ -321,19 +286,19 @@ def flatten_dict(d):
     return dict(items())
 
 
-def return_dict_keys(dict):
+def return_dict_keys(dct):
     """Returns keys of a dict in a list
     >>> return_dict_keys({'a':1, 'b':2, 'c':3})
     """
-    return list(dict.keys())
+    return list(dct.keys())
 
 
-def return_dict_values(dict):
+def return_dict_values(dct):
     """
     Returns keys of a dict in a list
     >>> return_values({'a':1, 'b':2, 'c':3})
     """
-    return list(dict.values())
+    return list(dct.values())
 
 
 def change_dict_keys(in_dict, text):
@@ -343,12 +308,19 @@ def change_dict_keys(in_dict, text):
                                     value) for key, value in in_dict.items()}
 
 
+if __name__ == '__main__':
+    pass
 
-# merge dictionaries: {**a,**b}
-# merge two lists: dict(zip(list_one,list_two))
 
-# if a function returns multiple arguments, label as follows for the variable unpacking: a,*_, b = var1, ...., var2
-# example
-# def func(dict):
-#     return list(dict.keys())[0], list(dict.keys())[1], list(dict.keys())[2],list(dict.keys())[3]
-# (a, *_, c) = func({'a':1, 'b':2, 'c':3, 'd':4}) --> a= 'a', c='d'
+    # merge dicts: {**a,**b}, lists: dict(zip(list_one,list_two))
+
+    # if a function returns multiple arguments, variable unpacking: a,*_, b = var1, ...., var2
+
+    def func(dct):
+        return list(dct.keys())[0], \
+               list(dct.keys())[1], \
+               list(dct.keys())[2], \
+               list(dct.keys())[3]
+
+
+    (a, *_, c) = func({'a': 1, 'b': 2, 'c': 3, 'd': 4})  # a= 'a', c='d'
