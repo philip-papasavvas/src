@@ -5,7 +5,6 @@ Look at the stationarity of stock time series, carry out analysis on the log-ret
 Provide summary statistics on the data
 Introduce tests (such as Augmented Dickey Fuller) to check stationarity of time series
 """
-
 import os
 
 import matplotlib.pyplot as plt
@@ -17,37 +16,14 @@ from statsmodels.tsa.stattools import adfuller
 
 import utils_date
 
-plt.style.use('seaborn')
-
 pd.set_option('display.max_columns', 5)
-
-WK_DIR = "C://Users//Philip//Documents//python//"
-INPUT_FOLDER, OUTPUT_FOLDER = os.path.join(WK_DIR, "input"), os.path.join(WK_DIR, "output")
-
-# "example_data.csv", "example_data_na.csv" has NA rows
-# df = pd.read_csv(INPUT_FOLDER + 'example_data.csv') #, parse_dates=True)
-df = pd.read_csv(INPUT_FOLDER + "funds_stocks_2019.csv")
-df = utils_date.char_to_date(df)
-df.set_index('Date', inplace=True)
-
-
-# deal with returns not time series of prices, as prices are non-stationary transform the time
-# series so that it becomes stationary. If the non-stationary is a random walk with or without
-# drift, it is transformed to a stationary process by differencing - it is now a stationary
-# stochastic (random probability distribution) process if time series data also exhibits a
-# deterministic trend, spurious results can be avoided by detrending if non-stationary time
-# series are both stochastic and deterministic at the same time, differencing and detrending
-# should be applied - differencing removes the trend in variance and detrending removes
-# determinstic trend
+plt.style.use('seaborn')
 
 
 def log_daily_returns(data: pd.DataFrame) -> pd.DataFrame:
     """Give log daily returns"""
     log_daily_return = data.apply(lambda x: np.log(x) - np.log(x.shift(1)))[1:]
     return log_daily_return
-
-
-df_returns = log_daily_returns(data=df)
 
 
 def drop_null_columns(data: pd.DataFrame):
@@ -62,25 +38,7 @@ def drop_null_columns(data: pd.DataFrame):
     return cleaned_data
 
 
-clean_df_returns = drop_null_columns(df_returns)
-
-
-# look at the Augmented Dickey Fuller test for unit roots. The null hypothesis, H_0, is that
-# the time series can be represented by a unit root, therefore it is non-stationary (it
-# has a time dependent structure). The alternate hypothesis is that the time series
-# is stationary
-# If you fail to reject null hypothesis, then time series has a unit root, so it is non-stationary,
-# it has some time dependency
-# If null hypothesis is rejected, time series doesn't have a unit root, time series is stationary
-
-# So a p-value below below a certain threshold (alpha, usually 1 or 5%)
-# suggests we reject null hypothesis (so time series is stationary),
-# whilst a p-value above the threshold suggests we fail to reject null hypothesis H_0
-
-
-# ADF pulled from https://www.analyticsvidhya.com/blog/2018/09/non-stationary-time-series-python/
-
-def adf_test(time_series):
+def dickey_fuller_test(time_series):
     """
     Perform Dickey-Fuller test:
     If the test statistic is less than the critical value then reject H_0, and the times series
@@ -98,8 +56,6 @@ def adf_test(time_series):
     print(df_output)
 
 
-# Example: adf_test(clean_df_returns.iloc[:,0])
-
 def adf_test_result(timeseries, sig=5):
     # Perform Dickey-Fuller test and give True/False for stationarity of time series.
     # If True (test statistic less than critical value at 5%), reject H_0, and time series
@@ -111,25 +67,6 @@ def adf_test_result(timeseries, sig=5):
     is_stationary = dftest[0] < dftest[4][key]
     return is_stationary
 
-
-# Example: adf_test_result(clean_df_returns.iloc[:,0])
-
-# test the hypothesis that the returns are normally distibuted by looking at skewness and kurtosis
-# under the normality assumption, s(x) and k(x) - 3 are distributed asymptotically as normal
-# with zero mean and variances of 6/T and 24/T respectively.
-# so in this case we have the (log) return series of the asset {r_1, ..., r_n}, and we want
-# to test the skewness
-# of the returns, so consider the null hypothesis H_0: s(r) = 0 with the
-# alternate hypthesis s(r) != 0.
-# the t ratio statistic of the sample skewness is t = (s(hat)(r) / sqrt(6/T))
-# where you would reject null hypothesis at alpha sig level if |t| > z_(alpha/2) where
-# z_(alpha/2) is the upper 100(alpha/2)th quantile of a standard normal distribution.
-# or you could compute the p value of the test statistic t and reject H_0 iff p-value < alpha
-
-# can also test the excess kurtosis of the return series using hypotheses H_0: k(r) - 3 = 0,
-# versus alternate test statistic is then t = k(r) - 3 / sqrt(24/T)
-
-# look at symmetry of return distribution
 
 # create high level summary stats for the log returnss
 def get_descriptive_stats(data: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
@@ -179,11 +116,72 @@ def get_descriptive_stats(data: pd.DataFrame, alpha: float = 0.05) -> pd.DataFra
 
 
 if __name__ == '__main__':
+
+    # ----------
+    # parameters
+    # ----------
+    wk_dir = "C://Users//Philip//Documents//python//"
+    input_folder, output_folder = os.path.join(wk_dir, "input"), os.path.join(wk_dir, "output")
+    # "example_data.csv", "example_data_na.csv" has NA rows
+    # df = pd.read_csv(INPUT_FOLDER + 'example_data.csv') #, parse_dates=True)
+
+    # ---------
+    # data read & clean
+    # ---------
+    df = pd.read_csv(input_folder + "funds_stocks_2019.csv")
+    df = utils_date.char_to_date(df)
+    df.set_index('Date', inplace=True)
+    df_returns = log_daily_returns(data=df)
+    clean_df_returns = drop_null_columns(df_returns)
+
+    # deal with returns not time series of prices, as prices are non-stationary transform the time
+    # series so that it becomes stationary. If the non-stationary is a random walk with or without
+    # drift, it is transformed to a stationary process by differencing - it is now a stationary
+    # stochastic (random probability distribution) process if time series data also exhibits a
+    # deterministic trend, spurious results can be avoided by detrending if non-stationary time
+    # series are both stochastic and deterministic at the same time, differencing and detrending
+    # should be applied - differencing removes the trend in variance and detrending removes
+    # determinstic trend
+
+    # Example: adf_test_result(clean_df_returns.iloc[:,0])
+
+    # test the hypothesis that the returns are normally distibuted by looking at skewness and kurtosis
+    # under the normality assumption, s(x) and k(x) - 3 are distributed asymptotically as normal
+    # with zero mean and variances of 6/T and 24/T respectively.
+    # so in this case we have the (log) return series of the asset {r_1, ..., r_n}, and we want
+    # to test the skewness
+    # of the returns, so consider the null hypothesis H_0: s(r) = 0 with the
+    # alternate hypthesis s(r) != 0.
+    # the t ratio statistic of the sample skewness is t = (s(hat)(r) / sqrt(6/T))
+    # where you would reject null hypothesis at alpha sig level if |t| > z_(alpha/2) where
+    # z_(alpha/2) is the upper 100(alpha/2)th quantile of a standard normal distribution.
+    # or you could compute the p value of the test statistic t and reject H_0 iff p-value < alpha
+
+    # can also test the excess kurtosis of the return series using hypotheses H_0: k(r) - 3 = 0,
+    # versus alternate test statistic is then t = k(r) - 3 / sqrt(24/T)
+
+    # look at symmetry of return distribution
+
+    # look at the Augmented Dickey Fuller test for unit roots. The null hypothesis, H_0, is that
+    # the time series can be represented by a unit root, therefore it is non-stationary (it
+    # has a time dependent structure). The alternate hypothesis is that the time series
+    # is stationary
+    # If you fail to reject null hypothesis, then time series has a unit root, so it is non-stationary,
+    # it has some time dependency
+    # If null hypothesis is rejected, time series doesn't have a unit root, time series is stationary
+
+    # So a p-value below below a certain threshold (alpha, usually 1 or 5%)
+    # suggests we reject null hypothesis (so time series is stationary),
+    # whilst a p-value above the threshold suggests we fail to reject null hypothesis H_0
+
+    # ADF pulled from https://www.analyticsvidhya.com/blog/2018/09/non-stationary-time-series-python/
+
+
     # Use a simple Augmented Dickey Fuller test to test stationarity of time series:
     get_descriptive_stats(data=clean_df_returns, alpha=0.05)
 
     # Look at the price time series first:
-    df = pd.read_csv(INPUT_FOLDER + "funds_stocks_2019.csv")
+    df = pd.read_csv(input_folder + "funds_stocks_2019.csv")
     df = utils_date.char_to_date(df)  # convert all dates to np datetime64
     df.set_index('Date', inplace=True)
 
@@ -195,6 +193,8 @@ if __name__ == '__main__':
     any(result_prices['Aug Dickey-Fuller Test'])  # False
     # no, they are all time dependent
 
+    # Example: adf_test(clean_df_returns.iloc[:,0])
+
     # Now look at log returns
     clean_df_returns = log_daily_returns(df)
 
@@ -202,5 +202,4 @@ if __name__ == '__main__':
 
     result_returns = get_descriptive_stats(data=clean_df_log_rets, alpha=0.05)
     # are any of the time series stationary?
-    all(result_returns['Aug Dickey-Fuller Test'])  # True
-    # Yes, they are all stationary
+    all(result_returns['Aug Dickey-Fuller Test'])  # True, so they are stationary returns
