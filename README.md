@@ -13,7 +13,7 @@
 This repository is undergoing a makeover currently, to be updated soon...
 
 ## Roadmap
-- [ ] Add a requirements.txt for compatibility
+- [X] Add a requirements.txt for compatibility (used pipreqs)
 - [ ] Refactor/rewrite poor code and add unit tests
 - [ ] Refactor security_analysis and get it working with data sourced
 through the YahooFinance API
