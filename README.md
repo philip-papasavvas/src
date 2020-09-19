@@ -18,16 +18,5 @@ This repository is undergoing a makeover currently, to be updated soon...
 - [ ] Refactor security_analysis and get it working with data sourced
 through the YahooFinance API
 
-## Prerequisites
-The following modules are needed for the library
-* [Arctic](https://github.com/manahl/arctic) >= 1.79.0
-* [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
-* [matplotlib](https://github.com/matplotlib/matplotlib)
-* [pymongo](https://github.com/mher/pymongo)
-* [pyperclip](https://github.com/asweigart/pyperclip)
-* [requests](https://pypi.org/project/requests/2.7.0/)
-* [smtplib](https://docs.python.org/3/library/smtplib.html)
-* [yfinance](https://github.com/ranaroussi/yfinance) >= 0.1.43
-
 ## Contributing
 Pull requests are welcome.
