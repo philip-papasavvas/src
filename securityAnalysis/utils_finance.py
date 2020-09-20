@@ -1,8 +1,7 @@
 """
-Created 17 June 2020
+Created: 17 June 2020
 Utils specific for financial security data
 """
-
 import numpy as np
 import pandas as pd
 
@@ -10,18 +9,19 @@ from decorators import deprecated
 from utils_date import excel_date_to_np
 
 
-def log_daily_returns(data: pd.DataFrame) -> pd.DataFrame:
-    """Give log daily returns"""
+def calculate_relative_return(a: np.array) -> np.array:
+    """Calculate relative return of an array"""
+    return a[1:] / a[:-1]
+
+
+def calculate_log_returns(data: pd.DataFrame) -> pd.DataFrame:
+    """Function to calculate log returns applying a shift of one to timeseries"""
     log_daily_return = data.apply(lambda x: np.log(x) - np.log(x.shift(1)))[1:]
     return log_daily_return
 
 
 def calculate_daily_return(data: pd.DataFrame) -> pd.DataFrame:
-    """Generate daily returns given input data (in dataframe, dtypes float, no time data)
-
-    Example:
-        >>> calculate_daily_return(data=pd.DataFrame([1,2,3,4]))
-    """
+    """Generate daily returns given input data (in dataframe, dtypes float, no time data)"""
     return data.pct_change(1).iloc[1:, ]
 
 
@@ -179,5 +179,6 @@ def return_melted_df(input_file):
     else:
         raise TypeError("The dataframe is not in the format expected with columns: [Date, PX_LAST]")
 
-    if __name__ == '__main__':
-        pass
+
+if __name__ == '__main__':
+    pass
