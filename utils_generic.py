@@ -70,6 +70,7 @@ def match(cls, x, y, strict=True):
     """Finds the index of x's elements in y. This is the same function as R implements.
 
     Args:
+        cls: class
         x,y  (list or np.ndarray or pd.Series)
         strict (bool): Whether to raise error if some elements in x are not found in y
 
@@ -201,13 +202,13 @@ def concat_columns(sep='', *args):
     return out
 
 
-def rolling_window(a, size):
+def rolling_window(arr, size):
     """
     Returns a rolling window of a n-dimensional array
 
     Parameters
     ----------
-        a : np.ndarray
+        arr : np.ndarray
         size : int
             size of rolling window
     Returns
@@ -221,9 +222,9 @@ def rolling_window(a, size):
     >>> rolling_window(np.random.randn(20),5).mean(axis=-1) # find the 5 element rolling mean of an array
 
     """
-    a_ext = np.concatenate((np.full(a.shape[:-1] + (size - 1,), np.nan), a), axis=-1)
+    a_ext = np.concatenate((np.full(arr.shape[:-1] + (size - 1,), np.nan), arr), axis=-1)
     strides = a_ext.strides + (a_ext.strides[-1],)
-    return np.lib.stride_tricks.as_strided(a_ext, shape=(a.shape + (size,)), strides=strides)
+    return np.lib.stride_tricks.as_strided(a_ext, shape=(arr.shape + (size,)), strides=strides)
 
 
 def array_to_clipboard(array):
@@ -329,4 +330,4 @@ if __name__ == '__main__':
                list(dct.keys())[3]
 
 
-    (a, *_, c) = func({'a': 1, 'b': 2, 'c': 3, 'd': 4})  # a= 'a', c='d'
+    (k, *_, c) = func({'a': 1, 'b': 2, 'c': 3, 'd': 4})  # a= 'a', c='d'
