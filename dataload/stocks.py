@@ -1,6 +1,6 @@
 """
 Created: 7 Aug 2020
-Data retrieval for stock data (mainly using YahooFinance API
+Data retrieval for stock data (mainly using YahooFinance API)
 """
 from typing import Union, List
 
@@ -59,9 +59,26 @@ def return_stock_data(stocks: Union[List[str], str],
         return data_download.unstack().reset_index()
 
 
+def is_valid_ticker(ticker: str) -> None:
+    """Method to check if the ticker is valid and therefore can download data
+    from yfinance API"""
+
+    try:
+        yf._download_one(ticker=ticker) # use the hidden method to see if the symbol exists
+        print(f"Success! Ticker: {ticker} exists")
+    except ValueError:
+        print(f'Ticker {ticker} does not exist/cannot be downloaded from yfinance API.'
+              f' Try another!')
+
+
 if __name__ == '__main__':
     stock_data_multiple = return_stock_data(stocks=["TSLA", "AMZN"],
                                             return_price=True)
 
     stock_data_single = return_stock_data(stocks='AMZN',
                                           return_price=False)
+
+    stock_data_single = return_stock_data(stocks=['AMZN'],
+                                          return_price=False)
+
+    is_valid_ticker(ticker='GZC')
