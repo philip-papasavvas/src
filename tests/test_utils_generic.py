@@ -4,7 +4,7 @@ import unittest
 import pandas as pd
 
 from utils_generic import (average, difference, flatten_dict, return_dict_keys,
-                           return_dict_values, change_dict_keys)
+                           return_dict_values, change_dict_keys, df_columns_to_dict)
 
 
 class TestUtilsGeneric(unittest.TestCase):
@@ -58,6 +58,16 @@ class TestUtilsGeneric(unittest.TestCase):
         self.assertEqual(change_dict_keys(in_dict={'a': [1], 'b': [2]}, text='test'),
                          {'test_a': [1], 'test_b': [2]},
                          "Should've returned keys 'test_a', 'test_b' ")
+
+    def test_df_columns_to_dict(self):
+        self.assertEqual(
+            df_columns_to_dict(df=pd.DataFrame(
+                {'A': [1, 2, 3, 4],
+                 'B': ['one', 'two', 'three', 'four']}),
+                columns=['A', 'B']
+            ),
+            {1: 'one', 2: 'two', 3: 'three', 4: 'four'}
+        )
 
 
 if __name__ == '__main__':
