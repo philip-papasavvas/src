@@ -1,9 +1,6 @@
 """
 Created: 13 Oct 2019
-How to use mongoDB, initialise library
-Write to it (and with time-series data using Arctic too)
-
-# TODO: add write to, append to, delete from database methods
+mongoDB Atlas: initialise, write, append, read to library
 """
 import json
 from typing import Union
@@ -18,10 +15,12 @@ from pymongo.errors import ServerSelectionTimeoutError
 
 
 # connect to database
-def db_connect(mongo_config: dict, is_arctic: bool = True, lib_name: str = None
-               ) -> Union[object, Arctic, VersionStore, ChunkStore, Collection]:
+def db_connect(mongo_config: dict,
+               is_arctic: bool = True,
+               lib_name: str = None) -> Union[object, Arctic, VersionStore, ChunkStore, Collection]:
     """
-    Connect to the MongoDB Atlas instance using the mongo_user, mongo_password and url_cluster
+    Connect to the MongoDB Atlas instance using a config containing user, password, url_cluster
+    parameters
 
     Args:
         mongo_config: Dict-like object with the keys ["mongo_user", "mongo_pwd", "url_cluster"]
@@ -65,7 +64,9 @@ def db_connect(mongo_config: dict, is_arctic: bool = True, lib_name: str = None
         # Check if I want to add a non-time series dataset
 
 
-def db_keys_and_symbols(is_arctic: bool, library_name: str, mongo_config: dict) -> list:
+def db_keys_and_symbols(is_arctic: bool,
+                        library_name: str,
+                        mongo_config: dict) -> list:
     """Returns list of keys in collection (arctic/non-arctic database).
 
     Args:
@@ -79,7 +80,9 @@ def db_keys_and_symbols(is_arctic: bool, library_name: str, mongo_config: dict) 
 
     # Non arctic keys
     if is_arctic is False:
-        cl = db_connect(is_arctic=False, lib_name=library_name)
+        cl = db_connect(is_arctic=False,
+                        lib_name=library_name,
+                        mongo_config=mongo_config)
         try:
             docs = cl.find_one()
             keys = []
@@ -97,7 +100,8 @@ def db_keys_and_symbols(is_arctic: bool, library_name: str, mongo_config: dict) 
         return symbols
 
 
-def db_arctic_library(mongo_config: dict, library: str = None):
+def db_arctic_library(mongo_config: dict,
+                      library: str = None) -> Union[VersionStore, ChunkStore, list]:
     """Function to return Arctic store/list of library names in Arctic database
 
     Args:
@@ -151,7 +155,9 @@ def db_arctic_read(mongo_config: dict,
     return out.sort_index()
 
 
-def db_arctic_initialise(mongo_config: dict, library_name: str, library_type: str):
+def db_arctic_initialise(mongo_config: dict,
+                         library_name: str,
+                         library_type: str) -> None:
     """
     Initialise new arctic library.
 
@@ -159,6 +165,9 @@ def db_arctic_initialise(mongo_config: dict, library_name: str, library_type: st
         mongo_config: Dict-like object with the keys ["mongo_user", "mongo_pwd", "url_cluster"]
         library_name: Name of the new library to create.
         library_type: Acceptable types ["VERSION_STORE", "CHUNK_STORE", "TICK_STORE"]
+
+    Returns:
+        None
     """
     arctic_stores = [VERSION_STORE, CHUNK_STORE, TICK_STORE]
 
@@ -175,7 +184,9 @@ def db_arctic_initialise(mongo_config: dict, library_name: str, library_type: st
     Arctic.reload_cache(lib)
 
 
-def db_arctic_write(mongo_config: dict, df: pd.DataFrame, symbol: str,
+def db_arctic_write(mongo_config: dict,
+                    df: pd.DataFrame,
+                    symbol: str,
                     library_name: str = None) -> None:
     """
     Writing to existing arctic library.
@@ -185,6 +196,9 @@ def db_arctic_write(mongo_config: dict, df: pd.DataFrame, symbol: str,
         df: Dataframe to write into library
         symbol: Name of symbol
         library_name: Name of arctic library to write on
+
+    Returns:
+        None
     """
     assert library_name is not None, "library_name must be passed in to specify library to write."
 
@@ -192,7 +206,9 @@ def db_arctic_write(mongo_config: dict, df: pd.DataFrame, symbol: str,
     lib.write(symbol, df)
 
 
-def db_arctic_append(mongo_config: dict, df: pd.DataFrame, symbol: str,
+def db_arctic_append(mongo_config: dict,
+                     df: pd.DataFrame,
+                     symbol: str,
                      library_name: str = None) -> None:
     """
     Appending existing arctic library.
@@ -202,6 +218,9 @@ def db_arctic_append(mongo_config: dict, df: pd.DataFrame, symbol: str,
         df: pd.DataFrame
         symbol: Name of symbol
         library_name: Name of arctic library to append on
+
+    Returns:
+        None
     """
 
     assert library_name is not None, "lib_name must be passed in to specify library to append."
@@ -211,9 +230,13 @@ def db_arctic_append(mongo_config: dict, df: pd.DataFrame, symbol: str,
 
 if __name__ == '__main__':
 
-    # mongo_path = '/Users/philip_p/python/src/dataload/config/mongo_private.json'
-    mongo_path = 'PATH TO PRIVATE MONGO DB HERE'
+    # load config
+    mongo_path = 'PATH-TO-PRIVATE-MONGO-DB-HERE'
     mongo_cfg = json.load(open(mongo_path, 'r'))
 
-    mongo_cfg_structure = {
-        'mongo_user': '', 'mongo_pwd': '', 'url_cluster': ''}
+    # config structure
+    mongo_config_example = {
+        'mongo_user': 'USERNAME',
+        'mongo_pwd': 'MONGO-PASSWORD-HERE',
+        'url_cluster': 'MONGODB-ATLAS-CLUSTER-HERE'
+    }
