@@ -4,7 +4,7 @@ import unittest
 
 import numpy as np
 
-from securityAnalysis.utils_finance import calculate_relative_return
+from src.securityAnalysis.utils_finance import calculate_relative_return
 
 np.random.seed(1)  # set the random seed so the unit tests use synthetic data
 

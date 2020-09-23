@@ -1,6 +1,6 @@
 """
-Author: Philip.P
-Date created: 16 Mar 2019
+Created by: Philip.P
+Created on: 16 Mar 2019
 
 Analyse financial security (mainly price) data (sourced from Bloomberg or YahooFinance (via API)).
 Can specify ticker:fund name json mapping in config
@@ -21,19 +21,15 @@ import numpy as np
 import pandas as pd
 from matplotlib import ticker as mtick
 
-from securityAnalysis.utils_finance import calc_info_ratio, calc_sharpe_ratio, calc_sortino_ratio, \
-    calculate_annual_return, calculate_annual_volatility
-from utils_date import char_to_date
+from src.securityAnalysis.utils_finance import (return_info_ratio, return_sharpe_ratio,
+                                                return_sortino_ratio, calculate_annual_return,
+                                                calculate_annual_volatility)
+from src.utils_date import char_to_date, datetime_to_str
 
 plt.style.use('ggplot')
 plt.tight_layout()
 plt.close()
 pd.set_option('display.max_columns', 5)
-
-
-def extract_str_timestamp(input_date: dt.datetime):
-    """Method to extract date in YYYYMMDD from datetime object"""
-    return dt.datetime.strftime(input_date, fmt="%Y%m%d")
 
 
 class Analysis:
@@ -52,7 +48,7 @@ class Analysis:
     """
 
     def __init__(self, data: pd.DataFrame, input_directory: str, is_bloomberg: bool) -> None:
-        self.run_date = extract_str_timestamp(dt.datetime.now())
+        self.run_date = datetime_to_str(dt.datetime.now())
         self.wkdir = input_directory
         self.set_output_folder()
         self.output_dir = None
@@ -60,8 +56,8 @@ class Analysis:
         if is_bloomberg:
             input_data = char_to_date(data)
 
-            self.start_date = extract_str_timestamp(input_data.index.min())
-            self.end_date = extract_str_timestamp(input_data.index.max())
+            self.start_date = datetime_to_str(input_data.index.min())
+            self.end_date = datetime_to_str(input_data.index.max())
             print(f"Data for period runs {self.start_date} to {self.end_date}")
 
             self.data = input_data
@@ -144,7 +140,7 @@ class Analysis:
 
         annual_rtn = calculate_annual_return(data=data_to_clean)
         annual_vol = calculate_annual_volatility(data=data_to_clean)
-        info_ratio = calc_info_ratio(data=data_to_clean)
+        info_ratio = return_info_ratio(data=data_to_clean)
 
         cols = ['Annual Return', 'Annual Volatility', 'Info Ratio']
         summary = pd.concat([annual_rtn, annual_vol, info_ratio], axis=1)
@@ -154,11 +150,11 @@ class Analysis:
             if risk_free_rate is None:
                 risk_free_rate = 0
 
-            sharpe = calc_sharpe_ratio(data=data,
-                                       risk_free=risk_free_rate)
-            sortino = calc_sortino_ratio(data=data,
-                                         target_return=target_return_rate,
+            sharpe = return_sharpe_ratio(data=data,
                                          risk_free=risk_free_rate)
+            sortino = return_sortino_ratio(data=data,
+                                           target_return=target_return_rate,
+                                           risk_free=risk_free_rate)
 
             cols += ['Sharpe Ratio', 'Sortino Ratio']
             summary = pd.concat([summary, sharpe, sortino], axis=1)
@@ -263,7 +259,9 @@ class Analysis:
         #     plt.close()
 
     @staticmethod
-    def return_bollinger_band(data: pd.DataFrame, window: int, std_devs: int
+    def return_bollinger_band(data: pd.DataFrame,
+                              window: int,
+                              std_devs: int
                               ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         """
         Function to return bollinger bands for securities
@@ -330,7 +328,9 @@ class Analysis:
             plt.close()
 
     @staticmethod
-    def plot_total_return(input_data: pd.DataFrame, output_dir: str, log_returns=False) -> None:
+    def plot_total_return(input_data: pd.DataFrame,
+                          output_dir: str,
+                          log_returns=False) -> None:
         """Plot the normalised return over time, anchored back to start of lookback period"""
 
         for col in input_data.columns:
@@ -394,22 +394,22 @@ class Analysis:
 
 
 if __name__ == "main":
-    from get_paths import get_config_path
+    from src.get_paths import get_config_path
 
-    WK_DIR = "/Users/philip_p/Documents/python/"
-    INPUT_FOLDER = os.path.join(WK_DIR, "data/finance")
-    OUTPUT_FOLDER = os.path.join(WK_DIR, "output")
-    df = pd.read_csv(f"{INPUT_FOLDER}/funds_stocks_2019.csv")
+    wk_dir = "/Users/philip_p/Documents/python/"
+    input_folder = os.path.join(wk_dir, "data/finance")
+    output_folder = os.path.join(wk_dir, "output")
+    df = pd.read_csv(f"{input_folder}/funds_stocks_2019.csv")
 
     with open(get_config_path("bbg_ticker.json")) as f:
         ticker_map_dict = json.load(f)
 
-    rn = Analysis(data=df, input_directory=WK_DIR, is_bloomberg=True)
+    rn = Analysis(data=df, input_directory=wk_dir, is_bloomberg=True)
     clean_df = rn.clean_slice_data(input_data=df)
     results = rn.performance_summary(data=clean_df, save_results=True)
     # rn.plot_bollinger_bands(data=df, window=60)
 
-    rn = Analysis(data=df, input_directory=INPUT_FOLDER, is_bloomberg=True)
+    rn = Analysis(data=df, input_directory=input_folder, is_bloomberg=True)
     # rn.plot_bollinger_bands(data = df[df.index > "2014-01-01"])
 
     # # cut the dataframe and only look at the nulls

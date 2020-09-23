@@ -14,16 +14,12 @@ import scipy.stats as stats
 from scipy.stats import kurtosis, skew
 from statsmodels.tsa.stattools import adfuller
 
-import utils_date
+from src import utils_date
+from src.securityAnalysis.utils_finance import calculate_log_returns
 
-pd.set_option('display.max_columns', 5)
+pd.set_option('display.max_columns', 10)
+pd.set_option('display.width', 500)
 plt.style.use('seaborn')
-
-
-def log_daily_returns(data: pd.DataFrame) -> pd.DataFrame:
-    """Give log daily returns"""
-    log_daily_return = data.apply(lambda x: np.log(x) - np.log(x.shift(1)))[1:]
-    return log_daily_return
 
 
 def drop_null_columns(data: pd.DataFrame):
@@ -131,7 +127,7 @@ if __name__ == '__main__':
     df = pd.read_csv(input_folder + "funds_stocks_2019.csv")
     df = utils_date.char_to_date(df)
     df.set_index('Date', inplace=True)
-    df_returns = log_daily_returns(data=df)
+    df_returns = calculate_log_returns(data=df)
     clean_df_returns = drop_null_columns(df_returns)
 
     # deal with returns not time series of prices, as prices are non-stationary transform the time
@@ -196,7 +192,7 @@ if __name__ == '__main__':
     # Example: adf_test(clean_df_returns.iloc[:,0])
 
     # Now look at log returns
-    clean_df_returns = log_daily_returns(df)
+    clean_df_returns = calculate_log_returns(df)
 
     clean_df_log_rets = drop_null_columns(clean_df_returns)
 

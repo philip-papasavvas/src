@@ -7,10 +7,10 @@ import unittest
 import pandas as pd
 import pandas.testing as pd_testing
 
-from securityAnalysis import utils_finance
+from src.securityAnalysis import utils_finance
 
 
-class Testutils(unittest.TestCase):
+class TestUtils(unittest.TestCase):
     """Unit tests for utils module"""
 
     def assert_dataframe_equal(self, a, b, msg):
@@ -31,7 +31,7 @@ class Testutils(unittest.TestCase):
 
         sample_data = pd.DataFrame(data=k)
 
-        self.assertEqual(first=utils_finance.log_daily_returns(data=sample_data.iloc[:3, :]),
+        self.assertEqual(first=utils_finance.calculate_log_returns(data=sample_data.iloc[:3, :]),
                          second=pd.DataFrame(data=
                                              {'INDU Index': {'01/06/2011': -0.007019973807377511,
                                                              '02/05/2011': 0.04122269078824914},

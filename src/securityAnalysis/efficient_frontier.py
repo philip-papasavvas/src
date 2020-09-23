@@ -14,8 +14,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-import utils_date
-from get_paths import get_data_path
+from src import utils_date
+from src.get_paths import get_data_path
 
 plt.style.use('seaborn')
 
@@ -268,7 +268,7 @@ if __name__ == "main":
     # For a given dataframe of security price data (sec_df) with n columns
     # returns = sec_df.pct_change(), mean_returns = returns.mean()
     # cov = returns.cov()
-    from small_projects.random_walks import random_price
+    from src.small_projects.random_walks import random_price
 
     a, b = pd.Series(random_price(start=500, tick=2, num_walks=499)), pd.Series(
         random_price(start=1000, tick=1, num_walks=499))

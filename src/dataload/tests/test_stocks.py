@@ -5,7 +5,7 @@ Unit tests for database functions
 
 import unittest
 
-from dataload.stocks import return_stock_data
+from src.dataload.stocks import return_stock_data
 
 
 class MyTestCase(unittest.TestCase):

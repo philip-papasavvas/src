@@ -11,7 +11,7 @@ import unittest
 from pymongo import MongoClient
 
 # local import
-from dataload.database import (db_connect, db_keys_and_symbols)
+from src.dataload.database import (db_connect, db_keys_and_symbols)
 
 
 class TestMongoDB(unittest.TestCase):
