@@ -1,4 +1,4 @@
-# created 31 May 2017, author: wei.y_adm, Dencan.Gan_Adm
+# created 31 May 2017
 
 import os
 import re
@@ -36,7 +36,7 @@ def unittest_summary(src_dir,
         Summary of unit tests in the library.
     """
     print('-' * 40)
-    print(f"\n\nSwapClear Quant Library Global Tests\n\n")
+    print(f"\n\nsrc Library Global Tests\n\n")
     print('-' * 40)
 
     # Getting list of packages from src
@@ -49,7 +49,8 @@ def unittest_summary(src_dir,
 
     pkg_and_modules = dict()
     for i in pkg_dirs:
-        pkg_and_modules[os.path.basename(i)] = [j for j in os.listdir(i) if bool(re.search('\.py$', j))]
+        pkg_and_modules[os.path.basename(i)] = \
+            [j for j in os.listdir(i) if bool(re.search('[.]py$', j))]
 
     # package -> modules -> test details
     full_dict = dict()
@@ -118,17 +119,15 @@ def unittest_summary(src_dir,
 if __name__ == "__main__":
 
     # Point to src folder
-    # _ROOT = r"C:\Users\Dencan.Gan_Adm\workspace\swapclear\src"
     _ROOT = os.path.abspath(os.path.dirname(__file__))
 
     summary = unittest_summary(src_dir=_ROOT,
                                test_file_prefix='test_',
                                test_def_prefix='test_',
-                               ignore_modules=['__init__.py' ,'test_portfolio.py'],
+                               ignore_modules=['__init__.py', 'test_portfolio.py'],
                                ignore_packages=None)
 
     # Directories where the test modules are stored
-    # Make sure stressTesting tests are run AFTER basis risk, as global basis config is altered for stressTesting
     extraPath = [
         "securityAnalysis/tests",
         "tests"
