@@ -5,9 +5,11 @@ Utils specific for financial security data
 import numpy as np
 import pandas as pd
 
-from decorators import deprecated
-from utils_date import excel_date_to_np
+from src.decorators import deprecated
+from src.utils_date import excel_date_to_np
 
+
+# array methods
 
 def calculate_relative_return(a: np.array) -> np.array:
     """Calculate relative return of an array"""
@@ -39,7 +41,7 @@ def calculate_annual_volatility(data: pd.DataFrame) -> pd.DataFrame:
     return ann_vol
 
 
-def calc_info_ratio(data: pd.DataFrame) -> pd.DataFrame:
+def return_info_ratio(data: pd.DataFrame) -> pd.DataFrame:
     """Annual return from securities data(frame)"""
     daily_rtn = data.pct_change(1).iloc[1:, ]
     annual_rtn = np.mean(daily_rtn) * 252
@@ -48,7 +50,7 @@ def calc_info_ratio(data: pd.DataFrame) -> pd.DataFrame:
     return info_ratio
 
 
-def calc_sharpe_ratio(data: pd.DataFrame, risk_free: float) -> np.ndarray:
+def return_sharpe_ratio(data: pd.DataFrame, risk_free: float = 0) -> np.ndarray:
     """Function to give annualised Sharpe Ratio measure from input data, as well as risk free rate
 
     Args:
@@ -65,8 +67,10 @@ def calc_sharpe_ratio(data: pd.DataFrame, risk_free: float) -> np.ndarray:
     return sharpe_ratio
 
 
-def calc_sortino_ratio(data: pd.DataFrame, target_return: float, risk_free: float,
-                       rtn_period: int = 1) -> np.ndarray:
+def return_sortino_ratio(data: pd.DataFrame,
+                         target_return: float,
+                         risk_free: float,
+                         rtn_period: int = 1) -> np.ndarray:
     """Method to calculate Sortino Ratio (gives a better measure of downside volatility, thus risk.
     Unlike the Sharpe Ratio it does not penalise upside volatility.
 
@@ -93,7 +97,7 @@ def calc_sortino_ratio(data: pd.DataFrame, target_return: float, risk_free: floa
     return sortino
 
 
-def return_clean_df(input_file):
+def clean_bloomberg_security_data(input_file):
     """
     Params:
         inputFile: csv
