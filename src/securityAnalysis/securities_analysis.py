@@ -21,10 +21,11 @@ import numpy as np
 import pandas as pd
 from matplotlib import ticker as mtick
 
-from src.securityAnalysis.utils_finance import (return_info_ratio, return_sharpe_ratio,
-                                                return_sortino_ratio, calculate_annual_return,
-                                                calculate_annual_volatility)
-from src.utils_date import char_to_date, datetime_to_str
+from securityAnalysis.utils_finance import (return_info_ratio, return_sharpe_ratio,
+                                            return_sortino_ratio,
+                                            calculate_annualised_return_from_df,
+                                            calculate_annual_volatility)
+from utils_date import char_to_date, datetime_to_str
 
 plt.style.use('ggplot')
 plt.tight_layout()
@@ -138,7 +139,7 @@ class Analysis:
 
         data_to_clean = data.copy(True)
 
-        annual_rtn = calculate_annual_return(data=data_to_clean)
+        annual_rtn = calculate_annualised_return_from_df(data=data_to_clean)
         annual_vol = calculate_annual_volatility(data=data_to_clean)
         info_ratio = return_info_ratio(data=data_to_clean)
 

@@ -31,7 +31,7 @@ class TestUtils(unittest.TestCase):
 
         sample_data = pd.DataFrame(data=k)
 
-        self.assertEqual(first=utils_finance.calculate_log_returns(data=sample_data.iloc[:3, :]),
+        self.assertEqual(first=utils_finance.calculate_log_return_from_df(data=sample_data.iloc[:3, :]),
                          second=pd.DataFrame(data=
                                              {'INDU Index': {'01/06/2011': -0.007019973807377511,
                                                              '02/05/2011': 0.04122269078824914},
