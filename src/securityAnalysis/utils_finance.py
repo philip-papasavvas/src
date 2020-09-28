@@ -5,30 +5,47 @@ Utils specific for financial security data
 import numpy as np
 import pandas as pd
 
-from src.decorators import deprecated
-from src.utils_date import excel_date_to_np
+from decorators import deprecated
+from utils_date import excel_date_to_np
 
 
 # array methods
-
 def calculate_relative_return(a: np.array) -> np.array:
     """Calculate relative return of an array"""
     return a[1:] / a[:-1]
 
 
-def calculate_log_returns(data: pd.DataFrame) -> pd.DataFrame:
+# dataframe methods
+def calculate_log_return_from_df(data: pd.DataFrame) -> pd.DataFrame:
     """Function to calculate log returns applying a shift of one to timeseries"""
     log_daily_return = data.apply(lambda x: np.log(x) - np.log(x.shift(1)))[1:]
     return log_daily_return
 
 
-def calculate_daily_return(data: pd.DataFrame) -> pd.DataFrame:
-    """Generate daily returns given input data (in dataframe, dtypes float, no time data)"""
-    return data.pct_change(1).iloc[1:, ]
+def calculate_daily_return_from_df(data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Method to calculate return of data using one period time difference. In this case
+    the date would be the index of the dataframe, whilst the columns will all be numeric
+
+    Returns:
+        pd.DataFrame: Periodic return of input data
+    """
+    return data.pct_change(1).iloc[1:, :]
 
 
-def calculate_annual_return(data: pd.DataFrame) -> pd.DataFrame:
-    """Annual return from securities data(frame)"""
+def calculate_annualised_return_from_df(data: pd.DataFrame) -> pd.Series:
+    """
+    Method to calculate annualised return, assumes the input data is daily,
+    and therefore will multiply the daily average return by 252 (business days) to get
+    annualised. For input_dataframe layout, see unit tests: test_utils_finance
+
+    Parameters:
+        data: Input dataframe with numeric columns only
+
+    Returns:
+        pd.Series: Annualised return for the individual inputs, with the series labels being
+        the input columns
+    """
     daily_rtn = data.pct_change(1).iloc[1:, ]
     ann_rtn = np.mean(daily_rtn) * 252
     return ann_rtn
@@ -51,7 +68,8 @@ def return_info_ratio(data: pd.DataFrame) -> pd.DataFrame:
 
 
 def return_sharpe_ratio(data: pd.DataFrame, risk_free: float = 0) -> np.ndarray:
-    """Function to give annualised Sharpe Ratio measure from input data, as well as risk free rate
+    """Function to give annualised Sharpe Ratio measure from input data,
+    user input risk free rate
 
     Args:
         data
@@ -97,6 +115,7 @@ def return_sortino_ratio(data: pd.DataFrame,
     return sortino
 
 
+@deprecated
 def clean_bloomberg_security_data(input_file):
     """
     Params:
@@ -115,11 +134,6 @@ def clean_bloomberg_security_data(input_file):
     a = pd.read_csv(input_file, header=None)
     a = a.copy()
     product = a.iloc[0, 0]
-
-    # if a.iloc[1, 1] == "PX_LAST":
-    #     measure = "price"
-    # else:
-    #     measure = "[to populate]"
 
     data = a.iloc[2:, :]
     data = data.copy()
