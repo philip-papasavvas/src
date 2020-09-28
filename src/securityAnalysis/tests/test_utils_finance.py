@@ -12,13 +12,13 @@ np.random.seed(1)  # set the random seed so the unit tests use synthetic data
 
 
 class TestFinanceUtils(unittest.TestCase):
-    def test_calculate_relative_returns(self):
+    def test_calculate_relative_return(self):
         np.testing.assert_array_almost_equal(
             calculate_relative_return(np.random.random_sample(5)),
             np.array([1.72730572e+00, 1.58782352e-04, 2.64334912e+03, 4.85412106e-01])
         )
 
-    def test_calculate_log_returns(self):
+    def test_calculate_log_return_from_df(self):
         pd.testing.assert_frame_equal(
             calculate_log_return_from_df(data=pd.DataFrame(
                 {"A": [1, np.exp(1), np.exp(2), np.exp(3)]}
