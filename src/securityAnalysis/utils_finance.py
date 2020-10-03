@@ -10,51 +10,64 @@ from utils_date import excel_date_to_np
 
 
 # array methods
-def calculate_relative_return(a: np.array) -> np.array:
+def calculate_relative_return_arr(a: np.array) -> np.array:
     """Calculate relative return of an array"""
     return a[1:] / a[:-1]
 
 
 # dataframe methods
-def calculate_log_return_from_df(data: pd.DataFrame) -> pd.DataFrame:
-    """Function to calculate log returns applying a shift of one to timeseries"""
-    log_daily_return = data.apply(lambda x: np.log(x) - np.log(x.shift(1)))[1:]
-    return log_daily_return
+def calculate_return_from_df(data: pd.DataFrame,
+                             is_relative_return: bool = True,
+                             is_log_return: bool = False,
+                             is_absolute_return: bool = False):
+    """Method to calculate different types of return from dataframe
 
+    Parameters
+        df: Dataframe containing columns as securities, with all columns as float
+        is_relative_return
+        is_log_return
+        is_absolute_return
 
-def calculate_daily_return_from_df(data: pd.DataFrame) -> pd.DataFrame:
+    Returns
+        pd.DataFrame:  a dataframe with returns shifted as instructed
     """
-    Method to calculate return of data using one period time difference. In this case
-    the date would be the index of the dataframe, whilst the columns will all be numeric
+    data = data.select_dtypes(exclude=['string', 'object'])
 
-    Returns:
-        pd.DataFrame: Periodic return of input data
+    if is_log_return:
+        print("log returns")
+        return_df = data.apply(lambda x: np.log(x / x.shift(1)))[1:]
+    elif is_relative_return:
+        print("relative_returns")
+        return_df = data.apply(lambda x: (x / x.shift(1)) - 1)[1:]
+    elif is_absolute_return:
+        print("absolute_returns")
+        return_df = data.apply(lambda x: x - x.shift(1))[1:]
+    else:
+        print("not a valid return type")
+
+    return return_df
+
+
+def calculate_annualised_return_df(data: pd.DataFrame) -> pd.Series:
     """
-    return data.pct_change(1).iloc[1:, :]
-
-
-def calculate_annualised_return_from_df(data: pd.DataFrame) -> pd.Series:
-    """
-    Method to calculate annualised return, assumes the input data is daily,
-    and therefore will multiply the daily average return by 252 (business days) to get
-    annualised. For input_dataframe layout, see unit tests: test_utils_finance
+    Calculate annualised return (assuming input data is daily).
+    For example, see unit test: test_utils_finance
 
     Parameters:
         data: Input dataframe with numeric columns only
 
     Returns:
-        pd.Series: Annualised return for the individual inputs, with the series labels being
-        the input columns
+        pd.Series: Annualised return for input_df, labels are input columns
     """
-    daily_rtn = data.pct_change(1).iloc[1:, ]
-    ann_rtn = np.mean(daily_rtn) * 252
+    daily_rtn = calculate_return_from_df(data=data, is_relative_return=True)
+    ann_rtn = np.mean(daily_rtn) * 252  # this is the number of business days in a year
     return ann_rtn
 
 
-def calculate_annual_volatility(data: pd.DataFrame) -> pd.DataFrame:
+def calculate_annual_volatility_df(data: pd.DataFrame) -> pd.DataFrame:
     """Annual return from securities data(frame)"""
-    daily_rtn = data.pct_change(1).iloc[1:, ]
-    ann_vol = np.std(daily_rtn) * np.sqrt(252)
+    daily_rtn = calculate_return_from_df(data=data, is_relative_return=True)
+    ann_vol = np.std(daily_rtn) * np.sqrt(252) # this is the number of business days in a year
     return ann_vol
 
 
@@ -78,10 +91,11 @@ def return_sharpe_ratio(data: pd.DataFrame, risk_free: float = 0) -> np.ndarray:
     Returns:
         np.ndarray
     """
-    daily_rtn = data.pct_change(1).iloc[1:, ]
-    annual_rtn = np.mean(daily_rtn) * 252
-    ann_vol = np.std(daily_rtn) * np.sqrt(252)
-    sharpe_ratio = np.divide(annual_rtn - risk_free, ann_vol)
+    print(f"Risk free rate set as {risk_free}")
+
+    annual_rtn = calculate_annualised_return_df(data=data)
+    annual_vol = calculate_annual_volatility_df(data=data)
+    sharpe_ratio = np.divide(annual_rtn - risk_free, annual_vol)
     return sharpe_ratio
 
 
@@ -102,15 +116,15 @@ def return_sortino_ratio(data: pd.DataFrame,
         ndarray: sortino ratio
     """
 
-    prd_return = data.pct_change(rtn_period).iloc[1:, ]
-    downside_return = np.array(prd_return.values - target_return)
+    period_return = data.pct_change(rtn_period).iloc[1:, ]
+    downside_return = np.array(period_return.values - target_return)
 
     inner_bit = np.minimum(np.zeros(shape=downside_return.shape[1]), downside_return)
 
     tdd_sum = np.sum(np.square(inner_bit), axis=0)
-    target_downside_dev = np.sqrt(tdd_sum / len(prd_return))
+    target_downside_dev = np.sqrt(tdd_sum / len(period_return))
 
-    sortino = (prd_return.mean() - risk_free) / target_downside_dev
+    sortino = (period_return.mean() - risk_free) / target_downside_dev
 
     return sortino
 
