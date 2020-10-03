@@ -16,10 +16,10 @@ def calculate_relative_return_arr(a: np.array) -> np.array:
 
 
 # dataframe methods
-def calculate_return_from_df(data: pd.DataFrame,
-                             is_relative_return: bool = True,
-                             is_log_return: bool = False,
-                             is_absolute_return: bool = False):
+def calculate_return_df(data: pd.DataFrame,
+                        is_relative_return: bool = True,
+                        is_log_return: bool = False,
+                        is_absolute_return: bool = False):
     """Method to calculate different types of return from dataframe
 
     Parameters
@@ -54,20 +54,29 @@ def calculate_annualised_return_df(data: pd.DataFrame) -> pd.Series:
     For example, see unit test: test_utils_finance
 
     Parameters:
-        data: Input dataframe with numeric columns only
+        data: Input dataframe with numeric columns filtered for analysis
 
     Returns:
         pd.Series: Annualised return for input_df, labels are input columns
     """
-    daily_rtn = calculate_return_from_df(data=data, is_relative_return=True)
-    ann_rtn = np.mean(daily_rtn) * 252  # this is the number of business days in a year
+    daily_rtn = calculate_return_df(data=data, is_relative_return=True)
+    ann_rtn = np.mean(daily_rtn) * 252  # num business days in a year
     return ann_rtn
 
 
 def calculate_annual_volatility_df(data: pd.DataFrame) -> pd.DataFrame:
-    """Annual return from securities data(frame)"""
-    daily_rtn = calculate_return_from_df(data=data, is_relative_return=True)
-    ann_vol = np.std(daily_rtn) * np.sqrt(252) # this is the number of business days in a year
+    """
+    Calculate annualised return (assuming input data is daily).
+    For example, see unit test: test_utils_finance
+
+    Parameters:
+        data: Input dataframe with numeric columns filtered for analysis
+
+    Returns:
+        pd.Series: Annualised volatility for input_df, labels are input columns
+    """
+    daily_rtn = calculate_return_df(data=data, is_relative_return=True)
+    ann_vol = np.std(daily_rtn) * np.sqrt(252)  # num business days in a year
     return ann_vol
 
 
