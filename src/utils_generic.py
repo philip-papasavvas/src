@@ -6,16 +6,17 @@ Utils module for generic useful functions, divided into classes
 import datetime as dt
 import os
 import re
-from re import escape
 from typing import Union
 
 import numpy as np
 import pandas as pd
-import pyperclip
 
 
-# local imports
-# from utils_date import char_to_date
+def convert_config_dates(config: dict) -> dict:
+    for key, val in config.items():
+        if "date" in key.lower():
+            config[key] = np.datetime64(val)
+    return config
 
 
 def to_array(*args: Union[np.ndarray, list, tuple, pd.Series, np.datetime64, dt.datetime]):
@@ -191,7 +192,7 @@ def concat_columns(sep='', *args):
     for arg in args:
         df = pd.concat([df, arg], axis=1, ignore_index=True)
     try:
-        out = df.astype(str).add(sep).sum(axis=1).str.replace('%s+$' % escape(sep),
+        out = df.astype(str).add(sep).sum(axis=1).str.replace('%s+$' % re.escape(sep),
                                                               '')  # removes trailing sep
         # need to make any columns with nan to output NaN, which is the result when 'A' + '_' + 'NaN'
         mask = df.isnull().any(axis=1)
@@ -202,57 +203,11 @@ def concat_columns(sep='', *args):
     return out
 
 
-def rolling_window(arr, size):
+def format_csv_commas(path: str) -> list:
+    """ 
+    Feed in filepath of CSV to be edited and returns List of cleaned data, replacing 
+    "," with ""
     """
-    Returns a rolling window of a n-dimensional array
-
-    Parameters
-    ----------
-        arr : np.ndarray
-        size : int
-            size of rolling window
-    Returns
-    -------
-        n + 1 dimensional array
-            the extra dimension added at the end
-
-    Example
-    -------
-    >>> import numpy as np
-    >>> rolling_window(np.random.randn(20),5).mean(axis=-1) # find the 5 element rolling mean of an array
-
-    """
-    a_ext = np.concatenate((np.full(arr.shape[:-1] + (size - 1,), np.nan), arr), axis=-1)
-    strides = a_ext.strides + (a_ext.strides[-1],)
-    return np.lib.stride_tricks.as_strided(a_ext, shape=(arr.shape + (size,)), strides=strides)
-
-
-def array_to_clipboard(array):
-    """Copies an array into a string format acceptable by Excel.
-    Note: Columns separated by "\\t", rows separated by "\\n"
-    """
-    # Create string from array
-    line_strings = []
-
-    array = array.astype(str)
-
-    if array.ndim > 2:
-        raise ValueError('could not operate on array with ndim >2')
-    elif array.ndim == 1:
-        for line in array:
-            line_strings.append(line.replace("\n", ""))
-    else:
-        for line in array:
-            line_strings.append('\t'.join([l for l in line]).replace("\n", ""))
-
-    array_string = "\r\n".join(line_strings)
-
-    # Put string into clipboard
-    pyperclip.copy(array_string)
-
-
-def format_csv_commas(path):
-    """ Reads in data and replaces ", " with "" before returning List of cleaned data"""
 
     data = []
     with open(path, newline='') as f:
@@ -260,7 +215,7 @@ def format_csv_commas(path):
             new_line = lines.replace(", ", "")
             data.append(new_line)
 
-    # compile lines and remove special charaters
+    # compile lines and remove special characters
     data = pd.Series(data).str.split(',', expand=True).replace({'\\n': '', '\\r': ''}, regex=True)
     data.columns = data.iloc[0, :]
     data = data.iloc[1:].reset_index(drop=True)

@@ -1,10 +1,12 @@
 # Created 12 Jun 2020
 import unittest
 
+import numpy as np
 import pandas as pd
 
-from src.utils_generic import (average, difference, flatten_dict, return_dict_keys,
-                               return_dict_values, change_dict_keys, df_columns_to_dict)
+from utils_generic import (average, difference, flatten_dict, return_dict_keys,
+                           return_dict_values, change_dict_keys, df_columns_to_dict,
+                           convert_config_dates)
 
 
 class TestUtilsGeneric(unittest.TestCase):
@@ -14,9 +16,6 @@ class TestUtilsGeneric(unittest.TestCase):
             pd.testing.assert_frame_equal(a, b)
         except AssertionError as e:
             raise self.failureException(msg) from e
-
-    def setUp(self):
-        self.addTypeEqualityFunc(pd.DataFrame, self.assert_dataframe_equal)
 
     def test_average__tuple(self):
         self.assertEqual(average(2, 2, 5),
@@ -67,6 +66,16 @@ class TestUtilsGeneric(unittest.TestCase):
                 columns=['A', 'B']
             ),
             {1: 'one', 2: 'two', 3: 'three', 4: 'four'}
+        )
+
+    def test_convert_config_dates(self):
+        self.assertEqual(
+            convert_config_dates(config={'date_one': "2020-01-01",
+                                         "date_two": "2019-01-01",
+                                         "DATE": "2010-12-25"}),
+            {'date_one': np.datetime64('2020-01-01'),
+             'date_two': np.datetime64('2019-01-01'),
+             'DATE': np.datetime64('2010-12-25')}
         )
 
 
