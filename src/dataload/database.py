@@ -60,6 +60,7 @@ def db_connect(mongo_config: dict,
             return db_connection
     # non-arctic collection
     else:
+        return client
         print("Have not yet configured non-Arctic database on MongoDB Atlas")
         # Check if I want to add a non-time series dataset
 
@@ -231,7 +232,8 @@ def db_arctic_append(mongo_config: dict,
 if __name__ == '__main__':
 
     # load config
-    mongo_path = 'PATH-TO-PRIVATE-MONGO-DB-HERE'
+    # mongo_path = 'PATH-TO-PRIVATE-MONGO-DB-HERE'
+    mongo_path = '/Users/philip_p/python/src/src/dataload/config/mongo_private.json'
     mongo_cfg = json.load(open(mongo_path, 'r'))
 
     # config structure
@@ -240,3 +242,7 @@ if __name__ == '__main__':
         'mongo_pwd': 'MONGO-PASSWORD-HERE',
         'url_cluster': 'MONGODB-ATLAS-CLUSTER-HERE'
     }
+
+    # look at non-arctic (so non-time series data)
+    db_connection = db_connect(mongo_config=mongo_cfg, is_arctic=False)
+    db_connection.list_library_names()
