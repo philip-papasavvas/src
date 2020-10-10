@@ -34,13 +34,13 @@ def calculate_return_df(data: pd.DataFrame,
     data = data.select_dtypes(exclude=['string', 'object'])
 
     if is_log_return:
-        print("log returns")
+        print("Calculating log returns...")
         return_df = data.apply(lambda x: np.log(x / x.shift(1)))[1:]
     elif is_relative_return:
-        print("relative_returns")
+        print("Calculating relative returns...")
         return_df = data.apply(lambda x: (x / x.shift(1)) - 1)[1:]
     elif is_absolute_return:
-        print("absolute_returns")
+        print("Calculating absolute_returns...")
         return_df = data.apply(lambda x: x - x.shift(1))[1:]
     else:
         print("not a valid return type")
@@ -54,10 +54,12 @@ def calculate_annualised_return_df(data: pd.DataFrame) -> pd.Series:
     For example, see unit test: test_utils_finance
 
     Parameters:
-        data: Input dataframe with numeric columns filtered for analysis
+        data: Input dataframe with numeric columns as the stock data, and the date being
+        the index
 
     Returns:
-        pd.Series: Annualised return for input_df, labels are input columns
+        pd.Series: Annualised return for input_df (in decimal form),
+        labels are input columns
     """
     daily_rtn = calculate_return_df(data=data, is_relative_return=True)
     ann_rtn = np.mean(daily_rtn) * 252  # num business days in a year
@@ -89,7 +91,7 @@ def return_info_ratio(data: pd.DataFrame) -> pd.DataFrame:
     return info_ratio
 
 
-def return_sharpe_ratio(data: pd.DataFrame, risk_free: float = 0) -> np.ndarray:
+def return_sharpe_ratio(data: pd.DataFrame, risk_free: float = 0) -> pd.Series:
     """Function to give annualised Sharpe Ratio measure from input data,
     user input risk free rate
 
@@ -100,8 +102,7 @@ def return_sharpe_ratio(data: pd.DataFrame, risk_free: float = 0) -> np.ndarray:
     Returns:
         np.ndarray
     """
-    print(f"Risk free rate set as {risk_free}")
-
+    print(f"Risk free rate set as: {risk_free}")
     annual_rtn = calculate_annualised_return_df(data=data)
     annual_vol = calculate_annual_volatility_df(data=data)
     sharpe_ratio = np.divide(annual_rtn - risk_free, annual_vol)
