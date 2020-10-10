@@ -3,7 +3,7 @@
 import unittest
 
 from src.utils_lists import flatten_list, has_duplicates, list_as_comma_sep, \
-    all_unique, chunk, count_occurences, flatten
+    all_unique, chunk, count_occurrences, flatten
 
 
 class TestUtilsLists(unittest.TestCase):
@@ -38,7 +38,7 @@ class TestUtilsLists(unittest.TestCase):
                          "Resulting list should be [[1, 2], [3, 4], [5, 6]]")
 
     def test_count_occurences(self):
-        self.assertEqual(count_occurences(lst=[1, 2, 3, 4, 2, 2, 2, 2], value=2),
+        self.assertEqual(count_occurrences(lst=[1, 2, 3, 4, 2, 2, 2, 2], value=2),
                          5,
                          "THe number 2 appears 5 times")
 
