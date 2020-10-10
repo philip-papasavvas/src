@@ -1,5 +1,5 @@
 # Development files
 #/dataload
-/src/jupyter-notebooks
+#/src/jupyter-notebooks
 /src/small_projects
 /src/securityAnalysis/data
