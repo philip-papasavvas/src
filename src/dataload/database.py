@@ -1,6 +1,6 @@
 """
 Created: 13 Oct 2019
-mongoDB Atlas: initialise, write, append, read to library
+Cloud database: mongoDB Atlas: initialise, write, append, read to library
 """
 import json
 from typing import Union
@@ -61,7 +61,6 @@ def db_connect(mongo_config: dict,
     # non-arctic collection
     else:
         return client
-        print("Have not yet configured non-Arctic database on MongoDB Atlas")
         # Check if I want to add a non-time series dataset
 
 

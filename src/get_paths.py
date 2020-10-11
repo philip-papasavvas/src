@@ -9,19 +9,9 @@ import os
 _ROOT = os.path.abspath(os.path.dirname(__file__))
 
 
-def get_config_path(path):
-    """Get the path of the configs specified"""
-    return os.path.join(_ROOT, 'config', path)
-
-
-def get_db_path(path):
+def get_dataload_path(path):
     """Get the database/data path"""
     return os.path.join(_ROOT, 'dataload', path)
-
-
-def get_import_path(path):
-    """Method to get import path from directory in src"""
-    return os.path.join(_ROOT, 'import', path)
 
 
 def get_data_path(path):
