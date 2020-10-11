@@ -5,8 +5,11 @@ and utils_finance methods
 """
 import numpy as np
 import pandas as pd
-
 import yfinance  # third party import
+
+from securityAnalysis.utils_finance import (calculate_annualised_return_df, return_sortino_ratio,
+                                            calculate_return_df, return_sharpe_ratio,
+                                            calculate_annual_volatility_df)
 
 # ----------------------------
 # EXAMPLE STOCK DATA RETRIEVAL
@@ -36,10 +39,6 @@ df.columns = ['date'] + ticker  # since it is a multi-index
 # from utils_generic import convert_config_dates  # local import
 # config = convert_config_dates(config)
 
-from securityAnalysis.utils_finance import (calculate_annualised_return_df,
-                                            calculate_return_df, return_sharpe_ratio,
-                                            calculate_annual_volatility_df)
-
 # -------------------------
 # Utilise the utils_finance
 # -------------------------
@@ -56,7 +55,7 @@ vol = calculate_annual_volatility_df(data=df.set_index('date'))
 sharpe_df = return_sharpe_ratio(data=df.set_index('date')) # or ann_rtn/vol
 
 # Sortino Ratio
-return_sharpe_ratio(data=df.set_index('date'))
+return_sortino_ratio(data=df.set_index('date'))
 
 
 # -------------
