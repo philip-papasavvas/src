@@ -286,3 +286,14 @@ if __name__ == '__main__':
 
 
     (k, *_, c) = func({'a': 1, 'b': 2, 'c': 3, 'd': 4})  # a= 'a', c='d'
+
+
+def drop_null_columns_df(data: pd.DataFrame) -> pd.DataFrame:
+    """Drop columns from the dataframe with null values"""
+    original_columns = list(data.columns)
+    cleaned_data = data.dropna(axis=1)
+    new_columns = list(cleaned_data.columns)
+    cut_columns = [x for x in original_columns if x not in new_columns]
+
+    print(f"Columns: {cut_columns}  \n have been dropped from the dataframe as they contain NaNs")
+    return cleaned_data
