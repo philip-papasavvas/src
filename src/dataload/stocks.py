@@ -5,7 +5,7 @@ Data retrieval for stock data (mainly using YahooFinance API)
 from typing import Union, List
 
 import pandas as pd
-import yfinance as yf
+import yfinance as yf  # third party import
 
 
 def return_stock_data(stocks: Union[List[str], str],
