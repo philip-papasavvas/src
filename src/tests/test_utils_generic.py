@@ -6,7 +6,9 @@ import pandas as pd
 
 from utils_generic import (average, difference, flatten_dict, return_dict_keys,
                            return_dict_values, change_dict_keys, df_columns_to_dict,
-                           convert_config_dates)
+                           convert_config_dates, drop_null_columns_df)
+
+np.random.seed(10)
 
 
 class TestUtilsGeneric(unittest.TestCase):
@@ -76,6 +78,28 @@ class TestUtilsGeneric(unittest.TestCase):
             {'date_one': np.datetime64('2020-01-01'),
              'date_two': np.datetime64('2019-01-01'),
              'DATE': np.datetime64('2010-12-25')}
+        )
+
+    def test_drop_null_columns_df(self):
+        # used random numbers using np.random.seed(1)
+        pd.testing.assert_frame_equal(
+            drop_null_columns_df(data=pd.DataFrame(
+                {'a': np.repeat(np.nan, 10),
+                 'b': np.random.random_sample(10),
+                 'c': np.repeat(1, 10)})),
+            pd.DataFrame(
+                {'b': {0: 0.771320643266746,
+                       1: 0.0207519493594015,
+                       2: 0.6336482349262754,
+                       3: 0.7488038825386119,
+                       4: 0.4985070123025904,
+                       5: 0.22479664553084766,
+                       6: 0.19806286475962398,
+                       7: 0.7605307121989587,
+                       8: 0.16911083656253545,
+                       9: 0.08833981417401027},
+                 'c': {0: 1, 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1, 9: 1}}
+            )
         )
 
 
