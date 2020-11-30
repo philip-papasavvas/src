@@ -270,9 +270,47 @@ def df_columns_to_dict(df: pd.DataFrame, columns: list):
     return dict(zip(df[columns[0]], df[columns[1]]))
 
 
-if __name__ == '__main__':
-    pass
+def drop_null_columns_df(data: pd.DataFrame) -> pd.DataFrame:
+    """Drop columns from the dataframe with null values"""
+    original_columns = list(data.columns)
+    cleaned_data = data.dropna(axis=1)
+    new_columns = list(cleaned_data.columns)
+    cut_columns = [x for x in original_columns if x not in new_columns]
 
+    print(f"Columns: {cut_columns}  \n have been dropped from the dataframe as they contain NaNs")
+    return cleaned_data
+
+
+def linear_bucketing(x: np.array, y: np.array) -> np.ndarray:
+    """Returns a matrix of weighting from linear bucketing from x to y
+
+    Args:
+        x: Source buckets
+        y: Destination buckets
+
+    Returns:
+        np.ndarray: Weights to apply for linear bucketing, for x as axis 0,
+        y as axis 1
+    """
+    # weights on input and output buckets
+    index = np.interp(x, y, np.arange(y.size, dtype=float))
+
+    # indices which buckets are involved
+    t1, t2 = np.floor(index).astype(int), np.ceil(index).astype(int)
+
+    # weights
+    weight_far = index % 1
+    weight_near = 1 - weight_far
+
+    # construct a vector to be multiplied with weights for mapping on buckets
+    t1_vec, t2_vec = np.zeros([y.size, t1.size]), np.zeros([y.size, t2.size])
+    t1_vec[t1, np.arange(t1.size)] = 1
+    t2_vec[t2, np.arange(t2.size)] = 1
+
+    return (t1_vec * weight_near[None, :] + t2_vec * weight_far[None, :]).T
+
+
+if __name__ == '__main__':
 
     # merge dicts: {**a,**b}, lists: dict(zip(list_one,list_two))
 
@@ -288,12 +326,3 @@ if __name__ == '__main__':
     (k, *_, c) = func({'a': 1, 'b': 2, 'c': 3, 'd': 4})  # a= 'a', c='d'
 
 
-def drop_null_columns_df(data: pd.DataFrame) -> pd.DataFrame:
-    """Drop columns from the dataframe with null values"""
-    original_columns = list(data.columns)
-    cleaned_data = data.dropna(axis=1)
-    new_columns = list(cleaned_data.columns)
-    cut_columns = [x for x in original_columns if x not in new_columns]
-
-    print(f"Columns: {cut_columns}  \n have been dropped from the dataframe as they contain NaNs")
-    return cleaned_data
