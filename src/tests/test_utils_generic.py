@@ -4,9 +4,11 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from utils_generic import (average, difference, flatten_dict, return_dict_keys,
-                           return_dict_values, change_dict_keys, df_columns_to_dict,
-                           convert_config_dates, drop_null_columns_df)
+from utils_generic import (
+    average, difference, flatten_dict, return_dict_keys, return_dict_values,
+    change_dict_keys, df_columns_to_dict, convert_config_dates, drop_null_columns_df,
+    linear_bucketing
+)
 
 np.random.seed(10)
 

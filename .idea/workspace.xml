@@ -2,13 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="66ff0a12-9e79-4e9e-b1a1-c2e3c81d0a7c" name="Default Changelist" comment="securityAnalysis\securities_analysis:  &#10;small_projects\LinearRegression: deleted">
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/pylint.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/python.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/python.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/securityAnalysis/securities_analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/securityAnalysis/securities_analysis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/securityAnalysis/stationarity.py" beforeDir="false" afterPath="$PROJECT_DIR$/securityAnalysis/stationarity.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/securityAnalysis/utils_finance.py" beforeDir="false" afterPath="$PROJECT_DIR$/securityAnalysis/utils_finance.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/small_projects/LinearRegression.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/jupyter-notebooks/.ipynb_checkpoints/Tips &amp; Tricks-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/jupyter-notebooks/Auto-Regression.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/src/jupyter-notebooks/Auto-Regression.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/jupyter-notebooks/Data Science Interview questions.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/src/jupyter-notebooks/Data Science Interview questions.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/jupyter-notebooks/Stationarity.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/src/jupyter-notebooks/Stationarity.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tests/test_utils_generic.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tests/test_utils_generic.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -40,6 +40,7 @@
     </favorite-branches>
     <option name="PREVIOUS_COMMIT_AUTHORS">
       <list>
+        <option value="philip-papasavvas &lt;39246705+philip-papasavvas@users.noreply.github.com&gt;" />
         <option value="Philip Papasavvas &lt;philip.papasavvas@gmail.com&gt;" />
       </list>
     </option>
@@ -438,7 +439,14 @@
       <option name="project" value="LOCAL" />
       <updated>1594650285001</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="src\utils_generic: added drop_null_columns_df and linear_bucketing methods">
+      <created>1607455251994</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1607455251994</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -477,7 +485,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$/ud120-projects" />
     </ignored-roots>
-    <MESSAGE value="Physics lessons" />
     <MESSAGE value="Updated EfficientFrontier, New_Fund_Analysis, and utils to all run &#10;with working examples. Source data can be found in data repository" />
     <MESSAGE value="New Fund Analysis including Bollinger Band plots for dataset" />
     <MESSAGE value="Added drop flag to get rid of NaN rows" />
@@ -502,7 +509,8 @@
     <MESSAGE value="dataload\database: added functionality to download multiple stocks from yahoo finance and melt results&#10;whoop\exploratory_analysis: to clean up methods here and put into functions for future exploration" />
     <MESSAGE value="dataload\database: updated docstring to be in correct format, changed variables to UPPER_CASE, refactored&#10;securityAnalysis\efficient_frontier: sorted docstrings, added Typing, more meaningful names&#10;securityAnalysis\securities_analysis: sorted docstrings, added Typing, more meaningful names&#10;securityAnalysis\utils_finance: added some docstrings&#10;decorators: added docstring, f-strings&#10;get_paths: added docstring&#10;global_tests: more meaningful names&#10;utils_date: added docstring" />
     <MESSAGE value="whoop\exploratory_analysis: cleaned code&#10;utils_generic: sorted out docstring and cleaned code" />
-    <option name="LAST_COMMIT_MESSAGE" value="whoop\exploratory_analysis: cleaned code&#10;utils_generic: sorted out docstring and cleaned code" />
+    <MESSAGE value="src\utils_generic: added drop_null_columns_df and linear_bucketing methods" />
+    <option name="LAST_COMMIT_MESSAGE" value="src\utils_generic: added drop_null_columns_df and linear_bucketing methods" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
