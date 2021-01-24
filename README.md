@@ -9,14 +9,14 @@
 [![GitHub license](https://img.shields.io/badge/License-MIT-brightgreen.svg?style=flat-square)](https://github.com/VivekPa/AIAlpha/blob/master/LICENSE) 
 [![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
+This repository is mainly focussed around analysis of time-series financial secruity data, incorporating the main packages:
+* dataload: modules for connecting to cloud MongoDB (non-relational/noSQL database), for data read/write, and module for download stock price data from yahoo finance API [yfinance](https://github.com/ranaroussi/yfinance)
+* jupyter-notebooks: notebooks on concepts for time-series analysis such as Auto-Regression, Efficient Fronter of a portfolio with multiple securities, Stationarity, and some tips & tricks in Python
+*  tests: unit tests for the specific utils files (date, generic, lists)
 
-This repository is undergoing a makeover currently, to be updated soon...
-
-## Roadmap
+## To-do
 - [X] Add a requirements.txt for compatibility (used pipreqs)
-- [ ] Refactor/rewrite poor code and add unit tests
-- [ ] Refactor security_analysis and get it working with data sourced
-through the YahooFinance API
+- [ ] Re-word Auto-Regression notebook (in Jupyter Notebooks)
 
 ## Contributing
 Pull requests are welcome.
