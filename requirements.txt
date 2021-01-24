@@ -1,3 +1,4 @@
+simpy
 arctic==1.79.2
 scipy==1.3.0
 requests==2.22.0
