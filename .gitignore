@@ -1,7 +1,6 @@
 # Development files
-#/dataload
-#/src/jupyter-notebooks
 /src/small_projects
 /src/securityAnalysis/data
 src/dataload/config/mongo_private.json
-.idea/workspace.xml
+.idea/
+/src/.idea/
