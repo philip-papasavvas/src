@@ -6,7 +6,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from src.utils_date import np_dt_to_str, char_to_date, excel_date_to_np, datetime_to_str
+from src.utils_date import np_dt_to_str, excel_date_to_np, datetime_to_str
 
 
 class TestDateFuncs(unittest.TestCase):
@@ -21,20 +21,6 @@ class TestDateFuncs(unittest.TestCase):
     def test_date_to_str(self):
         np.testing.assert_equal(np_dt_to_str(np.datetime64("2020-01-01")),
                                 "20200101")
-
-    def test_char_to_date__series_as_dt(self):
-        # test for dataframe
-        np.testing.assert_array_equal(
-            char_to_date(self.dataframe_dates['date']),
-            self.dates
-        )
-
-    def test_char_to_date__series_as_str(self):
-        # test for dataframe
-        np.testing.assert_array_equal(
-            char_to_date(self.dataframe_dates['date_as_str']),
-            self.dates
-        )
 
     def test_x2pdate(self):
         self.assertEqual(list(excel_date_to_np(xl_date=43100)),
