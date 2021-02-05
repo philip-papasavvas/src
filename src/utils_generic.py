@@ -252,7 +252,8 @@ def return_dict_keys(dct):
 def return_dict_values(dct):
     """
     Returns keys of a dict in a list
-    >>> return_values({'a':1, 'b':2, 'c':3})
+    >>> return_dict_values({'a':1, 'b':2, 'c':3})
+    [1, 2, 3]
     """
     return list(dct.values())
 

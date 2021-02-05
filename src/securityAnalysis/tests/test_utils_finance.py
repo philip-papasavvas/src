@@ -4,8 +4,10 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from securityAnalysis.utils_finance import (calculate_relative_return_arr, calculate_return_df,
-                                            calculate_annualised_return_df)
+from securityAnalysis.utils_finance import (
+    calculate_relative_return_from_array, calculate_return_df,
+    calculate_annualised_return_df
+)
 
 np.random.seed(1)  # set the random seed so the unit tests use synthetic data
 
@@ -27,7 +29,7 @@ class TestFinanceUtils(unittest.TestCase):
 
     def test_calculate_relative_return_arr(self):
         np.testing.assert_array_almost_equal(
-            calculate_relative_return_arr(np.random.random_sample(5)),
+            calculate_relative_return_from_array(np.random.random_sample(5)),
             np.array([1.72730572e+00, 1.58782352e-04, 2.64334912e+03, 4.85412106e-01])
         )
 

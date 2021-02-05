@@ -10,14 +10,14 @@ from utils_date import excel_date_to_np
 
 
 # array methods
-def calculate_relative_return_arr(a: np.array) -> np.array:
+def calculate_relative_return_from_array(a: np.array) -> np.array:
     """Calculate relative return of an array"""
-    return a[1:] / a[:-1]
+    return a[1:] / a[:-1] - 1
 
 
 # dataframe methods
 def calculate_return_df(data: pd.DataFrame,
-                        is_relative_return: bool = True,
+                        is_relative_return: bool = False,
                         is_log_return: bool = False,
                         is_absolute_return: bool = False):
     """Method to calculate different types of return from dataframe
@@ -40,7 +40,7 @@ def calculate_return_df(data: pd.DataFrame,
         print("Calculating relative returns...")
         return_df = data.apply(lambda x: (x / x.shift(1)) - 1)[1:]
     elif is_absolute_return:
-        print("Calculating absolute_returns...")
+        print("Calculating absolute returns...")
         return_df = data.apply(lambda x: x - x.shift(1))[1:]
     else:
         print("not a valid return type")
@@ -223,4 +223,54 @@ def return_melted_df(input_file):
 
 
 if __name__ == '__main__':
-    pass
+    # get real stock price data using yfinance (yahoo finance API)
+    # import yfinance
+    # ticker_list = 'TSLA' # ['AMZN', 'GOOGL']
+    # price_data = yfinance.download(tickers=ticker_list,
+    #                                start="2019-01-01", end="2020-01-01")
+    # price_df = price_data[['Adj Close']].rename(
+    #     columns={'Adj Close': 'price'}).reset_index().copy(True)
+    # price_df.columns = ['date', ticker_list]
+
+    # random data example
+    np.random.seed(1)  # so we can reproduce the numbers
+    import datetime
+
+    num_dates = 100
+    dates = [datetime.datetime(2020, 1, 1) -
+             datetime.timedelta(days=x) for x in range(num_dates)]
+    sorted_dates = sorted(dates)
+
+    random_returns = pd.Series(np.random.randn(num_dates), index=sorted_dates)
+    price_series = random_returns.cumsum()
+    price_df = price_series.to_frame(name='random_security')
+
+    # relative return
+    relative_return = calculate_relative_return_from_array(
+        price_df.values)
+
+    # relative return from dataframe
+    rel_return_df = calculate_return_df(data=price_df,
+                                        is_relative_return=True)
+
+    # check that the relative_return from array, and from
+    # dataframes are equal
+    np.testing.assert_array_almost_equal(relative_return,
+                                         rel_return_df.values)
+
+    # absolute return from dataframe
+    abs_return = calculate_return_df(data=price_df,
+                                     is_absolute_return=True)
+
+    # annualised return
+    calculate_annualised_return_df(data=price_df)
+
+    # volatility
+    calculate_annual_volatility_df(data=price_df)
+
+    # sharpe ratio (annualised return/volatility)
+    return_sharpe_ratio(data=price_df)
+
+    # sortino ratio
+    return_sortino_ratio(data=price_df, target_return=0.05,
+                         risk_free=0)

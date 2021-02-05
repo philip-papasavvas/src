@@ -128,19 +128,12 @@ def get_descriptive_stats(data: pd.DataFrame, alpha: float = 0.05) -> dict:
 
 
 if __name__ == '__main__':
-
-    # examples of running the above methods
-
-    # ----------------
     # real market data
-    # ----------------
     import yfinance
     price_series = yfinance.download(tickers='GOOGL', start="2010-01-01")['Adj Close'] # google data
     price_df = pd.DataFrame(price_series)
 
-    # -------------------
     # random data example
-    # -------------------
     import datetime
     date_rng = pd.date_range(datetime.datetime.now().strftime("%Y-%m-%d"), periods=500).to_list()
     random_returns = pd.Series(np.random.randn(500), index=date_rng)

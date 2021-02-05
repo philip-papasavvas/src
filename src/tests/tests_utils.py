@@ -7,10 +7,12 @@ import unittest
 import pandas as pd
 import pandas.testing as pd_testing
 
-from src.securityAnalysis import utils_finance
+from src.securityAnalysis.utils_finance import calculate_return_df
+
+market_data_dir = f"{os.path.dirname(os.path.abspath(__file__))}/data"
 
 
-class TestUtils(unittest.TestCase):
+class TestSecurities(unittest.TestCase):
     """Unit tests for utils module"""
 
     def assert_dataframe_equal(self, a, b, msg):
@@ -24,22 +26,18 @@ class TestUtils(unittest.TestCase):
         self.addTypeEqualityFunc(pd.DataFrame, self.assert_dataframe_equal)
 
     def test_utils_securities_funcs(self):
-        with open(os.path.join("/Users/philip_p/python/src", "securityAnalysis",
-                               "data", "market_data.json"), "r") \
-                as mkt_data:
-            k = json.load(mkt_data)
+        market_data = json.load(open(f"{market_data_dir}/test_market_data.json", "r"))
 
-        sample_data = pd.DataFrame(data=k)
+        sample_data = pd.DataFrame(data=market_data)
 
-        self.assertEqual(first=utils_finance.calculate_log_return_df(data=sample_data.iloc[:3, :]),
-                         second=pd.DataFrame(data=
-                                             {'INDU Index': {'01/06/2011': -0.007019973807377511,
-                                                             '02/05/2011': 0.04122269078824914},
-                                              'MXWO Index': {'01/06/2011': -0.004377976690467911,
-                                                             '02/05/2011': 0.041267840353913954}
-                                              }
-                                             ),
-                         msg="Data-frames not equal")
+        pd.testing.assert_series_equal(
+            pd.Series(calculate_return_df(data=sample_data,
+                                          is_log_return=True).sum()),
+            pd.Series(
+                {'INDU Index': -0.020600636770248835,
+                 'MXWO Index': -0.025305383694803556},
+            )
+        )
 
 
 if __name__ == "__main__":
