@@ -6,8 +6,7 @@ import pandas as pd
 
 from utils_generic import (
     average, difference, flatten_dict, return_dict_keys, return_dict_values,
-    change_dict_keys, df_columns_to_dict, convert_config_dates, drop_null_columns_df,
-    linear_bucketing
+    change_dict_keys, dict_from_df_cols, convert_config_dates, drop_null_columns_df
 )
 
 np.random.seed(10)
@@ -64,7 +63,7 @@ class TestUtilsGeneric(unittest.TestCase):
 
     def test_df_columns_to_dict(self):
         self.assertEqual(
-            df_columns_to_dict(df=pd.DataFrame(
+            dict_from_df_cols(df=pd.DataFrame(
                 {'A': [1, 2, 3, 4],
                  'B': ['one', 'two', 'three', 'four']}),
                 columns=['A', 'B']

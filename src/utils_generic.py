@@ -67,12 +67,14 @@ def difference(a, b):
     return set_a.difference(set_b)
 
 
-def match(cls, x, y, strict=True):
+def match(x: Union[list, np.ndarray, pd.Series],
+          y: Union[list, np.ndarray, pd.Series],
+          strict: bool = True):
     """Finds the index of x's elements in y. This is the same function as R implements.
 
     Args:
-        cls: class
-        x,y  (list or np.ndarray or pd.Series)
+        x
+        y  (list or np.ndarray or pd.Series)
         strict (bool): Whether to raise error if some elements in x are not found in y
 
     Returns:
@@ -81,9 +83,8 @@ def match(cls, x, y, strict=True):
     Raises
         AssertionError: If any element of x is not in y
     """
-
-    # just be sure it handles pd.Series as well, but in reality one should not use this function for pd.Series
-    x, y = cls.to_array(x, y)
+    # to handle for pd.Series, but this should be used for arrays
+    x, y = to_array(x, y)
     mask = x[:, None] == y
 
     rowMask = mask.any(axis=1)
@@ -93,7 +94,6 @@ def match(cls, x, y, strict=True):
         assert rowMask.all(), "%s not found, uniquely : %s " % (
             (~rowMask).sum(), np.array(x)[~rowMask])
         out = np.argmax(mask, axis=1)  # returns the index of the first match
-
     else:
         # this is 26x faster than pd.core.algorithms.match(x,y,np.nan)
         # return floats where not found elements are returned as np.nan
@@ -265,7 +265,7 @@ def change_dict_keys(in_dict, text):
                                     value) for key, value in in_dict.items()}
 
 
-def df_columns_to_dict(df: pd.DataFrame, columns: list):
+def dict_from_df_cols(df: pd.DataFrame, columns: list):
     """Convenience function to create a dict from the dataframe columns"""
     assert len(columns) == 2, "Cannot produce a dict if two columns not specified"
     return dict(zip(df[columns[0]], df[columns[1]]))
@@ -313,17 +313,12 @@ def linear_bucketing(x: np.array, y: np.array) -> np.ndarray:
 
 if __name__ == '__main__':
 
-    # merge dicts: {**a,**b}, lists: dict(zip(list_one,list_two))
+    # example of using match - find index of elements from one list in another
+    match(x=[46, 15, 5], y=[5, 4, 46, 6, 15, 1, 70])
 
-    # if a function returns multiple arguments, variable unpacking: a,*_, b = var1, ...., var2
+    # dict_from_df_cols - get a dict from dataframe columns
+    sample_df = pd.DataFrame(
+        {"a": ["liquid", "arrogant", "imagine", "knock", "share"],
+         "b": range(5)})
 
-    def func(dct):
-        return list(dct.keys())[0], \
-               list(dct.keys())[1], \
-               list(dct.keys())[2], \
-               list(dct.keys())[3]
-
-
-    (k, *_, c) = func({'a': 1, 'b': 2, 'c': 3, 'd': 4})  # a= 'a', c='d'
-
-
+    dict_from_df_cols(df=sample_df, columns=['a', 'b'])
