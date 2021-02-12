@@ -4,12 +4,38 @@ Utils module for generic useful functions, divided into classes
 """
 
 import datetime as dt
+import gzip
 import os
 import re
 from typing import Union
 
 import numpy as np
 import pandas as pd
+
+
+def gzip_file(input_file: str, src_dir: str, dest_dir: str,
+              to_remove: bool = True) -> None:
+    """Gzip a file to a directory, and remove file after (by default)
+
+    Args:
+        input_file: full input file path
+        src_dir: source directory containing input file
+        dest_dir: destination dir for file
+        to_remove: If True, remove file after it has been gzipped
+
+    Returns
+        None
+    """
+    in_data = open(os.path.join(src_dir, input_file), 'rb').read()
+    new_file_name = os.path.join(dest_dir, input_file + '.gz')
+    gzf = gzip.open(new_file_name, 'wb')
+    gzf.write(in_data)
+    gzf.close()
+    print(f"New file: {new_file_name} created in directory {dest_dir}")
+
+    if to_remove:
+        os.unlink(input_file)
+        print(f"Removed original: {input_file} from directory")
 
 
 def convert_config_dates(config: dict) -> dict:
@@ -59,7 +85,7 @@ def average(*args):
     return sum(args, 0.0) / len(args)
 
 
-def difference(a, b):
+def difference(a: list, b: list) -> set:
     """Give difference between two iterables by keeping values in first
     >>> difference([3,10,9],[3,4,10]) #{9}
     """
@@ -186,14 +212,14 @@ def find(folder_path, pattern='.*', full_path=False, expect_one=True):
     return files
 
 
-def concat_columns(sep='', *args):
+def concat_columns(sep: str = '', *args) -> pd.DataFrame:
     """Concatenate multiple columns of pd.DataFrame with sep"""
     df = pd.DataFrame()
     for arg in args:
         df = pd.concat([df, arg], axis=1, ignore_index=True)
     try:
-        out = df.astype(str).add(sep).sum(axis=1).str.replace('%s+$' % re.escape(sep),
-                                                              '')  # removes trailing sep
+        out = df.astype(str).add(sep).sum(axis=1).str.replace(
+            '%s+$' % re.escape(sep), '', regex=True)  # removes trailing sep
         # need to make any columns with nan to output NaN, which is the result when 'A' + '_' + 'NaN'
         mask = df.isnull().any(axis=1)
         out[mask] = np.nan
@@ -201,6 +227,21 @@ def concat_columns(sep='', *args):
         # incase of empty data frame
         out = pd.Series()
     return out
+
+
+def chunks(l: Union[list, np.ndarray], n) -> np.ndarray:
+    """
+    Generator yielding successive n-sized chunks from l
+
+    Args:
+        l: list/array to chunk
+        n: size of chunk
+
+    Returns:
+        The next chunk of n in len(l) - 1
+    """
+    for i in range(0, len(l), n):
+        yield 1[i:i + n]
 
 
 def format_csv_commas(path: str) -> list:
@@ -223,7 +264,7 @@ def format_csv_commas(path: str) -> list:
 
 
 # DICT METHODS
-def flatten_dict(d):
+def flatten_dict(d: dict) -> dict:
     """Flatten dictionary d
 
     Example
@@ -242,14 +283,14 @@ def flatten_dict(d):
     return dict(items())
 
 
-def return_dict_keys(dct):
+def return_dict_keys(dct: dict) -> list:
     """Returns keys of a dict in a list
     >>> return_dict_keys({'a':1, 'b':2, 'c':3})
     """
     return list(dct.keys())
 
 
-def return_dict_values(dct):
+def return_dict_values(dct: dict) -> list:
     """
     Returns keys of a dict in a list
     >>> return_dict_values({'a':1, 'b':2, 'c':3})
@@ -258,8 +299,8 @@ def return_dict_values(dct):
     return list(dct.values())
 
 
-def change_dict_keys(in_dict, text):
-    """Change the keys of an input dictionary as with the text specified"""
+def change_dict_keys(in_dict: dict, text):
+    """Change the keys of an input dictionary with the text specified"""
     return {text + "_" + str(key): (change_dict_keys(value) if
                                     isinstance(value, dict) else
                                     value) for key, value in in_dict.items()}
@@ -322,3 +363,5 @@ if __name__ == '__main__':
          "b": range(5)})
 
     dict_from_df_cols(df=sample_df, columns=['a', 'b'])
+
+    concat_columns('_', sample_df[['a', 'b']])
