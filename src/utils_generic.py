@@ -1,16 +1,22 @@
 """
 Created on: 6 May 2019
-Utils module for generic useful functions, divided into classes
+Utils module for useful generic functions
 """
 
 import datetime as dt
 import gzip
 import os
 import re
-from typing import Union
+from math import ceil
+from typing import Union, Iterable
 
 import numpy as np
 import pandas as pd
+
+
+def replace_underscores_df(df: pd.DataFrame) -> pd.DataFrame:
+    """Replace underscores in a pd.DataFrame"""
+    return df.replace({"_": ""}, regex=True)
 
 
 def gzip_file(input_file: str, src_dir: str, dest_dir: str,
@@ -220,7 +226,8 @@ def concat_columns(sep: str = '', *args) -> pd.DataFrame:
     try:
         out = df.astype(str).add(sep).sum(axis=1).str.replace(
             '%s+$' % re.escape(sep), '', regex=True)  # removes trailing sep
-        # need to make any columns with nan to output NaN, which is the result when 'A' + '_' + 'NaN'
+        # need to make any columns with nan to output NaN, which is the result when 'A' + '_' +
+        # 'NaN'
         mask = df.isnull().any(axis=1)
         out[mask] = np.nan
     except AttributeError:
@@ -229,19 +236,18 @@ def concat_columns(sep: str = '', *args) -> pd.DataFrame:
     return out
 
 
-def chunks(l: Union[list, np.ndarray], n) -> np.ndarray:
-    """
-    Generator yielding successive n-sized chunks from l
+def chunk_list(l: Union[list, np.array], chunk_size: int) -> Iterable:
+    """Generator yielding successive chunk-sized chunks from l
 
     Args:
         l: list/array to chunk
-        n: size of chunk
+        chunk_size: size of chunk
 
     Returns:
         The next chunk of n in len(l) - 1
     """
-    for i in range(0, len(l), n):
-        yield 1[i:i + n]
+    for i in range(0, ceil(len(l) / chunk_size)):
+        yield l[i * chunk_size: i * chunk_size + chunk_size]
 
 
 def format_csv_commas(path: str) -> list:
@@ -353,7 +359,6 @@ def linear_bucketing(x: np.array, y: np.array) -> np.ndarray:
 
 
 if __name__ == '__main__':
-
     # example of using match - find index of elements from one list in another
     match(x=[46, 15, 5], y=[5, 4, 46, 6, 15, 1, 70])
 
