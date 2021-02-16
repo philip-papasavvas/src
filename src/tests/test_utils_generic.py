@@ -5,8 +5,10 @@ import numpy as np
 import pandas as pd
 
 from utils_generic import (
-    average, difference, flatten_dict, return_dict_keys, return_dict_values,
-    change_dict_keys, dict_from_df_cols, convert_config_dates, drop_null_columns_df
+    replace_underscores_df, average, difference, flatten_dict,
+    return_dict_keys, return_dict_values, change_dict_keys,
+    dict_from_df_cols, convert_config_dates, drop_null_columns_df,
+    chunk_list
 )
 
 np.random.seed(10)
@@ -19,6 +21,13 @@ class TestUtilsGeneric(unittest.TestCase):
             pd.testing.assert_frame_equal(a, b)
         except AssertionError as e:
             raise self.failureException(msg) from e
+
+    def test_replace_underscores_df(self):
+        sample_df = pd.DataFrame({'a': ['here_there', 'are_underscores', 'underscores__']})
+        pd.testing.assert_frame_equal(
+            replace_underscores_df(df=sample_df),
+            pd.DataFrame({'a': {0: 'herethere', 1: 'areunderscores', 2: 'underscores'}})
+        )
 
     def test_average__tuple(self):
         self.assertEqual(average(2, 2, 5),
@@ -82,7 +91,7 @@ class TestUtilsGeneric(unittest.TestCase):
         )
 
     def test_drop_null_columns_df(self):
-        # used random numbers using np.random.seed(1)
+        # used random numbers using np.random.seed(10)
         pd.testing.assert_frame_equal(
             drop_null_columns_df(data=pd.DataFrame(
                 {'a': np.repeat(np.nan, 10),
@@ -101,6 +110,13 @@ class TestUtilsGeneric(unittest.TestCase):
                        9: 0.08833981417401027},
                  'c': {0: 1, 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1, 9: 1}}
             )
+        )
+
+    def test_chunk_list(self):
+        a = chunk_list(l=np.arange(10), chunk_size=2)
+        np.testing.assert_array_equal(
+            next(a),
+            np.array([0, 1])
         )
 
 
