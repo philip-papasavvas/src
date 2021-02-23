@@ -8,7 +8,7 @@ from utils_generic import (
     replace_underscores_df, average, difference, flatten_dict,
     return_dict_keys, return_dict_values, change_dict_keys,
     dict_from_df_cols, convert_config_dates, drop_null_columns_df,
-    chunk_list
+    chunk_list, compare_dataframe_col
 )
 
 np.random.seed(10)
@@ -113,10 +113,44 @@ class TestUtilsGeneric(unittest.TestCase):
         )
 
     def test_chunk_list(self):
-        a = chunk_list(l=np.arange(10), chunk_size=2)
+        a = chunk_list(lst=np.arange(10), chunk_size=2)
         np.testing.assert_array_equal(
             next(a),
             np.array([0, 1])
+        )
+
+    def test_compare_dataframe_col(self):
+        df_one = pd.DataFrame(
+            {'a': np.arange(1, 6),
+             'b': np.arange(11, 16),
+             'c': np.linspace(start=10, stop=12, num=5)}
+        )
+        df_two = pd.DataFrame(
+            {'a': np.arange(1, 6),
+             'b': [round(x * 1.1, 2) for x in np.arange(11, 16)],
+             'c': [x + 0.5 for x in np.linspace(start=10, stop=12, num=5)]}
+        )
+
+        pd.testing.assert_frame_equal(
+            compare_dataframe_col(df_one=df_one,
+                                  df_two=df_two,
+                                  suffixes=('_one', '_two'),
+                                  index_col='a',
+                                  merge_col='b').reset_index(drop=True),
+            pd.DataFrame(
+                {'b_one': {0: 11, 1: 12, 2: 13, 3: 14, 4: 15},
+                 'b_two': {0: 12.1, 1: 13.2, 2: 14.3, 3: 15.4, 4: 16.5},
+                 'absolute_diff': {0: 1.0999999999999996,
+                                   1: 1.1999999999999993,
+                                   2: 1.3000000000000007,
+                                   3: 1.4000000000000004,
+                                   4: 1.5},
+                 'pc_diff': {0: 0.09999999999999996,
+                             1: 0.09999999999999994,
+                             2: 0.10000000000000006,
+                             3: 0.10000000000000002,
+                             4: 0.1}}
+            )
         )
 
 
