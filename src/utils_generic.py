@@ -2,7 +2,6 @@
 Created on: 6 May 2019
 Utils module for useful generic functions
 """
-
 import datetime as dt
 import gzip
 import os
@@ -12,6 +11,87 @@ from typing import Union, Iterable
 
 import numpy as np
 import pandas as pd
+
+
+def compare_dataframe_col(df_one: pd.DataFrame,
+                          df_two: pd.DataFrame,
+                          index_col: str,
+                          merge_col: str,
+                          suffixes: tuple = ('_x', '_y')) -> pd.DataFrame:
+    """
+    Compare two dataframes, specifically for a column choose the common index.
+    Percentage difference will be relative to the first suffix dataframe
+
+    Args:
+        df_one: first dataframe to compare
+        df_two: second dataframe to compare
+        index_col: common column (in both data frames) on which to use as the 'index'
+        merge_col: common column on which to carry out the merge, and compute the differences
+        suffixes: specifed to give detail to different data frames compared
+
+    Returns:
+        pd.DataFrame: A dataframe with columns:
+        [index, merge_col_first_suffix, merge_col_second_suffix, absolute_diff, pc_diff]
+        Note: the percentage diff is given in decimals. 2% = 0.02
+    """
+    print(f"Performing data frame compare with index: \t {index_col}. \n"
+          f"Merge column: \t {merge_col} ")
+
+    merged_df = pd.merge(
+        left=df_one.set_index(index_col)[[merge_col]],
+        right=df_two.set_index(index_col)[[merge_col]],
+        left_on=index_col,
+        right_on=index_col,
+        suffixes=suffixes,
+        how='outer'
+    ).fillna(0)
+
+    merged_df['absolute_diff'] = np.abs(merged_df[merge_col + suffixes[0]].values -
+                                        merged_df[merge_col + suffixes[1]].values)
+    merged_df['pc_diff'] = \
+        np.abs(np.abs(merged_df['absolute_diff']) / np.abs(merged_df[merge_col + suffixes[0]]))
+
+    return merged_df
+
+
+def drop_null_columns_df(data: pd.DataFrame) -> pd.DataFrame:
+    """Drop columns from the dataframe with null values"""
+    original_columns = list(data.columns)
+    cleaned_data = data.dropna(axis=1)
+    new_columns = list(cleaned_data.columns)
+    cut_columns = [x for x in original_columns if x not in new_columns]
+
+    print(f"Columns: {cut_columns}  \n have been dropped from the dataframe as they contain NaNs")
+    return cleaned_data
+
+
+def linear_bucketing(x: np.array, y: np.array) -> np.ndarray:
+    """Returns a matrix of weighting from linear bucketing from x to y
+
+    Args:
+        x: Source buckets
+        y: Destination buckets
+
+    Returns:
+        np.ndarray: Weights to apply for linear bucketing, for x as axis 0,
+        y as axis 1
+    """
+    # weights on input and output buckets
+    index = np.interp(x, y, np.arange(y.size, dtype=float))
+
+    # indices which buckets are involved
+    t1, t2 = np.floor(index).astype(int), np.ceil(index).astype(int)
+
+    # weights
+    weight_far = index % 1
+    weight_near = 1 - weight_far
+
+    # construct a vector to be multiplied with weights for mapping on buckets
+    t1_vec, t2_vec = np.zeros([y.size, t1.size]), np.zeros([y.size, t2.size])
+    t1_vec[t1, np.arange(t1.size)] = 1
+    t2_vec[t2, np.arange(t2.size)] = 1
+
+    return (t1_vec * weight_near[None, :] + t2_vec * weight_far[None, :]).T
 
 
 def replace_underscores_df(df: pd.DataFrame) -> pd.DataFrame:
@@ -236,18 +316,18 @@ def concat_columns(sep: str = '', *args) -> pd.DataFrame:
     return out
 
 
-def chunk_list(l: Union[list, np.array], chunk_size: int) -> Iterable:
+def chunk_list(lst: Union[list, np.array], chunk_size: int) -> Iterable:
     """Generator yielding successive chunk-sized chunks from l
 
     Args:
-        l: list/array to chunk
+        lst: list/array to chunk
         chunk_size: size of chunk
 
     Returns:
         The next chunk of n in len(l) - 1
     """
-    for i in range(0, ceil(len(l) / chunk_size)):
-        yield l[i * chunk_size: i * chunk_size + chunk_size]
+    for i in range(0, ceil(len(lst) / chunk_size)):
+        yield lst[i * chunk_size: i * chunk_size + chunk_size]
 
 
 def format_csv_commas(path: str) -> list:
@@ -316,46 +396,6 @@ def dict_from_df_cols(df: pd.DataFrame, columns: list):
     """Convenience function to create a dict from the dataframe columns"""
     assert len(columns) == 2, "Cannot produce a dict if two columns not specified"
     return dict(zip(df[columns[0]], df[columns[1]]))
-
-
-def drop_null_columns_df(data: pd.DataFrame) -> pd.DataFrame:
-    """Drop columns from the dataframe with null values"""
-    original_columns = list(data.columns)
-    cleaned_data = data.dropna(axis=1)
-    new_columns = list(cleaned_data.columns)
-    cut_columns = [x for x in original_columns if x not in new_columns]
-
-    print(f"Columns: {cut_columns}  \n have been dropped from the dataframe as they contain NaNs")
-    return cleaned_data
-
-
-def linear_bucketing(x: np.array, y: np.array) -> np.ndarray:
-    """Returns a matrix of weighting from linear bucketing from x to y
-
-    Args:
-        x: Source buckets
-        y: Destination buckets
-
-    Returns:
-        np.ndarray: Weights to apply for linear bucketing, for x as axis 0,
-        y as axis 1
-    """
-    # weights on input and output buckets
-    index = np.interp(x, y, np.arange(y.size, dtype=float))
-
-    # indices which buckets are involved
-    t1, t2 = np.floor(index).astype(int), np.ceil(index).astype(int)
-
-    # weights
-    weight_far = index % 1
-    weight_near = 1 - weight_far
-
-    # construct a vector to be multiplied with weights for mapping on buckets
-    t1_vec, t2_vec = np.zeros([y.size, t1.size]), np.zeros([y.size, t2.size])
-    t1_vec[t1, np.arange(t1.size)] = 1
-    t2_vec[t2, np.arange(t2.size)] = 1
-
-    return (t1_vec * weight_near[None, :] + t2_vec * weight_far[None, :]).T
 
 
 if __name__ == '__main__':
