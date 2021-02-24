@@ -8,68 +8,10 @@ import gzip
 import os
 import re
 from math import ceil
-from typing import Union, Iterable, List
+from typing import Union, Iterable
 
 import numpy as np
 import pandas as pd
-
-
-def get_selected_column_names(df: pd.DataFrame,
-                              cols_to_exclude: Union[List[str], str]) -> List[str]:
-    """Return a list with all the column names in the data frame except those specified"""
-    return [x for x in list(df.columns) if x not in cols_to_exclude]
-
-
-def compare_dataframe_col(df_one: pd.DataFrame,
-                          df_two: pd.DataFrame,
-                          index_col: str,
-                          merge_col: str,
-                          suffixes: tuple = ('_x', '_y')) -> pd.DataFrame:
-    """
-    Compare two dataframes, specifically for a column choose the common index.
-    Percentage difference will be relative to the first suffix dataframe
-
-    Args:
-        df_one: first dataframe to compare
-        df_two: second dataframe to compare
-        index_col: common column (in both data frames) on which to use as the 'index'
-        merge_col: common column on which to carry out the merge, and compute the differences
-        suffixes: specifed to give detail to different data frames compared
-
-    Returns:
-        pd.DataFrame: A dataframe with columns:
-        [index, merge_col_first_suffix, merge_col_second_suffix, absolute_diff, pc_diff]
-        Note: the percentage diff is given in decimals. 2% = 0.02
-    """
-    print(f"Performing data frame compare with index: \t {index_col}. \n"
-          f"Merge column: \t {merge_col} ")
-
-    merged_df = pd.merge(
-        left=df_one.set_index(index_col)[[merge_col]],
-        right=df_two.set_index(index_col)[[merge_col]],
-        left_on=index_col,
-        right_on=index_col,
-        suffixes=suffixes,
-        how='outer'
-    ).fillna(0)
-
-    merged_df['absolute_diff'] = np.abs(merged_df[merge_col + suffixes[0]].values -
-                                        merged_df[merge_col + suffixes[1]].values)
-    merged_df['pc_diff'] = \
-        np.abs(np.abs(merged_df['absolute_diff']) / np.abs(merged_df[merge_col + suffixes[0]]))
-
-    return merged_df
-
-
-def drop_null_columns_df(data: pd.DataFrame) -> pd.DataFrame:
-    """Drop columns from the dataframe with null values"""
-    original_columns = list(data.columns)
-    cleaned_data = data.dropna(axis=1)
-    new_columns = list(cleaned_data.columns)
-    cut_columns = [x for x in original_columns if x not in new_columns]
-
-    print(f"Columns: {cut_columns}  \n have been dropped from the dataframe as they contain NaNs")
-    return cleaned_data
 
 
 def linear_bucketing(x: np.array, y: np.array) -> np.ndarray:
@@ -99,11 +41,6 @@ def linear_bucketing(x: np.array, y: np.array) -> np.ndarray:
     t2_vec[t2, np.arange(t2.size)] = 1
 
     return (t1_vec * weight_near[None, :] + t2_vec * weight_far[None, :]).T
-
-
-def replace_underscores_df(df: pd.DataFrame) -> pd.DataFrame:
-    """Replace underscores in a pd.DataFrame"""
-    return df.replace({"_": ""}, regex=True)
 
 
 def gzip_file(input_file: str, src_dir: str, dest_dir: str,
@@ -224,21 +161,21 @@ def match(x: Union[list, np.ndarray, pd.Series],
 
 def find(folder_path, pattern='.*', full_path=False, expect_one=True):
     """
-    To find path(s) of file(s), especially useful for searching the same file pattern in multiple folders
+    To find path(s) of file(s), especially useful for searching the same file pattern in multiple
+    folders
 
-    Args:
-        folder_path (str, list, np.ndarray): Folder path(s). If multiple, it will be searched in its order
-        pattern (str, list/tuple): regex pattern. Use list/tuple if you need multiple conditions
-        full_path (bool, default False): if the full path of the files are needed
-        expect_one (bool, default True): True will raise AssertionError if more than one file is found
+    Args: folder_path (str, list, np.ndarray): Folder path(s). If multiple, it will be searched
+    in its order pattern (str, list/tuple): regex pattern. Use list/tuple if you need multiple
+    conditions full_path (bool, default False): if the full path of the files are needed
+    expect_one (bool, default True): True will raise AssertionError if more than one file is found
 
     Returns:
         str: If one file is found
         list of str: If multiple files are found
 
-    Note:
-        This function can only handle same search pattern for every folderPath, and will return the first one it finds \
-        if there are multiple folderPath. If it cannot find any, it will raise exceptions about the first folderPath
+    Note: This function can only handle same search pattern for every folderPath, and will return
+    the first one it finds/if there are multiple folderPath. If it cannot find any,
+    it will raise exceptions about the first folderPath
 
     Raises:
         FileNotFoundError: If folderPath(s) or pattern(s) does not match any findings
@@ -303,24 +240,6 @@ def find(folder_path, pattern='.*', full_path=False, expect_one=True):
         files = files[0]
 
     return files
-
-
-def concat_columns(sep: str = '', *args) -> pd.DataFrame:
-    """Concatenate multiple columns of pd.DataFrame with sep"""
-    df = pd.DataFrame()
-    for arg in args:
-        df = pd.concat([df, arg], axis=1, ignore_index=True)
-    try:
-        out = df.astype(str).add(sep).sum(axis=1).str.replace(
-            '%s+$' % re.escape(sep), '', regex=True)  # removes trailing sep
-        # need to make any columns with nan to output NaN, which is the result when 'A' + '_' +
-        # 'NaN'
-        mask = df.isnull().any(axis=1)
-        out[mask] = np.nan
-    except AttributeError:
-        # incase of empty data frame
-        out = pd.Series()
-    return out
 
 
 def chunk_list(lst: Union[list, np.array], chunk_size: int) -> Iterable:
@@ -413,7 +332,4 @@ if __name__ == '__main__':
     sample_df = pd.DataFrame(
         {"a": ["liquid", "arrogant", "imagine", "knock", "share"],
          "b": range(5)})
-
     dict_from_df_cols(df=sample_df, columns=['a', 'b'])
-
-    concat_columns('_', sample_df[['a', 'b']])
