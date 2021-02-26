@@ -126,6 +126,54 @@ def concat_columns(sep: str = '', *args) -> pd.DataFrame:
     return out
 
 
+def return_reconciliation_summary_table(
+        differences_df: pd.DataFrame,
+        groupby_key: str) -> pd.DataFrame:
+    """
+    Parse in the result of the compare_dataframe_col method, to give a summary
+    of the comparison of the two dataframes. This is especially useful if you
+    compare two very large dataframes, across multiple indices.
+    If you wish to choose the index by which to group the results, this method
+    outputs the mean absolute and percentage difference, as well as the
+    maximum absolute and percentage difference
+
+    Args:
+        differences_df: This is the pd.DataFrame result of the compare_dataframe_col
+        method, with the columns:
+        [index_columns (fed into compare_dataframe_col, as a parameter)
+        merge_column (suffix A)
+        merge_column (suffix B)
+        [both of the merge_columns are fed into compare_dataframe_col]
+        ]
+        groupby_key: key on which to group the summary of differences table
+
+    Returns
+        pd.DataFrame: Columns [groupby key, 'absolute_diff_mean',
+        'absolute_diff_max', 'pc_diff_mean', 'pc_diff_max']
+    """
+    diff_abs_df = pd.merge(
+        left=pd.DataFrame({'absolute_diff_mean':
+                               differences_df.groupby([groupby_key])['absolute_diff'].mean()}),
+        right=pd.DataFrame({'absolute_diff_max':
+                                differences_df.groupby([groupby_key])['absolute_diff'].max()}),
+        left_index=True, right_index=True
+    )
+
+    diffs_percent_diff = pd.merge(
+        left=pd.DataFrame({'pc_diff_mean':
+                               differences_df.groupby([groupby_key])['pc_diff'].mean()}),
+        right=pd.DataFrame({'pc_diff_max':
+                                differences_df.groupby([groupby_key])['pc_diff'].max()}),
+        left_index=True, right_index=True
+    )
+
+    summary_diffs_df = pd.merge(left=diff_abs_df,
+                                right=diffs_percent_diff,
+                                left_index=True, right_index=True)
+
+    return summary_diffs_df
+
+
 if __name__ == '__main__':
     sample_df = pd.DataFrame(
         {"a": ["liquid", "arrogant", "imagine", "knock", "share"],

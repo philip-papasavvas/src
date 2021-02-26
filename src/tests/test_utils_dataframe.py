@@ -1,11 +1,13 @@
 # Created 26 Feb 2021
+import string
 import unittest
 
 import numpy as np
 import pandas as pd
 
 from utils_dataframe import (replace_underscores_df, drop_null_columns_df,
-                             compare_dataframe_col, reconcile_dataframes_numeric)
+                             compare_dataframe_col, reconcile_dataframes_numeric,
+                             return_reconciliation_summary_table)
 
 np.random.seed(10)
 
@@ -96,6 +98,38 @@ class TestUtilsDataframe(unittest.TestCase):
                  [1.64872127, 1.64872127, 1.64872127, 1.64872127, 1.64872127],
                  [1.64872127, 1.64872127, 1.64872127, 1.64872127, 1.64872127]]),
                 columns='A,B,C,D,E'.split(',')
+            )
+        )
+
+    def test_return_reconciliation_summary_table(self):
+        df_one = pd.DataFrame({
+            'case': np.concatenate(
+                [np.tile('lowers', len(string.ascii_lowercase)),
+                 np.tile('uppers', len(string.ascii_uppercase))]),
+            'letters': list(map(str, string.ascii_letters)),
+            'nums': np.random.random(len(string.ascii_letters))
+        })
+
+        df_two = df_one[['case', 'letters']]
+        df_two['nums'] = np.random.randn(len(string.ascii_letters))
+
+        dataframe_differences = compare_dataframe_col(
+            df_one=df_one,
+            df_two=df_two,
+            index_col=['case', 'letters'],
+            merge_col='nums',
+            suffixes=('_one', '_two')
+        )
+
+        pd.testing.assert_frame_equal(
+            return_reconciliation_summary_table(differences_df=dataframe_differences,
+                                                groupby_key='case').reset_index(),
+            pd.DataFrame(
+                {'case': {0: 'lowers', 1: 'uppers'},
+                 'absolute_diff_mean': {0: 0.6466922873690832, 1: 1.053783120181656},
+                 'absolute_diff_max': {0: 1.709343846516738, 1: 2.8512440721987904},
+                 'pc_diff_mean': {0: 3.3140623932672395, 1: 3.2560714420173884},
+                 'pc_diff_max': {0: 29.435891064487656, 1: 20.944493382113617}}
             )
         )
 
