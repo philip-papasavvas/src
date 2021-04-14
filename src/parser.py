@@ -12,7 +12,7 @@ from typing import List, Union, Dict
 import pandas as pd
 
 
-# generic parsing
+# generic parsing methods
 def get_columns(dataframe: pd.DataFrame,
                 columns: Union[str, List[str]]) -> Union[pd.Series, pd.DataFrame]:
     """Get the column names, and can rename according to list"""
@@ -23,3 +23,20 @@ def rename_columns(dataframe: pd.DataFrame,
                    columns: Dict) -> pd.DataFrame:
     """Rename columns"""
     return dataframe.rename(columns=columns)
+
+
+def name_columns(dataframe: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
+    """Names columns if column names are not of type 'object'. Useful if reading a file
+    without a header"""
+    if dataframe.columns.dtype != 'O':
+        # reading flat file
+        dataframe.columns = columns
+
+    return dataframe
+
+
+def sort_columns(dataframe: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
+    """Sort the dataframe by column values for columns defined"""
+    return dataframe.sort_values(columns)
+
+
