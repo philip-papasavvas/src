@@ -8,7 +8,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from parser import get_columns
+from parser import get_columns, rename_columns
 
 np.random.seed(1)
 
@@ -28,6 +28,15 @@ class TestParser(unittest.TestCase):
         self.assertListEqual(
             get_columns(dataframe=self.sample_df, columns=['a', 'b']).columns.to_list(),
             ['a', 'b']
+        )
+
+    def test_rename_columns(self):
+        self.assertListEqual(
+            rename_columns(dataframe=self.sample_df, columns={'a': 'zero_to_four',
+                                                              'b': 'squared',
+                                                              'c': 'randoms'}).columns.to_list(),
+            ['zero_to_four', 'squared', 'randoms']
+
         )
 
 

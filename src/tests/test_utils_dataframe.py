@@ -13,6 +13,13 @@ np.random.seed(10)
 
 
 class TestUtilsDataframe(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        sample_data = {'a': np.repeat(np.nan, 10),
+                       'b': np.random.random_sample(10),
+                       'c': np.repeat(1, 10)}
+        cls.sample_df = pd.DataFrame(sample_data)
+
     def assert_dataframe_equal(self, a, b, msg):
         """utilise pandas.testing module to check if dataframes are the same"""
         try:
@@ -29,24 +36,9 @@ class TestUtilsDataframe(unittest.TestCase):
 
     def test_drop_null_columns_df(self):
         # used random numbers using np.random.seed(10)
-        pd.testing.assert_frame_equal(
-            drop_null_columns_df(data=pd.DataFrame(
-                {'a': np.repeat(np.nan, 10),
-                 'b': np.random.random_sample(10),
-                 'c': np.repeat(1, 10)})),
-            pd.DataFrame(
-                {'b': {0: 0.771320643266746,
-                       1: 0.0207519493594015,
-                       2: 0.6336482349262754,
-                       3: 0.7488038825386119,
-                       4: 0.4985070123025904,
-                       5: 0.22479664553084766,
-                       6: 0.19806286475962398,
-                       7: 0.7605307121989587,
-                       8: 0.16911083656253545,
-                       9: 0.08833981417401027},
-                 'c': {0: 1, 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1, 9: 1}}
-            )
+        self.assertListEqual(
+            drop_null_columns_df(data=self.sample_df).columns.to_list(),
+            ['b', 'c']
         )
 
     def test_compare_dataframe_col(self):

@@ -7,7 +7,7 @@ keys are the *args. Outputs a single pd.DataFrame
 This file contains the since parser functions where the first parameter is pd.DataFrame
 and returns pd.DataFrame
 """
-from typing import List, Union
+from typing import List, Union, Dict
 
 import pandas as pd
 
@@ -17,3 +17,9 @@ def get_columns(dataframe: pd.DataFrame,
                 columns: Union[str, List[str]]) -> Union[pd.Series, pd.DataFrame]:
     """Get the column names, and can rename according to list"""
     return dataframe[list(columns)].copy(True)
+
+
+def rename_columns(dataframe: pd.DataFrame,
+                   columns: Dict) -> pd.DataFrame:
+    """Rename columns"""
+    return dataframe.rename(columns=columns)
