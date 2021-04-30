@@ -8,7 +8,7 @@ from pprint import pprint
 import coinbasepro as cbp
 import mplfinance as mpf
 import pandas as pd
-import requests
+from requests import get
 
 pd.set_option('display.max_columns', 10)
 pd.set_option('display.width', 500)
@@ -29,7 +29,7 @@ ccy_pairs = ['BTC-USD', 'BTC-GBP', 'ETH-USD', 'ETH-GBP']
 
 # response codes for URL:
 # 200 - ok, 404 - not found, 400- bad request
-response_api = requests.get(url=url_product)
+response_api = get(url=url_product)
 response_text = response_api.text
 info_df = pd.read_json(response_text)
 
@@ -58,7 +58,7 @@ today_date = datetime.now()
 lookback_days = 300
 start_date = today_date - timedelta(days=lookback_days)
 pair = 'BTC-USD'
-candles_data = requests.get(
+candles_data = get(
     url=f'https://api.pro.coinbase.com/products/{pair}/candles',
     params={
         'start': start_date,

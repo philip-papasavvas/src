@@ -1,5 +1,5 @@
 """
-Created on: Sun 4 April 2021
+Created on: 4 April 2021
 Script to find the nearest neighbours amongst a group of data.
 Imagine, for example a set of customers went into a supermarket and put
 certain items in their basket. We have the overall population of all items
