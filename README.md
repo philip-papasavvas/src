@@ -17,7 +17,7 @@ This repository is mainly focused around analysis of time-series financial secru
 
 ## To-do
 - [X] Add a requirements.txt for compatibility (used pipreqs)
-- [ ] Re-word Auto-Regression notebook (in Jupyter Notebooks)
+- [X] Re-word Auto-Regression notebook (in Jupyter Notebooks)
 
 ## Contributing
 Pull requests are welcome.
