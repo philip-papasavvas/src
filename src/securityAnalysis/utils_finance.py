@@ -16,16 +16,12 @@ def calculate_relative_return_from_array(a: np.array) -> np.array:
     The function computes the relative return for each consecutive pair of prices in the input array.
     The relative return is calculated as (price at time t+1 / price at time t) - 1.
 
-    Parameters
-    ----------
-    a : np.array
-        A 1-dimensional NumPy array of asset prices, where each element represents the price at a specific time.
+    Parameters ---------- a : np.array A 1-dimensional NumPy array of asset prices, where each
+    element represents the price at a specific time.
 
-    Returns
-    -------
-    np.array
-        A 1-dimensional NumPy array of the same length as the input array minus 1, containing the relative returns
-        for each consecutive pair of prices in the input array.
+    Returns ------- np.array A 1-dimensional NumPy array of the same length as the input array
+    minus 1, containing the relative returns for each consecutive pair of prices in the input
+    array.
 
     Example
     -------
