@@ -4,3 +4,4 @@
 src/dataload/config/mongo_private.json
 .idea/
 /src/.idea/
+/.pytest_cache
