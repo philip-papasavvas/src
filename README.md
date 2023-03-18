@@ -1,10 +1,6 @@
 # Projects
 
-<p align="left">
-    <a href="https://www.python.org/">
-        <img src="https://ForTheBadge.com/images/badges/made-with-python.svg"
-            alt="python"></a> &nbsp;
-</p>
+[![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
 
 [![GitHub license](https://img.shields.io/badge/License-MIT-brightgreen.svg?style=flat-square)](https://github.com/VivekPa/AIAlpha/blob/master/LICENSE) 
 [![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
