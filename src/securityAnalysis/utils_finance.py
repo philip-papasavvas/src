@@ -9,11 +9,31 @@ from decorators import deprecated
 from utils_date import excel_date_to_np
 
 
-# array methods
 def calculate_relative_return_from_array(a: np.array) -> np.array:
-    """Calculate relative return of an array"""
-    return a[1:] / a[:-1] - 1
+    """
+    Calculate the relative return of an input NumPy array representing a time series of asset prices.
 
+    The function computes the relative return for each consecutive pair of prices in the input array.
+    The relative return is calculated as (price at time t+1 / price at time t) - 1.
+
+    Parameters
+    ----------
+    a : np.array
+        A 1-dimensional NumPy array of asset prices, where each element represents the price at a specific time.
+
+    Returns
+    -------
+    np.array
+        A 1-dimensional NumPy array of the same length as the input array minus 1, containing the relative returns
+        for each consecutive pair of prices in the input array.
+
+    Example
+    -------
+    >>> a = np.array([100, 110, 105, 120])
+    >>> calculate_relative_return_from_array(a)
+    array([ 0.1       , -0.04545455,  0.14285714])
+    """
+    return a[1:] / a[:-1] - 1
 
 # dataframe methods
 def calculate_return_df(data: pd.DataFrame,
