@@ -6,7 +6,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from src.utils_date import np_dt_to_str, excel_date_to_np, datetime_to_str
+from utils.utils_date import np_dt_to_str, excel_date_to_np, datetime_to_str
 
 
 class TestDateFuncs(unittest.TestCase):

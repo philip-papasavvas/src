@@ -5,9 +5,9 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from utils_dataframe import (replace_underscores_df, drop_null_columns_df,
-                             compare_dataframe_col, reconcile_dataframes_numeric,
-                             return_reconciliation_summary_table)
+from utils.utils_dataframe import (replace_underscores_df, drop_null_columns_df,
+                                   compare_dataframe_col, reconcile_dataframes_numeric,
+                                   return_reconciliation_summary_table)
 
 np.random.seed(10)
 

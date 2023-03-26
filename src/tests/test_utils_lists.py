@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.utils_lists import flatten_list, has_duplicates, list_as_comma_sep, \
+from utils.utils_lists import flatten_list, has_duplicates, list_as_comma_sep, \
     all_unique, chunk, count_occurrences, flatten
 
 

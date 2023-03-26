@@ -4,9 +4,9 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from utils_generic import (average, difference, flatten_dict, return_dict_keys,
-                           return_dict_values, change_dict_keys, dict_from_df_cols,
-                           convert_config_dates, chunk_list)
+from utils.utils_generic import (average, difference, flatten_dict, return_dict_keys,
+                                 return_dict_values, change_dict_keys, dict_from_df_cols,
+                                 convert_config_dates, chunk_list)
 
 
 class TestUtilsGeneric(unittest.TestCase):
