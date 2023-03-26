@@ -5,8 +5,8 @@ import numpy as np
 import pandas as pd
 
 from securityAnalysis.utils_finance import (
-    calculate_relative_return_from_array, calculate_return_df,
-    calculate_annualised_return_df
+    calculate_relative_return_from_array, calculate_security_returns,
+    calculate_annual_return
 )
 
 np.random.seed(1)  # set the random seed so the unit tests use synthetic data
@@ -36,10 +36,10 @@ class TestFinanceUtils(unittest.TestCase):
     def test_calculate_return_from_df__absolute(self):
         # calculate the absolute return
         pd.testing.assert_frame_equal(
-            calculate_return_df(data=self.data,
-                                is_log_return=False,
-                                is_relative_return=False,
-                                is_absolute_return=True),
+            calculate_security_returns(data=self.data,
+                                       is_log_return=False,
+                                       is_relative_return=False,
+                                       is_absolute_return=True),
             pd.DataFrame(
                 {'stock_a': {'04/06/2019': -2.3999999999999773,
                              '05/06/2019': 2.1999999999999886,
@@ -55,10 +55,10 @@ class TestFinanceUtils(unittest.TestCase):
     def test_calculate_return_from_df__log(self):
         # calculate the log return
         pd.testing.assert_frame_equal(
-            calculate_return_df(data=self.data,
-                                is_log_return=True,
-                                is_relative_return=False,
-                                is_absolute_return=False),
+            calculate_security_returns(data=self.data,
+                                       is_log_return=True,
+                                       is_relative_return=False,
+                                       is_absolute_return=False),
             pd.DataFrame(
                 {'stock_a': {'04/06/2019': -0.007396027550799822,
                              '05/06/2019': 0.006781776917236471,
@@ -74,10 +74,10 @@ class TestFinanceUtils(unittest.TestCase):
     def test_calculate_return_from_df__relative(self):
         # calculate the absolute return
         pd.testing.assert_frame_equal(
-            calculate_return_df(data=self.data,
-                                is_log_return=False,
-                                is_relative_return=True,
-                                is_absolute_return=False),
+            calculate_security_returns(data=self.data,
+                                       is_log_return=False,
+                                       is_relative_return=True,
+                                       is_absolute_return=False),
             pd.DataFrame(
                 {'stock_a': {'04/06/2019': -0.007368744243168468,
                              '05/06/2019': 0.006804825239715484,
@@ -92,7 +92,7 @@ class TestFinanceUtils(unittest.TestCase):
 
     def test_calculate_annualised_return_df(self):
         pd.testing.assert_series_equal(
-            calculate_annualised_return_df(data=self.data),
+            calculate_annual_return(data=self.data),
             pd.Series({'stock_a': -0.34537152900184453, 'stock_b': 1.8952787319995616})
         )
 

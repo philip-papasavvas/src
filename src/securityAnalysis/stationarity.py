@@ -13,7 +13,7 @@ import scipy.stats as stats
 from scipy.stats import kurtosis, skew
 from statsmodels.tsa.stattools import adfuller
 
-from securityAnalysis.utils_finance import calculate_return_df
+from securityAnalysis.utils_finance import calculate_security_returns
 
 pd.set_option('display.max_columns', 10)
 pd.set_option('display.width', 500)
@@ -141,11 +141,11 @@ if __name__ == '__main__':
     price_df = pd.DataFrame(price_series)
 
     # run analysis
-    returns_df = calculate_return_df(data=price_df,
-                                     is_relative_return=True)
+    returns_df = calculate_security_returns(data=price_df,
+                                            is_relative_return=True)
 
     # # could also look at log returns of the data and see if the time series is stationary
-    # log_returns_df = calculate_return_df(data=price_df,
+    # log_returns_df = calculate_security_returns(data=price_df,
     #                                      is_log_return=True)
 
 

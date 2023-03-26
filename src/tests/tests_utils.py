@@ -7,7 +7,7 @@ import unittest
 import pandas as pd
 import pandas.testing as pd_testing
 
-from src.securityAnalysis.utils_finance import calculate_return_df
+from src.securityAnalysis.utils_finance import calculate_security_returns
 
 market_data_dir = f"{os.path.dirname(os.path.abspath(__file__))}/data"
 
@@ -31,8 +31,8 @@ class TestSecurities(unittest.TestCase):
         sample_data = pd.DataFrame(data=market_data)
 
         pd.testing.assert_series_equal(
-            pd.Series(calculate_return_df(data=sample_data,
-                                          is_log_return=True).sum()),
+            pd.Series(calculate_security_returns(data=sample_data,
+                                                 is_log_return=True).sum()),
             pd.Series(
                 {'INDU Index': -0.020600636770248835,
                  'MXWO Index': -0.025305383694803556},
