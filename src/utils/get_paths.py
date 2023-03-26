@@ -11,7 +11,7 @@ _ROOT = os.path.abspath(os.path.dirname(__file__))
 
 def get_dataload_path(path):
     """Get the database/data path"""
-    return os.path.join(_ROOT, 'dataload', path)
+    return os.path.join(_ROOT, '../dataload', path)
 
 
 def get_data_path(path):
