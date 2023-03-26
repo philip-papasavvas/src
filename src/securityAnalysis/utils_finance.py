@@ -5,8 +5,8 @@ Utils specific for financial security data
 import numpy as np
 import pandas as pd
 
-from decorators import deprecated
-from utils_date import excel_date_to_np
+from utils.decorators import deprecated
+from utils.utils_date import excel_date_to_np
 
 
 def calculate_relative_return_from_array(a: np.array) -> np.array:
@@ -35,34 +35,46 @@ def calculate_relative_return_from_array(a: np.array) -> np.array:
 def calculate_return_df(data: pd.DataFrame,
                         is_relative_return: bool = False,
                         is_log_return: bool = False,
-                        is_absolute_return: bool = False):
-    """Method to calculate different types of return from dataframe
-
-    Parameters
-        df: Dataframe containing columns as securities, with all columns as float
-        is_relative_return
-        is_log_return
-        is_absolute_return
-
-    Returns
-        pd.DataFrame:  a dataframe with returns shifted as instructed
+                        is_absolute_return: bool = False) -> pd.DataFrame:
     """
-    data = data.select_dtypes(exclude=['string', 'object'])
+    Calculates different types of returns from a pandas DataFrame of securities data.
+
+    Parameters: data (pd.DataFrame): A pandas DataFrame containing columns of securities data,
+    where each column is a float. is_relative_return (bool): If True, calculates relative returns
+    as (price_t / price_t-1) - 1. Default is False. is_log_return (bool): If True, calculates log
+    returns as ln(price_t / price_t-1). Default is False. is_absolute_return (bool): If True,
+    calculates absolute returns as price_t - price_t-1. Default is False.
+
+    Returns: pd.DataFrame: A DataFrame of returns shifted as instructed. The returned DataFrame
+    has the same shape as the input DataFrame, with the first row and any non-numeric columns
+    removed. The columns of the returned DataFrame represent the returns of the corresponding
+    columns in the input DataFrame, shifted by one row to align with the original data.
+
+    Raises: ValueError: If no type of return is selected, the input DataFrame has fewer than two
+    columns, or the input DataFrame contains no numeric columns.
+    """
+
+    if not any([is_relative_return, is_log_return, is_absolute_return]):
+        raise ValueError("At least one type of return must be selected.")
+
+    if len(data.columns) < 2:
+        raise ValueError("Dataframe must contain at least two columns of securities data.")
+
+    data = data.select_dtypes(include=[np.number])
+    if data.empty:
+        raise ValueError("Dataframe contains no numeric columns.")
 
     if is_log_return:
         print("Calculating log returns...")
-        return_df = data.apply(lambda x: np.log(x / x.shift(1)))[1:]
+        return_df = np.log(data / data.shift(1)).iloc[1:]
     elif is_relative_return:
         print("Calculating relative returns...")
-        return_df = data.apply(lambda x: (x / x.shift(1)) - 1)[1:]
+        return_df = (data / data.shift(1) - 1).iloc[1:]
     elif is_absolute_return:
         print("Calculating absolute returns...")
-        return_df = data.apply(lambda x: x - x.shift(1))[1:]
-    else:
-        print("not a valid return type")
+        return_df = (data - data.shift(1)).iloc[1:]
 
     return return_df
-
 
 def calculate_annualised_return_df(data: pd.DataFrame) -> pd.Series:
     """
@@ -108,7 +120,8 @@ def return_info_ratio(data: pd.DataFrame) -> pd.DataFrame:
 
 
 def return_sharpe_ratio(data: pd.DataFrame, risk_free: float = 0) -> pd.Series:
-    """Function to give annualised Sharpe Ratio measure from input data,
+    """
+    Function to give annualised Sharpe Ratio measure from input data,
     user input risk free rate
 
     Args:
