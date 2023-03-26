@@ -32,10 +32,10 @@ def calculate_relative_return_from_array(a: np.array) -> np.array:
     return a[1:] / a[:-1] - 1
 
 # dataframe methods
-def calculate_return_df(data: pd.DataFrame,
-                        is_relative_return: bool = False,
-                        is_log_return: bool = False,
-                        is_absolute_return: bool = False) -> pd.DataFrame:
+def calculate_security_returns(data: pd.DataFrame,
+                               is_relative_return: bool = False,
+                               is_log_return: bool = False,
+                               is_absolute_return: bool = False) -> pd.DataFrame:
     """
     Calculates different types of returns from a pandas DataFrame of securities data.
 
@@ -76,7 +76,8 @@ def calculate_return_df(data: pd.DataFrame,
 
     return return_df
 
-def calculate_annualised_return_df(data: pd.DataFrame) -> pd.Series:
+
+def calculate_annual_return(data: pd.DataFrame) -> pd.Series:
     """
     Calculate annualised return (assuming input data is daily).
     For example, see unit test: test_utils_finance
@@ -86,15 +87,14 @@ def calculate_annualised_return_df(data: pd.DataFrame) -> pd.Series:
         the index
 
     Returns:
-        pd.Series: Annualised return for input_df (in decimal form),
-        labels are input columns
+        pd.Series: Annualised return for input_df (in decimal form), labels are input columns
     """
-    daily_rtn = calculate_return_df(data=data, is_relative_return=True)
+    daily_rtn = calculate_security_returns(data=data, is_relative_return=True)
     ann_rtn = np.mean(daily_rtn) * 252  # num business days in a year
     return ann_rtn
 
 
-def calculate_annual_volatility_df(data: pd.DataFrame) -> pd.DataFrame:
+def calculate_annual_volatility(data: pd.DataFrame) -> pd.DataFrame:
     """
     Calculate annualised return (assuming input data is daily).
     For example, see unit test: test_utils_finance
@@ -105,40 +105,64 @@ def calculate_annual_volatility_df(data: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.Series: Annualised volatility for input_df, labels are input columns
     """
-    daily_rtn = calculate_return_df(data=data, is_relative_return=True)
+    daily_rtn = calculate_security_returns(data=data, is_relative_return=True)
     ann_vol = np.std(daily_rtn) * np.sqrt(252)  # num business days in a year
     return ann_vol
 
 
-def return_info_ratio(data: pd.DataFrame) -> pd.DataFrame:
-    """Annual return from securities data(frame)"""
-    daily_rtn = data.pct_change(1).iloc[1:, ]
+def return_information_ratio(data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculates the annualized information ratio for a pandas DataFrame of securities data.
+
+    The information ratio is a measure of the excess return earned by an investment relative to a
+    benchmark, per unit of tracking error. The annualized information ratio is the information
+    ratio scaled by the square root of the number of trading days in a year.
+
+    Parameters: data (pd.DataFrame): A pandas DataFrame containing columns of securities data,
+    where each column is a float.
+
+    Returns: pd.DataFrame: A DataFrame of annualized information ratios for each column in the
+    input DataFrame.
+
+    Raises:
+    ValueError: If the input DataFrame contains fewer than two columns or any NaN values.
+    """
+
+    if len(data.columns) < 2:
+        raise ValueError("Dataframe must contain at least two columns of securities data.")
+
+    if data.isna().any().any():
+        raise ValueError("Dataframe cannot contain NaN values.")
+
+    daily_rtn = data.pct_change(1).iloc[1:]
     annual_rtn = np.mean(daily_rtn) * 252
     ann_vol = np.std(daily_rtn) * np.sqrt(252)
     info_ratio = np.divide(annual_rtn, ann_vol)
+
     return info_ratio
 
 
-def return_sharpe_ratio(data: pd.DataFrame, risk_free: float = 0) -> pd.Series:
+def return_sharpe_ratio(security_prices: pd.DataFrame,
+                        risk_free_rate_float: float = 0) -> pd.Series:
     """
     Function to give annualised Sharpe Ratio measure from input data,
     user input risk free rate
 
     Args:
-        data
-        risk_free: Risk free rate, as a decimal, so RFR of 6% = 0.06
+        security_prices
+        risk_free_rate_float: Risk free rate, as a decimal, so RFR of 6% = 0.06
 
     Returns:
         np.ndarray
     """
-    print(f"Risk free rate set as: {risk_free}")
-    annual_rtn = calculate_annualised_return_df(data=data)
-    annual_vol = calculate_annual_volatility_df(data=data)
-    sharpe_ratio = np.divide(annual_rtn - risk_free, annual_vol)
+    print(f"Risk free rate set as: {risk_free_rate_float}")
+    annual_rtn = calculate_annual_return(data=security_prices)
+    annual_vol = calculate_annual_volatility(data=security_prices)
+    sharpe_ratio = np.divide(annual_rtn - risk_free_rate_float, annual_vol)
     return sharpe_ratio
 
 
-def return_sortino_ratio(data: pd.DataFrame,
+def return_sortino_ratio(security_prices: pd.DataFrame,
                          target_return: float,
                          risk_free: float,
                          rtn_period: int = 1) -> np.ndarray:
@@ -146,7 +170,7 @@ def return_sortino_ratio(data: pd.DataFrame,
     Unlike the Sharpe Ratio it does not penalise upside volatility.
 
     Args:
-        data: Original dataframe of input data
+        security_prices: Original dataframe of input data
         target_return: Target return (for the return period)
         risk_free: Risk free rate, annualised
         rtn_period: Specify the return period (number of days) for the ratio.
@@ -155,7 +179,7 @@ def return_sortino_ratio(data: pd.DataFrame,
         ndarray: sortino ratio
     """
 
-    period_return = data.pct_change(rtn_period).iloc[1:, ]
+    period_return = security_prices.pct_change(rtn_period).iloc[1:, ]
     downside_return = np.array(period_return.values - target_return)
 
     inner_bit = np.minimum(np.zeros(shape=downside_return.shape[1]), downside_return)
@@ -279,8 +303,8 @@ if __name__ == '__main__':
         price_df.values)
 
     # relative return from dataframe
-    rel_return_df = calculate_return_df(data=price_df,
-                                        is_relative_return=True)
+    rel_return_df = calculate_security_returns(data=price_df,
+                                               is_relative_return=True)
 
     # check that the relative_return from array, and from
     # dataframes are equal
@@ -288,18 +312,18 @@ if __name__ == '__main__':
                                          rel_return_df.values)
 
     # absolute return from dataframe
-    abs_return = calculate_return_df(data=price_df,
-                                     is_absolute_return=True)
+    abs_return = calculate_security_returns(data=price_df,
+                                            is_absolute_return=True)
 
     # annualised return
-    calculate_annualised_return_df(data=price_df)
+    calculate_annual_return(data=price_df)
 
     # volatility
-    calculate_annual_volatility_df(data=price_df)
+    calculate_annual_volatility(data=price_df)
 
     # sharpe ratio (annualised return/volatility)
-    return_sharpe_ratio(data=price_df)
+    return_sharpe_ratio(security_prices=price_df)
 
     # sortino ratio
-    return_sortino_ratio(data=price_df, target_return=0.05,
+    return_sortino_ratio(security_prices=price_df, target_return=0.05,
                          risk_free=0)
