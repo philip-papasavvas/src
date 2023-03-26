@@ -1,63 +1,16 @@
 """
 Created on: 4 April 2021
+Created by: Philip P
+
 Script to find the nearest neighbours amongst a group of data.
 Imagine, for example a set of customers went into a supermarket and put
 certain items in their basket. We have the overall population of all items
 in the supermarket, and then each customer might have an assortment of items.
-Write an algorithm to to find the most similar customers and group them
+Write an algorithm to find the most similar customers and group them
 together
 """
 import numpy as np
 import pandas as pd
-
-num_customers = 1000
-num_items = 50
-max_num_items = 5
-selection = np.random.random_integers(
-    low=0,
-    high=num_items,
-    size=(num_customers, num_items))
-
-# not all customers will be buying close to 100 items, so muddy the picture
-# slightly
-np.random.seed(0)
-random_customer_selection = np.random.choice(a=selection.shape[0], size=45,
-                                             replace=False)
-print(f"Customers \n {random_customer_selection} \n will have products "
-      f"removed from their basket, to be in keeping with usual shopping experience")
-
-for i in random_customer_selection:
-    item_nums_to_remove = np.random.choice(
-        a=selection.shape[1], size=np.random.randint(low=5, high=60))
-    for item_to_remove in item_nums_to_remove:
-        selection[i][item_to_remove] = 0
-
-
-items_df = pd.DataFrame(
-    data=selection,
-    index=[f'customer_{i}' for i in range(1, num_customers + 1)])
-items_df.index.name = 'customer'
-items_df.reset_index(inplace=True)
-
-items_pvt = pd.melt(items_df,
-                    id_vars='customer',
-                    value_vars=items_df.columns[1:],
-                    value_name='item')
-items_pvt.drop('variable', axis=1, inplace=True)
-items_pvt['product_count'] = 1
-# put in a dummy
-items_pvt = items_pvt.loc[items_pvt['item'] != 0].copy(True)
-
-product_count_df = pd.pivot_table(
-    items_pvt,
-    values='product_count',
-    index=['customer', 'item'],
-    aggfunc='count').reset_index()
-product_count_df.columns = ['customer', 'item_num', 'quantity']
-
-print(f"{product_count_df['item_num'].nunique()} unique items in the baskets"
-      f" of {num_customers} customers. \n To find which customers purchased"
-      f" the most similar items, we need an algorithm to do this...")
 
 
 def split_customers(basket_df: pd.DataFrame,
@@ -188,8 +141,58 @@ def split_customers(basket_df: pd.DataFrame,
     return cust_sets
 
 
-res = split_customers(basket_df=product_count_df,
-                      num_customer_sets=10)
+if __name__ == '__main__':
+    # setup the initial problem statement
+    num_customers = 1000
+    num_items = 50
+    max_num_items = 5
+    selection = np.random.random_integers(
+        low=0,
+        high=num_items,
+        size=(num_customers, num_items))
 
-group_1_split_df = product_count_df.loc[
-    product_count_df['customer'].isin(res[1]['customers'])]
+    # not all customers will be buying close to 100 items, so muddy the picture
+    # slightly
+    np.random.seed(0)
+    random_customer_selection = np.random.choice(a=selection.shape[0], size=45,
+                                                 replace=False)
+    print(f"Customers \n {random_customer_selection} \n will have products "
+          f"removed from their basket, to be in keeping with usual shopping experience")
+
+    for i in random_customer_selection:
+        item_nums_to_remove = np.random.choice(
+            a=selection.shape[1], size=np.random.randint(low=5, high=60))
+        for item_to_remove in item_nums_to_remove:
+            selection[i][item_to_remove] = 0
+
+    items_df = pd.DataFrame(
+        data=selection,
+        index=[f'customer_{i}' for i in range(1, num_customers + 1)])
+    items_df.index.name = 'customer'
+    items_df.reset_index(inplace=True)
+
+    items_pvt = pd.melt(items_df,
+                        id_vars='customer',
+                        value_vars=items_df.columns[1:],
+                        value_name='item')
+    items_pvt.drop('variable', axis=1, inplace=True)
+    items_pvt['product_count'] = 1
+    # put in a dummy
+    items_pvt = items_pvt.loc[items_pvt['item'] != 0].copy(True)
+
+    product_count_df = pd.pivot_table(
+        items_pvt,
+        values='product_count',
+        index=['customer', 'item'],
+        aggfunc='count').reset_index()
+    product_count_df.columns = ['customer', 'item_num', 'quantity']
+
+    print(f"{product_count_df['item_num'].nunique()} unique items in the baskets"
+          f" of {num_customers} customers. \n To find which customers purchased"
+          f" the most similar items, we need an algorithm to do this...")
+
+    res = split_customers(basket_df=product_count_df,
+                          num_customer_sets=10)
+
+    group_1_split_df = product_count_df.loc[
+        product_count_df['customer'].isin(res[1]['customers'])]
