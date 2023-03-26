@@ -22,4 +22,4 @@ src/__pycache__
 # Ignore jupyter notebook checkpoints
 *.ipynb
 *.xml
-*.xml
+*.pyc
