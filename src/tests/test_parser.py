@@ -26,15 +26,18 @@ class TestParser(unittest.TestCase):
 
     def test_get_columns(self):
         self.assertListEqual(
-            get_columns(dataframe=self.sample_df, columns=['a', 'b']).columns.to_list(),
+            get_columns(dataframe=self.sample_df,
+                        columns=['a', 'b']).columns.to_list(),
             ['a', 'b']
         )
 
     def test_rename_columns(self):
         self.assertListEqual(
-            rename_columns(dataframe=self.sample_df, columns={'a': 'zero_to_four',
+            rename_columns(dataframe=self.sample_df,
+                           columns={'a': 'zero_to_four',
                                                               'b': 'squared',
-                                                              'c': 'randoms'}).columns.to_list(),
+                                                              'c': 'randoms'}
+                           ).columns.to_list(),
             ['zero_to_four', 'squared', 'randoms']
 
         )
