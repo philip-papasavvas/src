@@ -1,6 +1,10 @@
 """
 Created on: 4 April 2021
 Created by: Philip P
+
+This script simulates a shopping scenario by generating a relationship between customers
+and items in a store. It creates a DataFrame that represents the quantity of each item
+selected by each customer, applying a realistic randomness to the selection and quantity.
 """
 import numpy as np
 import pandas as pd
@@ -76,7 +80,7 @@ class CustomerItemsGenerator:
 
 
 if __name__ == '__main__':
-    # Usage
+    # example of using the class
     generator = CustomerItemsGenerator(num_customers=10, num_items=10, max_num_items=5)
     generator.generate()
     print(generator.product_count_df)
