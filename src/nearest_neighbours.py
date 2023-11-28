@@ -1,12 +1,8 @@
 """
 Created on: 4 April 2021
-Script to find the nearest neighbours amongst a group of data.
-Imagine, for example a set of customers went into a supermarket and put
-certain items in their basket. We have the overall population of all items
-in the supermarket, and then each customer might have an assortment of items.
-Write an algorithm to to find the most similar customers and group them
-together
+Created by: Philip P
 """
+
 import numpy as np
 import pandas as pd
 
