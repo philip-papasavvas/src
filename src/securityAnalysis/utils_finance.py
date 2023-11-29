@@ -32,6 +32,7 @@ def calculate_relative_return_from_array(a: np.array) -> np.array:
     """
     return a[1:] / a[:-1] - 1
 
+
 # dataframe methods
 def calculate_security_returns(data: pd.DataFrame,
                                is_relative_return: bool = False,
@@ -40,13 +41,16 @@ def calculate_security_returns(data: pd.DataFrame,
     """
     Calculates different types of returns from a pandas DataFrame of securities data.
 
-    Parameters: data (pd.DataFrame): A pandas DataFrame containing columns of securities data,
-    where each column is a float. is_relative_return (bool): If True, calculates relative returns
-    as (price_t / price_t-1) - 1. Default is False. is_log_return (bool): If True, calculates log
-    returns as ln(price_t / price_t-1). Default is False. is_absolute_return (bool): If True,
-    calculates absolute returns as price_t - price_t-1. Default is False.
+    Parameters:
+        da ta (pd.DataFrame): A pandas DataFrame containing columns of securities data,
+        where each column is a float.
+        is_relative_return (bool): If True, calculates relative returns as (price_t / price_t-1) - 1.
+        Default is False.
+        is_log_return (bool): If True, calculates log returns as ln(price_t / price_t-1). Default is False.
+        is_absolute_return (bool): If True, calculates absolute returns as price_t - price_t-1. Default is False.
 
-    Returns: pd.DataFrame: A DataFrame of returns shifted as instructed. The returned DataFrame
+    Returns:
+        pd.DataFrame: A DataFrame of returns shifted as instructed. The returned DataFrame
     has the same shape as the input DataFrame, with the first row and any non-numeric columns
     removed. The columns of the returned DataFrame represent the returns of the corresponding
     columns in the input DataFrame, shifted by one row to align with the original data.
@@ -92,7 +96,7 @@ def calculate_annual_return(data: pd.DataFrame) -> pd.Series:
     """
     daily_rtn = calculate_security_returns(data=data, is_relative_return=True)
     ann_rtn = np.mean(daily_rtn) * 252  # num business days in a year
-    return ann_rtn
+    return pd.Series(ann_rtn)
 
 
 def calculate_annual_volatility(data: pd.DataFrame) -> pd.DataFrame:
@@ -167,7 +171,8 @@ def return_sortino_ratio(security_prices: pd.DataFrame,
                          target_return: float,
                          risk_free: float,
                          rtn_period: int = 1) -> np.ndarray:
-    """Method to calculate Sortino Ratio (gives a better measure of downside volatility, thus risk.
+    """
+    Method to calculate Sortino Ratio (gives a better measure of downside volatility, thus risk.
     Unlike the Sharpe Ratio it does not penalise upside volatility.
 
     Args:
