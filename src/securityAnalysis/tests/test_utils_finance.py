@@ -28,9 +28,10 @@ class TestFinanceUtils(unittest.TestCase):
              })
 
     def test_calculate_relative_return_arr(self):
+        return_arr = [0.5, 0.6, 0.7, 0.8, 0.9]
         np.testing.assert_array_almost_equal(
-            calculate_relative_return_from_array(np.random.random_sample(5)),
-            np.array([1.72730572e+00, 1.58782352e-04, 2.64334912e+03, 4.85412106e-01])
+            calculate_relative_return_from_array(np.array(return_arr)),
+            np.array([0.2, 0.16666667, 0.14285714, 0.125])
         )
 
     def test_calculate_return_from_df__absolute(self):
