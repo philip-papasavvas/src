@@ -23,3 +23,5 @@ src/__pycache__
 *.ipynb
 *.xml
 *.pyc
+.idea/workspace.xml
+*.xml
