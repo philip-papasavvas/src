@@ -9,8 +9,7 @@ Inspiration from: https://www.analyticsvidhya.com/blog/2018/09/non-stationary-ti
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import scipy.stats as stats
-from scipy.stats import kurtosis, skew
+from scipy.stats import kurtosis, skew, t
 from statsmodels.tsa.stattools import adfuller
 
 from securityAnalysis.utils_finance import calculate_security_returns
@@ -20,142 +19,179 @@ pd.set_option('display.width', 500)
 plt.style.use('seaborn')
 
 
-def test_stationarity_adf(time_series: np.array) -> None:
+def test_stationarity_adf(time_series: np.ndarray) -> None:
     """
-    Wrapper on adfuller method from statsmodels package, to perform Dickey-Fuller test for
-    Stationarity
+    Perform the Dickey-Fuller test for stationarity on a time series.
 
-    Parameter:
-        time_series: time series containing non-null values which to perform stationarity test on
+    Args:
+        time_series (np.ndarray): A time series array containing non-null values.
 
-    Returns
-        None: Print statement of ['Test Statistic', 'p-value', '# lags', '# observations', and
-        critical values for alpha 1, 5 and 10%
-
-    NOTE:
-        Test statistic: t
-        Critical value, c
-        Null hypothesis, H_0
-        If t < c, reject H_0 --> time series is stationary
-        If t > c, fail to reject H_0 --> time series is non-stationary (has some drift with time)
+    Returns:
+        None. Outputs the test results including the Test Statistic, p-value, number of lags used,
+        number of observations, and critical values for the 1%, 5%, and 10% levels.
     """
     print('Results of Dickey-Fuller Test:')
     df_test = adfuller(time_series, autolag='AIC')
-    df_output = pd.Series(df_test[0:4],
-                          index=['Test Statistic', 'p-value', '#Lags Used',
-                                 'Number of Observations Used'])
+    df_output = pd.Series(df_test[:4], index=['Test Statistic', 'p-value', '#Lags Used', 'Number of Observations Used'])
     for key, value in df_test[4].items():
-        df_output['Critical Value (%s)' % key] = value
+        df_output[f'Critical Value ({key})'] = value
     print(df_output)
 
 
-def get_aug_dickey_fuller_result(time_series: np.array, alpha: int = 5) -> bool:
+def get_aug_dickey_fuller_result(time_series: np.ndarray, alpha: int = 5) -> bool:
     """
-    Method to perform Augmented Dickey Fuller Test for stationarity on time_series, at a
-    given level of significance alpha
+    Perform the Augmented Dickey Fuller Test for stationarity on a time series.
 
-    Parameters:
-        time_series: 1-D array of time series data to be tested for stationarity
-        alpha: chosen level of significance, must be one of 1,5 or 10%
+    Args:
+        time_series (np.ndarray): A 1-D array of time series data.
+        alpha (int): The level of significance (1, 5, or 10%).
 
     Returns:
-        bool: True if stationary data (t-statistic less than critical value at significance level
-        alpha, reject H_0), False for non-stationary data
+        bool: True if data is stationary; False otherwise.
+
+    Raises:
+        ValueError: If alpha is not one of 1, 5, or 10%.
     """
-    assert alpha in [1, 5, 10], "Choose appropriate alpha significance: [1, 5 or 10%]"
-    print(f"Performing augmented Dickey Fuller test at significance level alpha: {alpha}")
+    if alpha not in [1, 5, 10]:
+        raise ValueError("Alpha significance level must be one of 1, 5, or 10%.")
 
+    print(f"Performing Augmented Dickey Fuller test at alpha level: {alpha}%")
     df_test = adfuller(time_series, autolag='AIC')
-    test_stats = {
-        'test_statistic': df_test[0],
-        'p-values': df_test[4]
-    }
-    is_stationary = test_stats['test_statistic'] < test_stats['p-values'][f"{str(alpha)}%"]
-
+    test_statistic, critical_values = df_test[0], df_test[4]
+    is_stationary = test_statistic < critical_values[f"{alpha}%"]
     return is_stationary
 
 
-def get_descriptive_stats(data: pd.DataFrame, alpha: float = 0.05) -> dict:
-    """Compute descriptive, high level stats (p-values given for two tailed tests),
-    incuding skewness and kurtosis, specifying alpha (for tests of skewness and kurtosis)
+def calculate_basic_stats(data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate basic descriptive statistics for a DataFrame.
 
     Args:
-        data: Clean dataframe with no NaNs
-        alpha: level of significance for the two-tailed test. must lie between 0 and 1
+        data: Clean DataFrame with no NaNs
 
-    Returns
-        dict of results for descriptive level statistics
+    Returns:
+        DataFrame with basic statistics columns.
     """
-    assert 0 < alpha < 1, f"Alpha level of {alpha} is not valid, must lie between 0 and 1"
+    stats_df = pd.DataFrame()
+    stats_df['Size'] = data.count()
+    stats_df['Mean'] = data.mean()
+    stats_df['Std Dev'] = np.std(data, ddof=1)
+    stats_df['Min'] = np.min(data)
+    stats_df['Max'] = np.max(data)
+    return stats_df
+
+
+def test_skewness_kurtosis(data: pd.DataFrame, alpha: float) -> pd.DataFrame:
+    """
+    Test for skewness and kurtosis.
+
+    Args:
+        data: Clean DataFrame with no NaNs
+        alpha: Level of significance for the two-tailed test.
+
+    Returns:
+        DataFrame with skewness and kurtosis test results.
+    """
+    test_df = pd.DataFrame()
+    test_df['Skewness'] = skew(data)
+    test_df['Excess Kurtosis'] = kurtosis(data)
+
+    # Calculate t-statistic and p-value for Skewness
+    test_df['Skewness t-statistic'] = test_df['Skewness'] / np.sqrt(6 / data.count())
+    test_df['Skewness p-value'] = (
+            2 * (1 - t.cdf(np.abs(test_df['Skewness t-statistic']), df=data.count() - 1)))
+    skew_h0_title = f"Skewness reject H_0 at {100 * alpha}% sig level"
+    test_df[skew_h0_title] = test_df['Skewness p-value'] < alpha
+
+    # Calculate t-statistic and p-value for Excess Kurtosis
+    test_df['Excess Kurtosis t-statistic'] = test_df['Excess Kurtosis'] / np.sqrt(24 / data.count())
+    test_df['Excess Kurtosis p-value'] = (
+            2 * (1 - t.cdf(np.abs(test_df['Excess Kurtosis t-statistic']), df=data.count() - 1)))
+    kurt_h0_title = f"Kurtosis reject H_0 at {100 * alpha}% sig level"
+    test_df[kurt_h0_title] = test_df['Excess Kurtosis p-value'] < alpha
+
+    return test_df
+
+
+def run_adfuller_test(data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Run the Augmented Dickey-Fuller test on each column of a DataFrame.
+
+    Args:
+        data: Clean DataFrame with no NaNs
+
+    Returns:
+        DataFrame with Augmented Dickey-Fuller test results.
+    """
+    adf_df = pd.DataFrame()
+    adf_df['Aug Dickey-Fuller Test'] = [adfuller(column)[1] for _, column in data.iteritems()]
+    return adf_df
+
+
+def get_descriptive_stats(data: pd.DataFrame, alpha: float = 0.05) -> dict:
+    """
+    Compute descriptive, high-level stats, including skewness and kurtosis,
+    specifying alpha (for tests of skewness and kurtosis).
+
+    Args:
+        data: Clean DataFrame with no NaNs.
+        alpha: Level of significance for the two-tailed test. Must lie between 0 and 1.
+
+    Returns:
+        Dictionary of results for descriptive level statistics.
+    """
+    if not 0 < alpha < 1:
+        raise ValueError(f"Alpha level of {alpha} is not valid, must lie between 0 and 1")
     print("Getting descriptive level stats for dataframe...")
 
-    result_df = pd.DataFrame(columns=['Size', 'Mean', 'Std Dev', 'Skewness', 'Excess Kurtosis'])
+    # Basic descriptive statistics
+    result_df = calculate_basic_stats(data)
 
-    result_df['Size'] = data.count()
-    result_df['Mean'] = data.mean()
-    result_df['Std Dev'] = np.std(data)
-    result_df['Min'] = np.min(data)
-    result_df['Max'] = np.max(data)
+    # Skewness and Kurtosis tests
+    test_df = test_skewness_kurtosis(data, alpha)
+    result_df = result_df.join(test_df)
 
-    result_df['Skewness'] = skew(data)
-    result_df['Skewness t-statistic'] = \
-        result_df['Skewness'].values / np.sqrt(6 / result_df['Size'].values)
-    result_df['Skewness p-value'] = 2 * (1 - stats.t.cdf(result_df['Skewness t-statistic'], df=1))
-    # so, one can reject h_0 (skewness of log returns = 0) for a p-value of less than alpha
-    skew_h0_title = "Skewness reject H_0 at " + str(100 * alpha) + "% sig level"
-    skew_h0_values = result_df['Skewness p-value'].values < alpha
-    result_df['Skewness accept H_0'] = skew_h0_values
-    result_df.rename(columns={'Skewness accept H_0': skew_h0_title}, inplace=True)
+    # Augmented Dickey-Fuller tests
+    adf_df = run_adfuller_test(data)
+    result_df = result_df.join(adf_df)
 
-    result_df['Excess Kurtosis'] = kurtosis(data)  # if high excess kurtosis --> thick tails
-    result_df['Excess Kurtosis t-statistic'] = \
-        result_df['Excess Kurtosis'].values / np.sqrt(24 / result_df['Size'].values)
-    result_df['Excess Kurtosis p-value'] = \
-        2 * (1 - stats.t.cdf(result_df['Excess Kurtosis t-statistic'], df=1))
-    kurt_h0_title = f"Kurtosis reject H_0 at {str(100 * alpha)}% sig level"
-    kurt_h0_values = result_df['Excess Kurtosis p-value'].values < alpha
-    result_df['Excess Kurtosis accept H_0'] = kurt_h0_values
-    result_df.rename(columns={'Excess Kurtosis accept H_0': kurt_h0_title}, inplace=True)
-
-    adf_results = []
-    for i in data.columns:
-        adf_results.append(get_aug_dickey_fuller_result(data.loc[:, i]))
-
-    result_df['Aug Dickey-Fuller Test'] = adf_results
+    # Convert the DataFrame to a dictionary
     result_dict = result_df.T.to_dict()
 
     return result_dict
 
 
 if __name__ == '__main__':
-    # real market data
-    import yfinance
-    price_series = yfinance.download(tickers='GOOGL', start="2010-01-01")['Adj Close'] # google data
+    import yfinance as yf
+    # Real market data example
+    # Fetch historical adjusted closing prices for Alphabet (GOOGL)
+    price_series = yf.download(tickers='GOOGL', start="2010-01-01")['Adj Close']
     price_df = pd.DataFrame(price_series)
 
-    # random data example
-    import datetime
-    date_rng = pd.date_range(datetime.datetime.now().strftime("%Y-%m-%d"), periods=500).to_list()
+    # Random data example
+    # Create a DataFrame with random returns for demonstration purposes
+    date_rng = pd.date_range(start=pd.Timestamp.now().strftime("%Y-%m-%d"), periods=500)
     random_returns = pd.Series(np.random.randn(500), index=date_rng)
-    price_series = random_returns.cumsum()
-    price_df = pd.DataFrame(price_series)
+    random_price_series = random_returns.cumsum()
+    random_price_df = pd.DataFrame(random_price_series)
+    price_series = random_price_series
+    price_df = random_price_df
 
-    # run analysis
-    returns_df = calculate_security_returns(data=price_df,
-                                            is_relative_return=True)
+    # Calculate returns from price data (assumed to be implemented elsewhere)
+    returns_df = calculate_security_returns(data=price_df, is_relative_return=True)
 
-    # # could also look at log returns of the data and see if the time series is stationary
-    # log_returns_df = calculate_security_returns(data=price_df,
-    #                                      is_log_return=True)
+    # (Optional) Calculate log returns and test for stationarity
+    # log_returns_df = calculate_security_returns(data=price_df, is_log_return=True)
+    # test_stationarity_adf(time_series=log_returns_df)
 
-
-    # test for stationarity (using Augmented Dickey Fuller test) for one timeseries
+    # Test for stationarity using the Augmented Dickey-Fuller test for a single time series
     test_stationarity_adf(time_series=price_series)
 
-    # augmented dickey fuller result
+    # Retrieve the Augmented Dickey-Fuller test result
     get_aug_dickey_fuller_result(time_series=price_series)
 
-    # more descriptive statistics on skewness, kurtosis, as well as # observations, max, min, mean,
-    # standard deviation etc
-    get_descriptive_stats(data=returns_df,
-                          alpha=0.05)
+    # Get more descriptive statistics including skewness, kurtosis, and other basic stats
+    descriptive_stats = get_descriptive_stats(data=returns_df, alpha=0.05)
+
+    # Print the descriptive statistics
+    print(descriptive_stats)
