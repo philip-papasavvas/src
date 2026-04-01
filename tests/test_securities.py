@@ -7,7 +7,7 @@ import unittest
 import pandas as pd
 import pandas.testing as pd_testing
 
-from src.securityAnalysis.utils_finance import calculate_security_returns
+from aialpha.security_analysis.finance import calculate_security_returns
 
 market_data_dir = f"{os.path.dirname(os.path.abspath(__file__))}/data"
 

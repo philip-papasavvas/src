@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aialpha"
+version = "0.1.0"
+description = "Financial time-series analysis framework"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+dependencies = [
+    "matplotlib>=3.8.2",
+    "mplfinance>=0.12.10b0",
+    "numpy>=1.26.2",
+    "pandas",
+    "pymongo>=4.6.0",
+    "requests>=2.31.0",
+    "scipy>=1.11.4",
+    "statsmodels>=0.14.0",
+    "yfinance>=0.2.32",
+]
+
+[project.optional-dependencies]
+arctic = [
+    "arctic",
+]
+dev = [
+    "pytest>=7.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["aialpha*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
