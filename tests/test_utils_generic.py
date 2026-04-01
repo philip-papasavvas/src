@@ -4,9 +4,9 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from aialpha.utils.generic import (average, difference, flatten_dict, return_dict_keys,
-                                   return_dict_values, change_dict_keys, dict_from_df_cols,
-                                   convert_config_dates, chunk_list, to_array, match,
+from aialpha.utils.generic import (average, difference, flatten_dict,
+                                   change_dict_keys, dict_from_df_cols,
+                                   convert_config_dates, to_array, match,
                                    linear_bucketing)
 
 
@@ -38,16 +38,6 @@ class TestUtilsGeneric(unittest.TestCase):
             "Dict should've been flatten to have "
             "two sub keys on b level: more detail, second level")
 
-    def test_utils_return_dict_keys(self):
-        self.assertEqual(return_dict_keys(dct={'a': 1, 'b': 2, 'c': 3}),
-                         ['a', 'b', 'c'],
-                         "Should've returned ['a', 'b', 'c']")
-
-    def test_utils_return_dict_values(self):
-        self.assertEqual(return_dict_values(dct={'a': 1, 'b': 2, 'c': 3}),
-                         [1, 2, 3],
-                         "Should've returned [1,2,3]")
-
     def test_utils_change_dict_keys(self):
         self.assertEqual(change_dict_keys(in_dict={'a': [1], 'b': [2]}, text='test'),
                          {'test_a': [1], 'test_b': [2]},
@@ -71,13 +61,6 @@ class TestUtilsGeneric(unittest.TestCase):
             {'date_one': np.datetime64('2020-01-01'),
              'date_two': np.datetime64('2019-01-01'),
              'DATE': np.datetime64('2010-12-25')}
-        )
-
-    def test_chunk_list(self):
-        a = chunk_list(lst=np.arange(10), chunk_size=2)
-        np.testing.assert_array_equal(
-            next(a),
-            np.array([0, 1])
         )
 
     def test_to_array__list(self):

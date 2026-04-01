@@ -5,8 +5,6 @@ Utils specific for financial security data
 import numpy as np
 import pandas as pd
 
-from aialpha.utils.decorators import deprecated
-from aialpha.utils.date import excel_date_to_np
 
 
 def calculate_relative_return_from_array(a: np.array) -> np.array:
@@ -196,89 +194,6 @@ def return_sortino_ratio(security_prices: pd.DataFrame,
     sortino = (period_return.mean() - risk_free) / target_downside_dev
 
     return sortino
-
-
-@deprecated
-def clean_bloomberg_security_data(input_file):
-    """
-    Params:
-        inputFile: csv
-            Data starts on the third row in format date | float.
-            e.g.
-            TICKER      | (empty)    | (empty) | ...
-            "Date"      | "PX_LAST"  | (empty) | ...
-            DD/MM/YYYY  | float      | (empty) | ...
-    Read csv file with two columns from bloomberg one with the date, and the other with the price.
-
-    Returns:
-         data (dataframe): Melted dataframe
-    """
-
-    a = pd.read_csv(input_file, header=None)
-    a = a.copy()
-    product = a.iloc[0, 0]
-
-    data = a.iloc[2:, :]
-    data = data.copy()
-    data['product'] = product
-    data.columns = ['date', 'price', 'product']
-    data = data[['product', 'date', 'price']]
-    return data
-
-
-@deprecated
-def return_melted_df(input_file):
-    """
-    Read csv file with Bloomberg data (in format below with or without blank columns) and create
-    melted pivot format inputFile
-    bb ticker | (empty)         | bb ticker | (empty)
-    Date      | "PX_LAST"       | Date      | "PX_LAST"
-    dd/mm/yyyy| float           | dd/mm/yyyy| float
-
-    Returns:
-    Contract    | Date      | Price
-    xxxx        | dd/mm/yy  | ##.##
-    """
-
-    x = pd.read_csv(input_file, header=None, parse_dates=True)
-    x.dropna(axis=1, how='all', inplace=True)
-
-    if any(pd.DataFrame(x.iloc[1, :]).drop_duplicates() == ['Date', "PX_LAST"]):
-        x = x.copy(True)
-        if x.shape[1] % 2 == 0:
-            df = pd.DataFrame()
-            for i in range(0, x.shape[1], 2):
-                product = x.iloc[0, i]  # extract name of product/security
-                data = x.iloc[2:, i:i + 2]
-                data.dropna(inplace=True)
-                data.reset_index(drop=True, inplace=True)
-
-                data['product'] = product
-
-                data.columns = ['date', 'price', 'product']
-                # data['date'] = np.datetime64(data['date'])
-                dates = np.array(data['date'])
-
-                # create a mask to ensure that all entries have the correct date format,
-                # not just Excel serial numbers
-                res = []
-                for date in dates:
-                    res.append(len(date))
-                res = np.array(res)
-                mask = (res != 10)
-                corrected_dates = pd.to_datetime(
-                    excel_date_to_np(np.array(dates[mask], dtype='int32'))
-                ).strftime('%Y/%m/%d')
-                dates[mask] = corrected_dates
-                data['date'] = dates
-
-                data = data[['product', 'date', 'price']]
-                df = df.append(data)
-                return df
-        else:
-            print("Dataframe is not in the correct format")
-    else:
-        raise TypeError("The dataframe is not in the format expected with columns: [Date, PX_LAST]")
 
 
 if __name__ == '__main__':

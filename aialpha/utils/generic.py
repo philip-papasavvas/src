@@ -7,8 +7,7 @@ import datetime as dt
 import gzip
 import os
 import re
-from math import ceil
-from typing import Union, Iterable
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -243,20 +242,6 @@ def find(folder_path, pattern='.*', full_path=False, expect_one=True):
     return files
 
 
-def chunk_list(lst: Union[list, np.array], chunk_size: int) -> Iterable:
-    """Generator yielding successive chunk-sized chunks from l
-
-    Args:
-        lst: list/array to chunk
-        chunk_size: size of chunk
-
-    Returns:
-        The next chunk of n in len(l) - 1
-    """
-    for i in range(0, ceil(len(lst) / chunk_size)):
-        yield lst[i * chunk_size: i * chunk_size + chunk_size]
-
-
 def format_csv_commas(path: str) -> list:
     """ 
     Feed in filepath of CSV to be edited and returns List of cleaned data, replacing 
@@ -294,22 +279,6 @@ def flatten_dict(d: dict) -> dict:
                 yield key, value
 
     return dict(items())
-
-
-def return_dict_keys(dct: dict) -> list:
-    """Returns keys of a dict in a list
-    >>> return_dict_keys({'a':1, 'b':2, 'c':3})
-    """
-    return list(dct.keys())
-
-
-def return_dict_values(dct: dict) -> list:
-    """
-    Returns keys of a dict in a list
-    >>> return_dict_values({'a':1, 'b':2, 'c':3})
-    [1, 2, 3]
-    """
-    return list(dct.values())
 
 
 def change_dict_keys(in_dict: dict, text: str) -> dict:

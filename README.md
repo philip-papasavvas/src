@@ -123,7 +123,7 @@ pytest tests/test_finance.py -v
 | Module | Test File | Functions Covered |
 |--------|-----------|-------------------|
 | `utils.date` | `test_utils_date.py` | `np_dt_to_str`, `excel_date_to_np`, `datetime_to_str`, `time_delta_to_days` |
-| `utils.generic` | `test_utils_generic.py` | `average`, `difference`, `flatten_dict`, `dict ops`, `chunk_list`, `to_array`, `match`, `linear_bucketing`, `change_dict_keys` |
+| `utils.generic` | `test_utils_generic.py` | `average`, `difference`, `flatten_dict`, `change_dict_keys`, `dict_from_df_cols`, `to_array`, `match`, `linear_bucketing` |
 | `utils.lists` | `test_utils_lists.py` | `flatten`, `flatten_list`, `has_duplicates`, `all_unique`, `chunk`, `count_occurrences`, `list_as_comma_sep` |
 | `utils.dataframe` | `test_utils_dataframe.py` | `replace_underscores_df`, `drop_null_columns_df`, `compare_dataframe_col`, `reconcile_dataframes_numeric`, `return_reconciliation_summary_table`, `get_selected_column_names`, `concat_columns` |
 | `security_analysis.finance` | `test_finance.py` | `calculate_relative_return_from_array`, `calculate_security_returns` (all return types), `calculate_annual_return`, `calculate_annual_volatility`, `return_sharpe_ratio`, `return_sortino_ratio`, `return_information_ratio` |
