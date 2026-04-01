@@ -26,7 +26,8 @@ class TestSecurities(unittest.TestCase):
         self.addTypeEqualityFunc(pd.DataFrame, self.assert_dataframe_equal)
 
     def test_utils_securities_funcs(self):
-        market_data = json.load(open(f"{market_data_dir}/test_market_data.json", "r"))
+        with open(f"{market_data_dir}/test_market_data.json", "r") as f:
+            market_data = json.load(f)
 
         sample_data = pd.DataFrame(data=market_data)
 

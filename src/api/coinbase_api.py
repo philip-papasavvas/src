@@ -15,18 +15,20 @@ pd.set_option('display.width', 500)
 pd.options.display.float_format = '{:,.2f}'.format
 
 
-def get_product_stats(product_id: str) -> dict:
+def get_product_stats(product_id: str,
+                      base_url: str = 'https://api.pro.coinbase.com/products') -> dict:
     """
     Fetches the 24-hour statistics for a specific product from Coinbase API
 
     Parameters:
     - product_id (str): The product ID for which the stats are to be fetched
+    - base_url (str, optional): The base API endpoint
 
     Returns:
     - stats (dict): A dictionary containing the statistics for the product
     """
-    client_public = cbp.PublicClient()
-    stats = client_public.get_product_24hr_stats(product_id=product_id)
+    response = get(url=f'{base_url}/{product_id}/stats')
+    stats = json.loads(response.content)
     return stats
 
 

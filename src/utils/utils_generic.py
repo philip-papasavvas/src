@@ -56,15 +56,19 @@ def gzip_file(input_file: str, src_dir: str, dest_dir: str,
     Returns
         None
     """
-    in_data = open(os.path.join(src_dir, input_file), 'rb').read()
+    input_path = os.path.join(src_dir, input_file)
     new_file_name = os.path.join(dest_dir, input_file + '.gz')
-    gzf = gzip.open(new_file_name, 'wb')
-    gzf.write(in_data)
-    gzf.close()
+
+    with open(input_path, 'rb') as f_in:
+        in_data = f_in.read()
+
+    with gzip.open(new_file_name, 'wb') as f_out:
+        f_out.write(in_data)
+
     print(f"New file: {new_file_name} created in directory {dest_dir}")
 
     if to_remove:
-        os.unlink(input_file)
+        os.unlink(input_path)
         print(f"Removed original: {input_file} from directory")
 
 
@@ -143,18 +147,15 @@ def match(x: Union[list, np.ndarray, pd.Series],
     x, y = to_array(x, y)
     mask = x[:, None] == y
 
-    rowMask = mask.any(axis=1)
+    row_mask = mask.any(axis=1)
 
     if strict:
-        # this is 40x faster pd.core.algorithms.match(x,y)
-        assert rowMask.all(), "%s not found, uniquely : %s " % (
-            (~rowMask).sum(), np.array(x)[~rowMask])
-        out = np.argmax(mask, axis=1)  # returns the index of the first match
+        assert row_mask.all(), "%s not found, uniquely : %s " % (
+            (~row_mask).sum(), np.array(x)[~row_mask])
+        out = np.argmax(mask, axis=1)
     else:
-        # this is 26x faster than pd.core.algorithms.match(x,y,np.nan)
-        # return floats where not found elements are returned as np.nan
         out = np.full(np.array(x).shape, np.nan)
-        out[rowMask] = np.argmax(mask[rowMask], axis=1)
+        out[row_mask] = np.argmax(mask[row_mask], axis=1)
 
     return out
 
@@ -187,7 +188,7 @@ def find(folder_path, pattern='.*', full_path=False, expect_one=True):
     for i, path in enumerate(folder_path):
 
         try:
-            listOfFiles = os.listdir(path=path)
+            list_of_files = os.listdir(path=path)
         except (FileNotFoundError, OSError) as err:
             if i < len(folder_path) - 1:
                 print(err.args[-1] + ' for "%s",... trying next' % path)
@@ -201,10 +202,10 @@ def find(folder_path, pattern='.*', full_path=False, expect_one=True):
             # multi condition pattern matching
             ipattern = '|'.join(pattern)
             # strict matching of all required patters
-            files = [f for f in listOfFiles if
+            files = [f for f in list_of_files if
                      np.unique(re.findall(ipattern, f, re.IGNORECASE)).size == n]
         else:
-            files = [f for f in listOfFiles if re.findall(pattern, f, re.IGNORECASE)]
+            files = [f for f in list_of_files if re.findall(pattern, f, re.IGNORECASE)]
 
         try:
             if len(files) == 0:
@@ -311,9 +312,9 @@ def return_dict_values(dct: dict) -> list:
     return list(dct.values())
 
 
-def change_dict_keys(in_dict: dict, text):
+def change_dict_keys(in_dict: dict, text: str) -> dict:
     """Change the keys of an input dictionary with the text specified"""
-    return {text + "_" + str(key): (change_dict_keys(value) if
+    return {text + "_" + str(key): (change_dict_keys(value, text) if
                                     isinstance(value, dict) else
                                     value) for key, value in in_dict.items()}
 

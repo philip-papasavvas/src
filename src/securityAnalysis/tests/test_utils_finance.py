@@ -6,7 +6,8 @@ import pandas as pd
 
 from securityAnalysis.utils_finance import (
     calculate_relative_return_from_array, calculate_security_returns,
-    calculate_annual_return
+    calculate_annual_return, calculate_annual_volatility,
+    return_sharpe_ratio, return_sortino_ratio, return_information_ratio
 )
 
 np.random.seed(1)  # set the random seed so the unit tests use synthetic data
@@ -96,6 +97,49 @@ class TestFinanceUtils(unittest.TestCase):
             calculate_annual_return(data=self.data),
             pd.Series({'stock_a': -0.34537152900184453, 'stock_b': 1.8952787319995616})
         )
+
+    def test_calculate_annual_volatility(self):
+        result = calculate_annual_volatility(data=self.data)
+        self.assertEqual(len(result), 2)
+        self.assertTrue(all(result > 0))
+
+    def test_return_sharpe_ratio(self):
+        result = return_sharpe_ratio(security_prices=self.data,
+                                     risk_free_rate_float=0.0)
+        self.assertEqual(len(result), 2)
+
+    def test_return_sharpe_ratio_with_rfr(self):
+        result_zero = return_sharpe_ratio(security_prices=self.data,
+                                          risk_free_rate_float=0.0)
+        result_nonzero = return_sharpe_ratio(security_prices=self.data,
+                                             risk_free_rate_float=0.05)
+        # sharpe should be lower with a positive risk-free rate
+        self.assertTrue(all(result_nonzero <= result_zero))
+
+    def test_return_sortino_ratio(self):
+        result = return_sortino_ratio(security_prices=self.data,
+                                      target_return=0.0,
+                                      risk_free=0.0)
+        self.assertEqual(len(result), 2)
+
+    def test_return_information_ratio(self):
+        result = return_information_ratio(data=self.data)
+        self.assertEqual(len(result), 2)
+
+    def test_information_ratio_raises_on_nan(self):
+        data_with_nan = self.data.copy()
+        data_with_nan.iloc[0, 0] = np.nan
+        with self.assertRaises(ValueError):
+            return_information_ratio(data=data_with_nan)
+
+    def test_calculate_security_returns_raises_no_type(self):
+        with self.assertRaises(ValueError):
+            calculate_security_returns(data=self.data)
+
+    def test_calculate_security_returns_raises_single_col(self):
+        with self.assertRaises(ValueError):
+            calculate_security_returns(data=self.data[['stock_a']],
+                                       is_relative_return=True)
 
 
 if __name__ == '__main__':
