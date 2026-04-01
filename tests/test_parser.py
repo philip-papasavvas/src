@@ -8,7 +8,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from dataload.parser import get_columns, rename_columns, name_columns, sort_columns
+from aialpha.dataload.parser import get_columns, rename_columns, name_columns, sort_columns
 
 np.random.seed(1)
 

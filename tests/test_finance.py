@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from securityAnalysis.utils_finance import (
+from aialpha.security_analysis.finance import (
     calculate_relative_return_from_array, calculate_security_returns,
     calculate_annual_return, calculate_annual_volatility,
     return_sharpe_ratio, return_sortino_ratio, return_information_ratio

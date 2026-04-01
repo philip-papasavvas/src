@@ -1,27 +1,33 @@
 # .gitignore file
 
-# Ignore development files and small projects under /src directory
-/src/small_projects
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
 
-# Ignore data files related to security analysis under /src/securityAnalysis directory
-/src/securityAnalysis/data
+# Virtual environments
+venv/
+.venv/
+env/
 
-# Ignore sensitive configuration files such as database credentials
-src/dataload/config/mongo_private.json
-
-# Ignore IDE-specific files and directories, e.g., JetBrains IntelliJ IDEA
+# IDE
 .idea/
-/src/.idea/
+.vscode/
+*.swp
+*.swo
 
-# Ignore pytest cache directory generated during test runs
-/.pytest_cache
+# Sensitive configuration
+aialpha/dataload/config/mongo_private.json
 
-# Ignore Python cache files and directories generated during runtime
-src/__pycache__
+# Pytest
+.pytest_cache/
 
-# Ignore jupyter notebook checkpoints
-*.ipynb
-*.xml
-*.pyc
-.idea/workspace.xml
-*.xml
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+Thumbs.db

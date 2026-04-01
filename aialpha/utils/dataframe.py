@@ -79,7 +79,7 @@ def reconcile_dataframes_numeric(df_one: pd.DataFrame,
     assert all(df_one.index == df_two.index), 'indices do not match'
     assert df_one.shape == df_two.shape, 'shapes of the dataframes do not match'
 
-    assert all(np.in1d(df_one.columns, df_two.columns)), 'column values do not match'
+    assert all(np.isin(df_one.columns, df_two.columns)), 'column values do not match'
 
     compare_mat = df_two.loc[:, df_one.columns]
 

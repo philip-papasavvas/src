@@ -5,8 +5,8 @@ Utils specific for financial security data
 import numpy as np
 import pandas as pd
 
-from utils.decorators import deprecated
-from utils.utils_date import excel_date_to_np
+from aialpha.utils.decorators import deprecated
+from aialpha.utils.date import excel_date_to_np
 
 
 def calculate_relative_return_from_array(a: np.array) -> np.array:
@@ -95,8 +95,8 @@ def calculate_annual_return(data: pd.DataFrame) -> pd.Series:
         pd.Series: Annualised return for input_df (in decimal form), labels are input columns
     """
     daily_rtn = calculate_security_returns(data=data, is_relative_return=True)
-    ann_rtn = np.mean(daily_rtn) * 252  # num business days in a year
-    return pd.Series(ann_rtn)
+    ann_rtn = daily_rtn.mean() * 252  # num business days in a year
+    return ann_rtn
 
 
 def calculate_annual_volatility(data: pd.DataFrame) -> pd.Series:
@@ -111,7 +111,7 @@ def calculate_annual_volatility(data: pd.DataFrame) -> pd.Series:
         pd.Series: Annualised volatility for input_df, labels are input columns
     """
     daily_rtn = calculate_security_returns(data=data, is_relative_return=True)
-    ann_vol = np.std(daily_rtn) * np.sqrt(252)  # num business days in a year
+    ann_vol = daily_rtn.std() * np.sqrt(252)  # num business days in a year
     return ann_vol
 
 
@@ -140,9 +140,9 @@ def return_information_ratio(data: pd.DataFrame) -> pd.DataFrame:
         raise ValueError("Dataframe cannot contain NaN values.")
 
     daily_rtn = data.pct_change(1).iloc[1:]
-    annual_rtn = np.mean(daily_rtn) * 252
-    ann_vol = np.std(daily_rtn) * np.sqrt(252)
-    info_ratio = np.divide(annual_rtn, ann_vol)
+    annual_rtn = daily_rtn.mean() * 252
+    ann_vol = daily_rtn.std() * np.sqrt(252)
+    info_ratio = annual_rtn / ann_vol
 
     return info_ratio
 

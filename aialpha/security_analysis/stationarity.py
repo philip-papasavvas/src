@@ -15,7 +15,7 @@ import scipy.stats as stats
 from scipy.stats import kurtosis, skew
 from statsmodels.tsa.stattools import adfuller
 
-from securityAnalysis.utils_finance import calculate_security_returns
+from aialpha.security_analysis.finance import calculate_security_returns
 
 pd.set_option('display.max_columns', 10)
 pd.set_option('display.width', 500)

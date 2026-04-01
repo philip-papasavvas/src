@@ -5,10 +5,10 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from utils.utils_dataframe import (replace_underscores_df, drop_null_columns_df,
-                                   compare_dataframe_col, reconcile_dataframes_numeric,
-                                   return_reconciliation_summary_table,
-                                   get_selected_column_names, concat_columns)
+from aialpha.utils.dataframe import (replace_underscores_df, drop_null_columns_df,
+                                     compare_dataframe_col, reconcile_dataframes_numeric,
+                                     return_reconciliation_summary_table,
+                                     get_selected_column_names, concat_columns)
 
 np.random.seed(10)
 

@@ -10,31 +10,28 @@ A Python framework for analysing time-series financial security data, with modul
 ## Project Structure
 
 ```
-src/
-├── api/                        # External API integrations
-│   └── coinbase_api.py         # Coinbase cryptocurrency data & charting
-│
-├── dataload/                   # Database and data loading
-│   ├── database.py             # MongoDB Atlas / Arctic connection & CRUD operations
-│   ├── parser.py               # DataFrame parsing utilities
-│   └── config/                 # Configuration templates
-│
-├── securityAnalysis/           # Financial security analysis
-│   ├── utils_finance.py        # Returns, Sharpe/Sortino/Information ratios, volatility
-│   └── stationarity.py         # ADF stationarity tests, descriptive statistics
-│
-├── utils/                      # General-purpose utilities
-│   ├── decorators.py           # @timer, @deprecated decorators
-│   ├── get_paths.py            # Path resolution helpers
-│   ├── utils_dataframe.py      # DataFrame comparison & reconciliation
-│   ├── utils_date.py           # Date format conversions
-│   ├── utils_generic.py        # Array ops, dict helpers, file search, bucketing
-│   └── utils_lists.py          # List flattening, chunking, deduplication
-│
-├── tests/                      # Unit tests for utils, parser, and integration
-├── jupyter-notebooks/          # Educational notebooks (AR, Efficient Frontier, etc.)
-├── simpy/                      # Discrete event simulation examples
-└── miscellaneous/              # MATLAB/Octave examples
+├── pyproject.toml              # Package configuration and dependencies
+├── requirements.txt
+├── aialpha/                    # Main package
+│   ├── api/
+│   │   └── coinbase.py         # Coinbase cryptocurrency data & charting
+│   ├── dataload/
+│   │   ├── database.py         # MongoDB Atlas / Arctic CRUD operations
+│   │   ├── parser.py           # DataFrame parsing utilities
+│   │   └── config/             # Configuration templates
+│   ├── security_analysis/
+│   │   ├── finance.py          # Returns, Sharpe/Sortino/Information ratios
+│   │   └── stationarity.py     # ADF stationarity tests, descriptive stats
+│   └── utils/
+│       ├── decorators.py       # @timer, @deprecated decorators
+│       ├── paths.py            # Path resolution helpers
+│       ├── dataframe.py        # DataFrame comparison & reconciliation
+│       ├── date.py             # Date format conversions
+│       ├── generic.py          # Array ops, dict helpers, file search
+│       └── lists.py            # List flattening, chunking, deduplication
+├── tests/                      # Unit tests
+├── notebooks/                  # Educational Jupyter notebooks
+└── examples/                   # SimPy simulations, MATLAB/Octave examples
 ```
 
 ## Key Features
@@ -80,14 +77,14 @@ src/
    venv\Scripts\activate     # Windows
    ```
 
-3. Install dependencies:
+3. Install the package in development mode:
    ```bash
-   pip install -r requirements.txt
+   pip install -e ".[dev]"
    ```
 
 ### Configuration
 
-For MongoDB features, create a config file at `src/dataload/config/mongo_private.json`:
+For MongoDB features, create a config file at `aialpha/dataload/config/mongo_private.json`:
 
 ```json
 {
@@ -97,33 +94,42 @@ For MongoDB features, create a config file at `src/dataload/config/mongo_private
 }
 ```
 
+## Usage
+
+```python
+from aialpha.security_analysis.finance import (
+    calculate_security_returns,
+    calculate_annual_return,
+    return_sharpe_ratio,
+)
+from aialpha.utils.generic import match, flatten_dict
+```
+
 ## Running Tests
 
-From the `src/` directory:
-
 ```bash
-# Run all utility tests
-python -m pytest src/tests/ -v
+# Run all tests
+pytest
 
-# Run finance tests
-python -m pytest src/securityAnalysis/tests/ -v
+# Run with verbose output
+pytest -v
 
 # Run a specific test file
-python -m unittest src.tests.test_utils_generic
+pytest tests/test_finance.py -v
 ```
 
 ### Test Coverage
 
 | Module | Test File | Functions Covered |
 |--------|-----------|-------------------|
-| `utils_date` | `test_utils_date.py` | `np_dt_to_str`, `excel_date_to_np`, `datetime_to_str`, `time_delta_to_days` |
-| `utils_generic` | `test_utils_generic.py` | `average`, `difference`, `flatten_dict`, `dict ops`, `chunk_list`, `to_array`, `match`, `linear_bucketing`, `change_dict_keys` |
-| `utils_lists` | `test_utils_lists.py` | `flatten`, `flatten_list`, `has_duplicates`, `all_unique`, `chunk`, `count_occurrences`, `list_as_comma_sep` |
-| `utils_dataframe` | `test_utils_dataframe.py` | `replace_underscores_df`, `drop_null_columns_df`, `compare_dataframe_col`, `reconcile_dataframes_numeric`, `return_reconciliation_summary_table`, `get_selected_column_names`, `concat_columns` |
-| `utils_finance` | `test_utils_finance.py` | `calculate_relative_return_from_array`, `calculate_security_returns` (all return types), `calculate_annual_return`, `calculate_annual_volatility`, `return_sharpe_ratio`, `return_sortino_ratio`, `return_information_ratio` |
-| `parser` | `test_parser.py` | `get_columns`, `rename_columns`, `name_columns`, `sort_columns` |
+| `utils.date` | `test_utils_date.py` | `np_dt_to_str`, `excel_date_to_np`, `datetime_to_str`, `time_delta_to_days` |
+| `utils.generic` | `test_utils_generic.py` | `average`, `difference`, `flatten_dict`, `dict ops`, `chunk_list`, `to_array`, `match`, `linear_bucketing`, `change_dict_keys` |
+| `utils.lists` | `test_utils_lists.py` | `flatten`, `flatten_list`, `has_duplicates`, `all_unique`, `chunk`, `count_occurrences`, `list_as_comma_sep` |
+| `utils.dataframe` | `test_utils_dataframe.py` | `replace_underscores_df`, `drop_null_columns_df`, `compare_dataframe_col`, `reconcile_dataframes_numeric`, `return_reconciliation_summary_table`, `get_selected_column_names`, `concat_columns` |
+| `security_analysis.finance` | `test_finance.py` | `calculate_relative_return_from_array`, `calculate_security_returns` (all return types), `calculate_annual_return`, `calculate_annual_volatility`, `return_sharpe_ratio`, `return_sortino_ratio`, `return_information_ratio` |
+| `dataload.parser` | `test_parser.py` | `get_columns`, `rename_columns`, `name_columns`, `sort_columns` |
 
-## Jupyter Notebooks
+## Notebooks
 
 Educational notebooks covering key financial and data science concepts:
 
