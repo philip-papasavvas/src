@@ -8,7 +8,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from dataload.parser import get_columns, rename_columns, name_columns
+from dataload.parser import get_columns, rename_columns, name_columns, sort_columns
 
 np.random.seed(1)
 
@@ -50,6 +50,12 @@ class TestParser(unittest.TestCase):
             ).columns.to_list(),
             ['label']
         )
+
+    def test_sort_columns(self):
+        df = pd.DataFrame({'a': [3, 1, 2], 'b': [30, 10, 20]})
+        result = sort_columns(dataframe=df, columns=['a'])
+        self.assertListEqual(result['a'].tolist(), [1, 2, 3])
+        self.assertListEqual(result['b'].tolist(), [10, 20, 30])
 
 
 if __name__ == '__main__':

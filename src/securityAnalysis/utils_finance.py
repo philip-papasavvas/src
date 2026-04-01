@@ -42,7 +42,7 @@ def calculate_security_returns(data: pd.DataFrame,
     Calculates different types of returns from a pandas DataFrame of securities data.
 
     Parameters:
-        da ta (pd.DataFrame): A pandas DataFrame containing columns of securities data,
+        data (pd.DataFrame): A pandas DataFrame containing columns of securities data,
         where each column is a float.
         is_relative_return (bool): If True, calculates relative returns as (price_t / price_t-1) - 1.
         Default is False.
@@ -99,9 +99,9 @@ def calculate_annual_return(data: pd.DataFrame) -> pd.Series:
     return pd.Series(ann_rtn)
 
 
-def calculate_annual_volatility(data: pd.DataFrame) -> pd.DataFrame:
+def calculate_annual_volatility(data: pd.DataFrame) -> pd.Series:
     """
-    Calculate annualised return (assuming input data is daily).
+    Calculate annualised volatility (assuming input data is daily).
     For example, see unit test: test_utils_finance
 
     Parameters:

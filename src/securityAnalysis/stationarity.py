@@ -21,7 +21,7 @@ pd.set_option('display.max_columns', 10)
 pd.set_option('display.width', 500)
 
 # Set plot style
-plt.style.use('seaborn')
+plt.style.use('seaborn-v0_8')
 
 
 def test_stationarity_adf(time_series: np.array) -> None:
@@ -164,10 +164,10 @@ if __name__ == '__main__':
 
 
     # Test for stationarity
-    test_stationarity_adf(time_series=price_series_stockrandom)
+    test_stationarity_adf(time_series=price_series_random)
 
     # augmented dickey fuller result
-    is_stationary = get_aug_dickey_fuller_result(time_series=price_series_stockrandom)
+    is_stationary = get_aug_dickey_fuller_result(time_series=price_series_random)
     print(f"Is the time series stationary?: {is_stationary}")
 
     # more descriptive statistics on skewness, kurtosis,

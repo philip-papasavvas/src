@@ -7,7 +7,8 @@ import pandas as pd
 
 from utils.utils_dataframe import (replace_underscores_df, drop_null_columns_df,
                                    compare_dataframe_col, reconcile_dataframes_numeric,
-                                   return_reconciliation_summary_table)
+                                   return_reconciliation_summary_table,
+                                   get_selected_column_names, concat_columns)
 
 np.random.seed(10)
 
@@ -144,6 +145,32 @@ class TestUtilsDataframe(unittest.TestCase):
                  'pc_diff_max': {0: 29.43586431525706, 1: 17.284562899682026}}
             )
         )
+
+
+    def test_get_selected_column_names(self):
+        df = pd.DataFrame({'a': [1], 'b': [2], 'c': [3]})
+        result = get_selected_column_names(df, cols_to_exclude=['b'])
+        self.assertEqual(result, ['a', 'c'])
+
+    def test_get_selected_column_names_string(self):
+        df = pd.DataFrame({'a': [1], 'b': [2], 'c': [3]})
+        result = get_selected_column_names(df, cols_to_exclude='b')
+        self.assertEqual(result, ['a', 'c'])
+
+    def test_concat_columns(self):
+        df = pd.DataFrame({'a': ['hello', 'world'], 'b': ['foo', 'bar']})
+        result = concat_columns('_', df[['a']], df[['b']])
+        pd.testing.assert_series_equal(
+            result,
+            pd.Series(['hello_foo', 'world_bar']),
+            check_names=False
+        )
+
+    def test_concat_columns_with_nan(self):
+        df = pd.DataFrame({'a': ['hello', np.nan], 'b': ['foo', 'bar']})
+        result = concat_columns('_', df[['a']], df[['b']])
+        self.assertEqual(result[0], 'hello_foo')
+        self.assertTrue(pd.isna(result[1]))
 
 
 if __name__ == '__main__':

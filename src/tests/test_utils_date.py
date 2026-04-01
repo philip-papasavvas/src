@@ -6,7 +6,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from utils.utils_date import np_dt_to_str, excel_date_to_np, datetime_to_str
+from utils.utils_date import np_dt_to_str, excel_date_to_np, datetime_to_str, time_delta_to_days
 
 
 class TestDateFuncs(unittest.TestCase):
@@ -32,6 +32,21 @@ class TestDateFuncs(unittest.TestCase):
             datetime_to_str(input_date=datetime.datetime(2020, 1, 1)),
             "20200101"
         )
+
+    def test_time_delta_to_days(self):
+        td = pd.Series(pd.to_timedelta(['1 days', '3 days', '7 days']))
+        np.testing.assert_array_equal(
+            time_delta_to_days(td),
+            np.array([1, 3, 7])
+        )
+
+    def test_excel_date_to_np_single(self):
+        result = excel_date_to_np(xl_date=1)
+        self.assertEqual(list(result), [np.datetime64('1899-12-31')])
+
+    def test_np_dt_to_str_with_hyphens(self):
+        result = np_dt_to_str(np.datetime64("2023-12-25"))
+        self.assertEqual(result, "20231225")
 
 
 if __name__ == '__main__':

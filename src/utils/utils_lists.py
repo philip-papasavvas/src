@@ -30,14 +30,14 @@ def chunk(lst: list, chunk_size: int) -> list:
 
 
 def count_occurrences(lst: list, value: Union[bool, str, int, float]) -> int:
-    """Function to count occurrences of value in a list"""
-    return len([x for x in lst if x == value and type(x) == type(value)])
+    """Function to count occurrences of value in a list, matching both value and type"""
+    return len([x for x in lst if x == value and isinstance(x, type(value))])
 
 
 def flatten(lst: list) -> list:
     """Flatten a list using recursion"""
     res = []
-    res.extend(flatten_list(list(map(lambda x: flatten(x) if type(x) == list else x, lst))))
+    res.extend(flatten_list(list(map(lambda x: flatten(x) if isinstance(x, list) else x, lst))))
     return res
 
 

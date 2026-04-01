@@ -6,7 +6,8 @@ import pandas as pd
 
 from utils.utils_generic import (average, difference, flatten_dict, return_dict_keys,
                                  return_dict_values, change_dict_keys, dict_from_df_cols,
-                                 convert_config_dates, chunk_list)
+                                 convert_config_dates, chunk_list, to_array, match,
+                                 linear_bucketing)
 
 
 class TestUtilsGeneric(unittest.TestCase):
@@ -78,6 +79,48 @@ class TestUtilsGeneric(unittest.TestCase):
             next(a),
             np.array([0, 1])
         )
+
+    def test_to_array__list(self):
+        result, = to_array([1, 2, 3])
+        np.testing.assert_array_equal(result, np.array([1, 2, 3]))
+
+    def test_to_array__int(self):
+        result, = to_array(5)
+        np.testing.assert_array_equal(result, np.array([5]))
+
+    def test_to_array__none(self):
+        result, = to_array(None)
+        np.testing.assert_array_equal(result, np.array([]))
+
+    def test_to_array__datetime64(self):
+        result, = to_array(np.datetime64("2020-01-01"))
+        self.assertEqual(result[0], np.datetime64("2020-01-01"))
+
+    def test_to_array__series(self):
+        s = pd.Series([10, 20, 30])
+        result, = to_array(s)
+        np.testing.assert_array_equal(result, np.array([10, 20, 30]))
+
+    def test_match__strict(self):
+        result = match(x=[46, 15, 5], y=[5, 4, 46, 6, 15, 1, 70])
+        np.testing.assert_array_equal(result, np.array([2, 4, 0]))
+
+    def test_match__non_strict(self):
+        result = match(x=[46, 99, 5], y=[5, 4, 46, 6, 15, 1, 70], strict=False)
+        self.assertEqual(result[0], 2)
+        self.assertTrue(np.isnan(result[1]))
+        self.assertEqual(result[2], 0)
+
+    def test_linear_bucketing(self):
+        x = np.array([1.0, 2.0, 3.0])
+        y = np.array([1.0, 2.0, 3.0])
+        result = linear_bucketing(x, y)
+        expected = np.eye(3)
+        np.testing.assert_array_almost_equal(result, expected)
+
+    def test_change_dict_keys_nested(self):
+        result = change_dict_keys(in_dict={'a': {'inner': 1}, 'b': 2}, text='prefix')
+        self.assertEqual(result, {'prefix_a': {'prefix_inner': 1}, 'prefix_b': 2})
 
 
 if __name__ == '__main__':

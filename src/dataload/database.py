@@ -233,7 +233,8 @@ if __name__ == '__main__':
     # load config
     # mongo_path = 'PATH-TO-PRIVATE-MONGO-DB-HERE'
     mongo_path = '/Users/philip_p/python/src/src/dataload/config/mongo_private.json'
-    mongo_cfg = json.load(open(mongo_path, 'r'))
+    with open(mongo_path, 'r') as f:
+        mongo_cfg = json.load(f)
 
     # config structure
     mongo_config_example = {
