@@ -3,6 +3,7 @@
 [![Made with Python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg?style=flat-square)](https://github.com/philip-papasavvas/src/blob/master/LICENCE)
+[![Python 3.14](https://img.shields.io/badge/python-3.14%2B-blue.svg?style=flat-square)](https://www.python.org/downloads/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 A Python framework for analysing time-series financial security data, with modules for cloud database connectivity, financial data retrieval, and quantitative analysis.
@@ -58,8 +59,8 @@ A Python framework for analysing time-series financial security data, with modul
 
 ### Prerequisites
 
-- Python 3.8+
-- MongoDB Atlas account (for database features)
+- Python 3.14+
+- MongoDB Atlas account (optional, for database features)
 
 ### Installation
 
@@ -80,6 +81,13 @@ A Python framework for analysing time-series financial security data, with modul
 3. Install the package in development mode:
    ```bash
    pip install -e ".[dev]"
+   ```
+
+   The MongoDB time-series store relies on the optional [`arctic`](https://github.com/man-group/arctic)
+   package. Install it alongside the rest with the `arctic` extra if you need
+   those features:
+   ```bash
+   pip install -e ".[dev,arctic]"
    ```
 
 ### Configuration
@@ -118,6 +126,10 @@ pytest -v
 pytest tests/test_finance.py -v
 ```
 
+> **Note**: the MongoDB tests in `test_database.py` are skipped automatically
+> unless live Atlas credentials (`aialpha/dataload/config/mongo_private.json`)
+> and the optional `arctic` dependency are both present.
+
 ### Test Coverage
 
 | Module | Test File | Functions Covered |
@@ -149,7 +161,8 @@ Educational notebooks covering key financial and data science concepts:
 | `scipy` | Scientific computing and statistics |
 | `statsmodels` | Statistical modelling (ADF test) |
 | `matplotlib` / `mplfinance` | Data visualisation and financial charting |
-| `pymongo` / `arctic` | MongoDB and time-series data storage |
+| `pymongo` | MongoDB connectivity |
+| `arctic` | Time-series data storage (optional, `[arctic]` extra) |
 | `yfinance` | Yahoo Finance API |
 | `requests` | HTTP requests for API calls |
 

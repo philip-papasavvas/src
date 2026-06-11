@@ -6,12 +6,31 @@ import json
 from typing import Union
 
 import pandas as pd
-from arctic import Arctic, VERSION_STORE, CHUNK_STORE, TICK_STORE
-from arctic.chunkstore.chunkstore import ChunkStore
-from arctic.store.version_store import VersionStore
 from pymongo import MongoClient
 from pymongo.collection import Collection
 from pymongo.errors import ServerSelectionTimeoutError
+
+try:
+    from arctic import Arctic, VERSION_STORE, CHUNK_STORE, TICK_STORE
+    from arctic.chunkstore.chunkstore import ChunkStore
+    from arctic.store.version_store import VersionStore
+
+    ARCTIC_AVAILABLE = True
+except ImportError:
+    # ``arctic`` is an optional dependency used only for the time-series store.
+    # It is not required to import this module or use the non-Arctic helpers.
+    Arctic = VERSION_STORE = CHUNK_STORE = TICK_STORE = None
+    ChunkStore = VersionStore = None
+    ARCTIC_AVAILABLE = False
+
+
+def _require_arctic() -> None:
+    """Raise a helpful error if an Arctic-only feature is used without ``arctic``."""
+    if not ARCTIC_AVAILABLE:
+        raise ImportError(
+            "The 'arctic' package is required for Arctic time-series features. "
+            "Install it with `pip install aialpha[arctic]`."
+        )
 
 
 # connect to database
@@ -48,6 +67,7 @@ def db_connect(mongo_config: dict,
         raise ServerSelectionTimeoutError('MongoDB is not hosted.')
 
     if is_arctic:
+        _require_arctic()
         db_connection = Arctic(client)
         library_list = db_connection.list_libraries()
         if lib_name is not None:
@@ -169,6 +189,7 @@ def db_arctic_initialise(mongo_config: dict,
     Returns:
         None
     """
+    _require_arctic()
     arctic_stores = [VERSION_STORE, CHUNK_STORE, TICK_STORE]
 
     if library_type not in arctic_stores:
