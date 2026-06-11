@@ -13,15 +13,23 @@ from pymongo import MongoClient
 
 # local import
 from aialpha.dataload.database import (db_connect, db_keys_and_symbols)
+from aialpha.dataload import database
+
+MONGO_CFG_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    '..', 'aialpha', 'dataload', 'config', 'mongo_private.json'
+)
+
+# These tests require a live MongoDB Atlas connection (private credentials) and
+# the optional ``arctic`` dependency, so they are skipped unless both are present.
+HAS_CREDENTIALS = os.path.exists(MONGO_CFG_PATH)
 
 
+@unittest.skipUnless(HAS_CREDENTIALS, "mongo_private.json credentials not available")
+@unittest.skipUnless(database.ARCTIC_AVAILABLE, "optional 'arctic' dependency not installed")
 class TestMongoDB(unittest.TestCase):
     def setUp(self) -> None:
-        mongo_cfg_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            '..', 'config', 'mongo_private.json'
-        )
-        with open(mongo_cfg_path, 'r') as f:
+        with open(MONGO_CFG_PATH, 'r') as f:
             self.mongo_config = json.load(f)
         username = self.mongo_config['mongo_user']
         pw = self.mongo_config['mongo_pwd']

@@ -1,11 +1,12 @@
-arctic
-coinbasepro==0.4.1
-matplotlib==3.8.2
-mplfinance==0.12.10b0
-numpy==1.26.2
-pandas
-pymongo==4.6.0
-Requests==2.31.0
-scipy==1.11.4
-statsmodels==0.14.0
-yfinance==0.2.32
+# Core runtime dependencies (Python 3.14+)
+# The optional 'arctic' time-series store is installed separately via the
+# [arctic] extra: `pip install aialpha[arctic]`.
+matplotlib>=3.9
+mplfinance>=0.12.10b0
+numpy>=2.1
+pandas>=2.2
+pymongo>=4.9
+requests>=2.32
+scipy>=1.14
+statsmodels>=0.14.2
+yfinance>=0.2.40
